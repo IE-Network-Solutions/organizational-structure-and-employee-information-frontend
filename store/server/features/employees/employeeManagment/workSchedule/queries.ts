@@ -47,6 +47,18 @@ const getWorkSchedule = async (id: string) => {
   }
 };
 
+const getWorkScheduleShifts = async (id: string) => {
+  const token = await getCurrentToken();
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/work-schedules/${id}/shifts`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 /**
  * Custom hook to fetch a list of posts using useQuery from react-query.
  *
@@ -76,5 +88,16 @@ export const useGetWorkSchedule = (workScheduleId: string) =>
     () => getWorkSchedule(workScheduleId),
     {
       keepPreviousData: true,
+      enabled: !!workScheduleId,
+    },
+  );
+
+export const useGetWorkScheduleShifts = (workScheduleId: string) =>
+  useQuery<any>(
+    ['workScheduleShifts', workScheduleId],
+    () => getWorkScheduleShifts(workScheduleId),
+    {
+      keepPreviousData: true,
+      enabled: !!workScheduleId,
     },
   );

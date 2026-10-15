@@ -14,6 +14,8 @@ const Page = () => {
     { page: 1, limit: 100 },
     { filter },
   );
+  // Only skeleton when we have no data yet — bare isFetching blanks the list on refetch.
+  const showLogsSkeleton = isFetching && !data;
   const { isMobileFilterVisible, setIsMobileFilterVisible } =
     useAllAllowanceStore();
 
@@ -80,27 +82,26 @@ const Page = () => {
         </div>
       </div>
 
-      {data && (
+      {showLogsSkeleton ? (
         <Skeleton
-          loading={isFetching}
           active
           data-cy="time-attendance-settings-imported-logs-spin"
+        />
+      ) : data ? (
+        <div
+          className="rounded-lg border border-gray-200 py-5  empty:hidden"
+          id="time-attendance-settings-imported-logs-cards-container"
+          data-cy="time-attendance-settings-imported-logs-cards-container"
         >
-          <div
-            className="rounded-lg border border-gray-200 py-5  empty:hidden"
-            id="time-attendance-settings-imported-logs-cards-container"
-            data-cy="time-attendance-settings-imported-logs-cards-container"
-          >
-            {data.items?.map((item) => (
-              <LogCard
-                key={item.id}
-                item={item}
-                data-cy={`time-attendance-settings-imported-logs-card-${item.id}`}
-              />
-            ))}
-          </div>
-        </Skeleton>
-      )}
+          {data.items?.map((item) => (
+            <LogCard
+              key={item.id}
+              item={item}
+              data-cy={`time-attendance-settings-imported-logs-card-${item.id}`}
+            />
+          ))}
+        </div>
+      ) : null}
 
       {/* Mobile Filter Drawer */}
       <Modal

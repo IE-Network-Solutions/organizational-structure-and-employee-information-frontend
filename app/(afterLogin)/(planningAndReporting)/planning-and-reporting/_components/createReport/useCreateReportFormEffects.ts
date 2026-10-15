@@ -3,6 +3,7 @@
 import type { FormInstance } from 'antd';
 import { useEffect } from 'react';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { resolveDoneActualValue } from '@/utils/reportActualValue';
 
 /** Plan tasks use `pre_achieved`; some payloads used `pre-achieved`. */
 function isPreAchievedStatus(status: unknown): boolean {
@@ -77,9 +78,19 @@ export function useCreateReportFormEffects(
 
     const initialValues: Record<string, any> = {};
 
-    const applyTaskValues = (task: any) => {
+    // Seed only fields that hold no value yet. Anything already in the form is
+    // either typed by the user or loaded from a saved report (edit) and must
+    // survive status changes / refetches — e.g. 110 reported against target 100.
+    const hasValue = (taskId: string) => {
+      const current = form.getFieldValue([taskId, 'actualValue']);
+      return current !== undefined && current !== null && current !== '';
+    };
+
+    const applyTaskValues = (task: any, notFallbackActual?: number) => {
       if (!selectedStatuses[task.taskId]) return;
 
+      // Parent rows derived from child plan reports are always overwritten
+      // from the rollup (they are read-only in the UI).
       if (isLockedFromChildren(task)) {
         const status = selectedStatuses[task.taskId];
         const actual = Number(
@@ -102,12 +113,24 @@ export function useCreateReportFormEffects(
       if (selectedStatuses[task.taskId] === 'Done') {
         initialValues[task.taskId] = {
           status: selectedStatuses[task.taskId],
-          actualValue: Number(task?.targetValue ?? 0),
+          ...(hasValue(task.taskId)
+            ? {}
+            : {
+                actualValue: resolveDoneActualValue(
+                  undefined,
+                  task?.targetValue,
+                ),
+              }),
         };
       } else if (selectedStatuses[task.taskId] === 'Not') {
         initialValues[task.taskId] = {
           status: selectedStatuses[task.taskId],
-          actualValue: Number(task?.actualValue ?? 0),
+          ...(hasValue(task.taskId)
+            ? {}
+            : {
+                actualValue:
+                  notFallbackActual ?? Number(task?.actualValue ?? 0),
+              }),
         };
       }
     };
@@ -115,9 +138,9 @@ export function useCreateReportFormEffects(
     formattedData.forEach((objective: any) => {
       objective?.keyResults?.forEach((keyresult: any) => {
         keyresult?.milestones?.forEach((milestone: any) => {
-          milestone?.tasks?.forEach(applyTaskValues);
+          milestone?.tasks?.forEach((task: any) => applyTaskValues(task));
         });
-        keyresult?.tasks?.forEach(applyTaskValues);
+        keyresult?.tasks?.forEach((task: any) => applyTaskValues(task, 0));
       });
     });
 

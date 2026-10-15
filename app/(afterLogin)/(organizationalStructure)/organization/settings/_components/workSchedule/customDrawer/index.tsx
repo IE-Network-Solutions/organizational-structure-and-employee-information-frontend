@@ -12,6 +12,9 @@ import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import ShiftsSection, {
+  mapShiftsToApiPayload,
+} from '@/components/workSchedule/shiftsSection';
 
 const CustomWorkingScheduleDrawer = () => {
   const {
@@ -31,6 +34,7 @@ const CustomWorkingScheduleDrawer = () => {
     clearValidationError,
     pageSize,
     currentPage,
+    shifts,
   } = useScheduleStore();
   const {
     mutate: updateSchedule,
@@ -75,6 +79,24 @@ const CustomWorkingScheduleDrawer = () => {
       return;
     }
 
+    if (!shifts?.length) {
+      const shiftError = 'Please add at least one shift.';
+      setValidationError(shiftError);
+      NotificationMessage.warning({ message: shiftError });
+      return;
+    }
+
+    const invalidShift = shifts.find(
+      (s) => !s.name?.trim() || !s.startTime || !s.endTime,
+    );
+    if (invalidShift) {
+      const shiftError =
+        'Each shift requires a name, start time, and end time.';
+      setValidationError(shiftError);
+      NotificationMessage.warning({ message: shiftError });
+      return;
+    }
+
     clearValidationError();
     createWorkSchedule();
     const transformedDetails: DayOfWeek[] = useScheduleStore
@@ -87,6 +109,9 @@ const CustomWorkingScheduleDrawer = () => {
         workDay: item.workDay,
         day: item.day,
       }));
+    const transformedShifts = mapShiftsToApiPayload(
+      useScheduleStore.getState().shifts,
+    );
 
     if (isEditMode) {
       form
@@ -97,6 +122,7 @@ const CustomWorkingScheduleDrawer = () => {
             schedule: {
               name: scheduleName,
               detail: transformedDetails,
+              shifts: transformedShifts,
             },
           });
         })
@@ -110,6 +136,7 @@ const CustomWorkingScheduleDrawer = () => {
           createSchedule({
             name: scheduleName,
             detail: transformedDetails,
+            shifts: transformedShifts,
           });
         })
         .catch((errorInfo: any) => {
@@ -473,6 +500,7 @@ const CustomWorkingScheduleDrawer = () => {
           data-cy="org-settings-work-schedule-table"
           id="org-settings-work-schedule-table"
         />
+        <ShiftsSection dataCyPrefix="org-settings-work-schedule-shifts" />
       </Form>
     </CustomDrawerLayout>
   );

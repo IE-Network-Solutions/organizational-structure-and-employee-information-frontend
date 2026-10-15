@@ -29,10 +29,11 @@ const CheckControl = () => {
     (s) => s.isSubmitInProgress,
   );
 
-  const { data: currentAttendanceData, isFetching } =
+  const { data: currentAttendanceData, isLoading } =
     useGetCurrentAttendance(userId);
 
-  const loading = isSubmitInProgress || isFetching;
+  // Only spin for submit-in-progress or initial attendance load, not background refetches.
+  const loading = isSubmitInProgress || (isLoading && !currentAttendanceData);
 
   useEffect(() => {
     setCurrentAttendance(

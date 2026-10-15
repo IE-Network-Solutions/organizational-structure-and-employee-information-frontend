@@ -179,6 +179,10 @@ export const useGetBranchTransferApproveById = (
     () => getBranchTransferApproveById(userId, pageSize, currentPage),
     {
       enabled: !!userId,
+      keepPreviousData: true,
+      staleTime: 3 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   );
 };

@@ -44,9 +44,13 @@ export interface KeyResult {
   weight: number;
   deadline: any;
   progress?: number;
+  /** Optional free-text note for where KR data is tracked. */
+  dataSource?: string | null;
   initialValue: number;
+  thresholdValue?: number | string | null;
   currentValue?: number;
   targetValue: number | string;
+  stretchValue?: number | string | null;
   milestones: Milestone[];
   isAISuggestion?: boolean;
 }
@@ -55,6 +59,10 @@ export interface Objective {
   id?: string;
   allignedKeyResultId?: string | null;
   metricTypeId?: string | null;
+  objectiveTypeId?: string | null;
+  perspectiveId?: string | null;
+  /** Type-weighted: share of the objective type weight (percent of total score). */
+  weight?: number | string | null;
   title: string;
   deadline: string;
   userId: string;

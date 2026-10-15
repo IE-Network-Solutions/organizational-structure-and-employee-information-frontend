@@ -14,11 +14,13 @@ const approvePayrollApproval = async (data: any) => {
   });
 };
 
-const lastApprovingPayroll = async (queryParams = '') => {
+const lastApprovingPayroll = async (payPeriodId?: string) => {
   const requestHeaders = await requestHeader();
-  const qs = queryParams ? `?${queryParams.replace(/^\?/, '')}` : '';
+  const query = payPeriodId
+    ? `?payPeriodId=${encodeURIComponent(payPeriodId)}`
+    : '';
   return await crudRequest({
-    url: `${PAYROLL_URL}/payroll-approval/lastapproving${qs}`,
+    url: `${PAYROLL_URL}/payroll-approval/lastapproving${query}`,
     method: 'PUT',
     headers: requestHeaders,
   });
@@ -31,6 +33,9 @@ export const useApprovePayrollApproval = () => {
       queryClient.invalidateQueries('pendingPayrollApprovals');
       queryClient.invalidateQueries('payroll');
       queryClient.invalidateQueries('payrollApprovalByPayPeriodId');
+      queryClient.invalidateQueries('payrollApprovals');
+      queryClient.invalidateQueries('payrollApprovalStatus');
+      queryClient.invalidateQueries('payrollApprovalLogs');
     },
     onError: (error: any) => {
       NotificationMessage.error({
@@ -44,26 +49,25 @@ export const useApprovePayrollApproval = () => {
 
 export const useLastApprovingPayroll = () => {
   const queryClient = useQueryClient();
-  return useMutation(
-    (queryParams?: string) => lastApprovingPayroll(queryParams || ''),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('pendingPayrollApprovals');
-        queryClient.invalidateQueries('payroll');
-        queryClient.invalidateQueries('payrollApprovalByPayPeriodId');
-        NotificationMessage.success({
-          message: 'Payroll Approved',
-          description: 'Payroll has been successfully approved.',
-        });
-      },
-      onError: (error: any) => {
-        NotificationMessage.error({
-          message: 'Final Approval Failed',
-          description:
-            error?.response?.data?.message ||
-            'Failed to complete final approval',
-        });
-      },
+  return useMutation(lastApprovingPayroll, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('pendingPayrollApprovals');
+      queryClient.invalidateQueries('payroll');
+      queryClient.invalidateQueries('payrollApprovalByPayPeriodId');
+      queryClient.invalidateQueries('payrollApprovals');
+      queryClient.invalidateQueries('payrollApprovalStatus');
+      queryClient.invalidateQueries('payrollApprovalLogs');
+      NotificationMessage.success({
+        message: 'Payroll Approved',
+        description: 'Payroll has been successfully approved.',
+      });
     },
-  );
+    onError: (error: any) => {
+      NotificationMessage.error({
+        message: 'Final Approval Failed',
+        description:
+          error?.response?.data?.message || 'Failed to complete final approval',
+      });
+    },
+  });
 };

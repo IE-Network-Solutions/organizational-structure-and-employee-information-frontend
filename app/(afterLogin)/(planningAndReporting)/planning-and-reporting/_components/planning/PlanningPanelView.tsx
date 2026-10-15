@@ -40,7 +40,9 @@ import {
   mergeUserKeyResultsIntoOwnerGroups,
   type KRPanelOwnerGroup,
   type ParentPlanContext,
+  recalcPanelKrAvgProgress,
 } from './mergeKRPanelGroups';
+import { canApproveSubordinateWork } from '../utils';
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 
@@ -284,14 +286,11 @@ export function buildOwnerKRGroups(
   const groups: OwnerKRGroup[] = [];
   for (const [ownerKey, entry] of ownerMap) {
     if (entry.krs.length === 0) continue;
-    const avg = Math.round(
-      entry.krs.reduce((s, k) => s + k.progress, 0) / entry.krs.length,
-    );
     groups.push({
       ownerKey,
       owner: entry.owner,
       krs: entry.krs,
-      avgProgress: avg,
+      avgProgress: recalcPanelKrAvgProgress(entry.krs, userKeyResultItems),
     });
   }
   return groups as KRPanelOwnerGroup[];
@@ -334,7 +333,8 @@ function KRProgressCard({
   onRefreshMilestoneStatus?: () => void;
 }) {
   const color = progressColor(kr.progress);
-  const pct = Math.min(kr.progress, 100);
+  // Bar width stays ≤100%; badge/label may show stretch overshoot (e.g. 110%).
+  const pct = Math.min(Math.max(0, Number(kr.progress) || 0), 100);
   const ref = useRef<HTMLDivElement>(null);
   const { isMobile, isTablet } = useIsMobile();
   const pickMenuPlacement =
@@ -458,6 +458,7 @@ function KRProgressCard({
     ...(dropdownSlotItems ?? []),
   ];
 
+  // Always open the select menu — including when only one milestone remains.
   const pickButton =
     showPickControl && onPickPlanningTarget ? (
       <Dropdown
@@ -1553,11 +1554,10 @@ export default function PlanningPanelView({
               onApprove={() => onApprove(originalDataItem.id, true)}
               onOpen={() => onApprove(originalDataItem.id, false)}
               onEdit={() => onEdit(originalDataItem.id)}
-              canApprove={
-                userId ===
-                (getEmployeeData(ownerUserId)?.reportingTo?.id ||
-                  getEmployeeData(ownerUserId)?.delegatedTo?.id)
-              }
+              canApprove={canApproveSubordinateWork(
+                userId,
+                getEmployeeData(ownerUserId),
+              )}
               canEdit={
                 userId === ownerUserId &&
                 originalDataItem?.plan?.isReportValidated == false &&
@@ -1597,11 +1597,10 @@ export default function PlanningPanelView({
             onApprove={() => onApprove(originalDataItem.id, true)}
             onOpen={() => onApprove(originalDataItem.id, false)}
             onEdit={() => onEdit(originalDataItem.id)}
-            canApprove={
-              userId ===
-              (getEmployeeData(originalDataItem?.userId)?.delegatedTo?.id ||
-                getEmployeeData(originalDataItem?.userId)?.reportingTo?.id)
-            }
+            canApprove={canApproveSubordinateWork(
+              userId,
+              getEmployeeData(originalDataItem?.userId),
+            )}
             canEdit={
               userId === originalDataItem?.userId &&
               originalDataItem?.isValidated == false &&

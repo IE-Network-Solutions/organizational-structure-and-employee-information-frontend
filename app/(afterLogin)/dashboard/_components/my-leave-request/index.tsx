@@ -64,6 +64,7 @@ const MyLeaveRequestDashboard: React.FC = () => {
   const { data: leaveRequests, isLoading } = useGetUserLeaveRequests(userId);
 
   const items = leaveRequests?.myLeaveRequests ?? [];
+  const showSkeleton = isLoading && !leaveRequests;
 
   return (
     <div
@@ -74,7 +75,7 @@ const MyLeaveRequestDashboard: React.FC = () => {
         className="flex flex-col gap-2  overflow-y-auto scrollbar-none"
         data-cy="dashboard-my-leave-request-list"
       >
-        {isLoading ? (
+        {showSkeleton ? (
           <div
             className="flex flex-col gap-2 px-3"
             data-cy="dashboard-my-leave-request-loading"
@@ -87,7 +88,7 @@ const MyLeaveRequestDashboard: React.FC = () => {
           </div>
         ) : null}
 
-        {!isLoading && items.length === 0 ? (
+        {!showSkeleton && items.length === 0 ? (
           <div
             className="flex justify-center items-center h-24"
             data-cy="dashboard-my-leave-request-empty"
@@ -101,7 +102,7 @@ const MyLeaveRequestDashboard: React.FC = () => {
           </div>
         ) : null}
 
-        {!isLoading &&
+        {!showSkeleton &&
           items.map((req: LeaveRequest) => {
             const status =
               req.status.charAt(0).toUpperCase() + req.status.slice(1);

@@ -61,6 +61,7 @@ const HistoryTable = () => {
     { page, limit, orderBy, orderDirection },
     { filter },
   );
+  const showTableSkeleton = isFetching && !data;
   const { data: approverLog } = useGetSingleApproval(
     leaveRequestSidebarData ?? '',
   );
@@ -429,7 +430,7 @@ const HistoryTable = () => {
           className="border-t border-gray-200 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           data-cy="time-attendance-history-table-container"
         >
-          {isFetching ? (
+          {showTableSkeleton ? (
             <TableSkeleton columns={columns} />
           ) : (
             <Table

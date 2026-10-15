@@ -4,10 +4,24 @@ import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
 import { CommonObject } from '@/types/commons/commonObject';
 import { FC, useMemo, useState } from 'react';
 import { classNames } from '@/utils/classNames';
+import { TnaSourceType } from '@/types/tna/externalTna';
 
 interface CourseFilterProps {
   onChange: (value: CommonObject) => void;
+  /** `null` means "All" — internal courses and external TNAs together. */
+  sourceType?: TnaSourceType | null;
+  onSourceTypeChange?: (sourceType: TnaSourceType | null) => void;
 }
+
+const SOURCE_TYPE_OPTIONS: {
+  label: string;
+  value: TnaSourceType | null;
+  key: string;
+}[] = [
+  { label: 'All TNAs', value: null, key: 'all' },
+  { label: 'Internal', value: TnaSourceType.INTERNAL, key: 'internal' },
+  { label: 'External', value: TnaSourceType.EXTERNAL, key: 'external' },
+];
 
 /** Matches design: Tag / Basic — 1px 8px padding, 4px radius, Calibri 12 / 20, black/70 */
 const CHIP_CLASS =
@@ -18,7 +32,11 @@ const CHIP_SELECTED_CLASS =
 /** Mobile: Tag / Basic — 29×22 per spec (1px 8px, 4px radius) */
 const MOBILE_ALL_CHIP_CLASS = `${CHIP_CLASS} h-[22px] min-h-[22px] min-w-[29px] shrink-0 justify-center px-2`;
 
-const CourseFilter: FC<CourseFilterProps> = ({ onChange }) => {
+const CourseFilter: FC<CourseFilterProps> = ({
+  onChange,
+  sourceType = null,
+  onSourceTypeChange,
+}) => {
   const { courseCategory } = useTnaManagementStore();
   const [form] = Form.useForm();
   const [filtersExpanded, setFiltersExpanded] = useState(false);
@@ -28,7 +46,8 @@ const CourseFilter: FC<CourseFilterProps> = ({ onChange }) => {
 
   const hasActiveFilters =
     (typeof searchValue === 'string' && searchValue.trim().length > 0) ||
-    !!selectedCategory;
+    !!selectedCategory ||
+    !!sourceType;
 
   const showViewToggle = courseCategory.length > 2;
 
@@ -51,8 +70,43 @@ const CourseFilter: FC<CourseFilterProps> = ({ onChange }) => {
 
   const clearFilters = () => {
     form.setFieldsValue({ search: undefined, courseCategoryId: undefined });
+    onSourceTypeChange?.(null);
     onChange({});
   };
+
+  const sourceTypeChips = (
+    <div
+      className="flex shrink-0 flex-nowrap items-center gap-[8px]"
+      role="group"
+      aria-label="Filter by TNA type"
+      id="tnaCourseFilterSourceTypeId"
+      data-cy="tna-course-filter-source-type"
+    >
+      {SOURCE_TYPE_OPTIONS.map((option) => {
+        const isSelected = sourceType === option.value;
+        return (
+          <div
+            key={option.key}
+            role="button"
+            tabIndex={0}
+            onClick={() => onSourceTypeChange?.(option.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSourceTypeChange?.(option.value);
+              }
+            }}
+            className={classNames(CHIP_CLASS, {
+              [CHIP_SELECTED_CLASS]: isSelected,
+            })}
+            data-cy={`tna-course-filter-source-type-${option.key}`}
+          >
+            {option.label}
+          </div>
+        );
+      })}
+    </div>
+  );
 
   const selectAll = () => {
     form.setFieldValue('courseCategoryId', undefined);
@@ -214,30 +268,44 @@ const CourseFilter: FC<CourseFilterProps> = ({ onChange }) => {
           <Input />
         </Form.Item>
 
-        {/* Row 1: mobile collapsed = search + All + View More | mobile expanded = All + chips + View Less (no search) | md+ = search + desktop chips */}
+        {/* Row 1: search sits beside the internal/external chips; category chips
+            and the view/clear actions stay on the trailing edge. On mobile the
+            row wraps so the leading actions drop to their own line rather than
+            squeezing the search. */}
         <div
           className={classNames(
             'flex min-h-[32px] w-full flex-row items-center gap-[10px] md:min-h-[32px] md:justify-between',
             {
               'md:justify-end max-md:flex-nowrap max-md:items-center max-md:gap-2':
                 filtersExpanded,
-              'max-md:flex-nowrap max-md:justify-between': !filtersExpanded,
+              'max-md:flex-wrap max-md:justify-between': !filtersExpanded,
             },
           )}
           data-cy="tna-course-filter-toolbar-row"
         >
-          <Form.Item
-            name="search"
+          <div
             className={classNames(
-              'mb-0 min-w-0 max-w-[319px] max-md:flex-1 max-md:min-w-0 md:shrink-0 md:flex-none',
+              'flex min-w-0 items-center gap-[8px] max-md:w-full md:shrink-0',
               {},
-              [filtersExpanded ? '!hidden' : 'md:w-[319px] md:max-w-full'],
+              [filtersExpanded ? '!hidden' : ''],
             )}
-            id="tnaCourseFilterSearchItemId"
-            data-cy="tna-course-filter-search-item"
+            data-cy="tna-course-filter-search-group"
           >
-            {searchField}
-          </Form.Item>
+            <Form.Item
+              name="search"
+              className="mb-0 min-w-0 max-w-[319px] flex-1 md:w-[319px] md:max-w-full md:flex-none md:shrink-0"
+              id="tnaCourseFilterSearchItemId"
+              data-cy="tna-course-filter-search-item"
+            >
+              {searchField}
+            </Form.Item>
+            <div
+              className="scrollbar-hide flex min-w-0 flex-nowrap items-center gap-[8px] overflow-x-auto overflow-y-hidden overscroll-x-contain touch-pan-x md:overflow-visible"
+              data-cy="tna-course-filter-source-type-row"
+            >
+              {sourceTypeChips}
+            </div>
+          </div>
 
           <div
             className={classNames('items-center gap-2 md:hidden', {

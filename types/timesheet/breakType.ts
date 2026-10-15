@@ -11,6 +11,10 @@ export interface BreakType extends DateInfo {
   startAtTo?: string | null;
   endAtFrom?: string | null;
   endAtTo?: string | null;
+  captureStartAt?: string | null;
+  captureEndAt?: string | null;
+  /** Shifts this break is attached to (from Core) */
+  shiftIds?: string[];
 }
 export interface BreakTypeList {
   item: BreakType;

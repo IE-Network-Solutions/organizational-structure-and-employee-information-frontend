@@ -267,8 +267,10 @@ export const useUpdateObjectiveNestedDelete = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
       queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrPlansKrPanel']);
       queryClient.invalidateQueries(['okrUserPlans']);
       queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReportsKrPanel']);
       queryClient.invalidateQueries(['okrReport']);
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
@@ -282,8 +284,10 @@ export const useDeleteObjective = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
       queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrPlansKrPanel']);
       queryClient.invalidateQueries(['okrUserPlans']);
       queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReportsKrPanel']);
       queryClient.invalidateQueries(['okrReport']);
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
@@ -300,8 +304,10 @@ export const useCreateObjective = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
       queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrPlansKrPanel']);
       queryClient.invalidateQueries(['okrUserPlans']);
       queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReportsKrPanel']);
       queryClient.invalidateQueries(['okrReport']);
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
@@ -314,8 +320,10 @@ export const useUpdateObjective = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
       queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrPlansKrPanel']);
       queryClient.invalidateQueries(['okrUserPlans']);
       queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReportsKrPanel']);
       queryClient.invalidateQueries(['okrReport']);
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
@@ -330,8 +338,10 @@ export const useUpdateKeyResult = () => {
       void data;
       queryClient.invalidateQueries('ObjectiveInformation');
       queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrPlansKrPanel']);
       queryClient.invalidateQueries(['okrUserPlans']);
       queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReportsKrPanel']);
       queryClient.invalidateQueries(['okrReport']);
       if (variables?.id) {
         queryClient.invalidateQueries([
@@ -351,8 +361,10 @@ export const useDeleteKeyResult = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
       queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrPlansKrPanel']);
       queryClient.invalidateQueries(['okrUserPlans']);
       queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReportsKrPanel']);
       queryClient.invalidateQueries(['okrReport']);
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
@@ -369,8 +381,10 @@ export const useDeleteMilestone = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
       queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrPlansKrPanel']);
       queryClient.invalidateQueries(['okrUserPlans']);
       queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReportsKrPanel']);
       queryClient.invalidateQueries(['okrReport']);
       queryClient.invalidateQueries('keyResultForEdit');
       queryClient.invalidateQueries('keyResult');

@@ -26,6 +26,7 @@ export function getCadenceLabel(cadence: Cadence): string {
     daily: 'Daily',
     weekly: 'Weekly',
     monthly: 'Monthly',
+    quarterly: 'Quarterly',
   };
   return labels[cadence];
 }
@@ -36,6 +37,7 @@ export function getSectionTitle(cadence: Cadence, viewMode: ViewMode): string {
       daily: "Today's Daily Report",
       weekly: "This week's Weekly Report",
       monthly: "This month's Monthly Report",
+      quarterly: "This quarter's Quarterly Report",
     };
     return titles[cadence];
   }
@@ -44,6 +46,7 @@ export function getSectionTitle(cadence: Cadence, viewMode: ViewMode): string {
     daily: "Today's Daily Plan",
     weekly: "This week's Weekly Plan",
     monthly: "This month's Monthly Plan",
+    quarterly: "This quarter's Quarterly Plan",
   };
   return titles[cadence];
 }
@@ -58,4 +61,29 @@ export function getButtonText(cadence: Cadence, viewMode: ViewMode): string {
 
 export function getCadenceTagText(cadence: Cadence): string {
   return `${getCadenceLabel(cadence)} cadence`;
+}
+
+/**
+ * True when the current user is the subordinate's reporting manager or
+ * active leave delegate. Both must be checked independently — using
+ * `delegatedTo || reportingTo` hides the menu from whichever id loses.
+ */
+export function canApproveSubordinateWork(
+  viewerUserId: string | null | undefined,
+  employee: any,
+): boolean {
+  const viewerId = String(viewerUserId ?? '');
+  if (!viewerId || !employee) return false;
+
+  const reportingToId = String(
+    employee?.reportingTo?.id ?? employee?.reportingToId ?? '',
+  );
+  const delegatedToId = String(
+    employee?.delegatedTo?.id ?? employee?.delegatedToId ?? '',
+  );
+
+  return (
+    (reportingToId !== '' && viewerId === reportingToId) ||
+    (delegatedToId !== '' && viewerId === delegatedToId)
+  );
 }

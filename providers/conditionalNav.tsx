@@ -1,6 +1,7 @@
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
 import Nav from '@/components/navBar';
+import { CollaborationProvider } from '@/components/collaboration/collaboration-context';
 import React, { useEffect, useMemo } from 'react';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -115,7 +116,15 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <>
-      {isExcludedPath ? children : <Nav>{children}</Nav>}
+      {isExcludedPath ? (
+        children
+      ) : (
+        // Wraps the shell, not the app: the panel is a signed-in surface, and the
+        // auth screens have no place to dock it.
+        <CollaborationProvider>
+          <Nav>{children}</Nav>
+        </CollaborationProvider>
+      )}
       {isRouteLoading && (
         <>
           <style

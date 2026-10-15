@@ -71,8 +71,16 @@ export const getUserLeaveRequests = async (userId: string) => {
 };
 
 export const useGetUserLeaveRequests = (userId: string) => {
-  return useQuery(['userLeaveRequests', userId], () =>
-    getUserLeaveRequests(userId),
+  return useQuery(
+    ['userLeaveRequests', userId],
+    () => getUserLeaveRequests(userId),
+    {
+      enabled: Boolean(userId),
+      keepPreviousData: true,
+      staleTime: 3 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
   );
 };
 

@@ -4,7 +4,12 @@ import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import { OkrSetting, OkrSettingRequest } from './interface';
+import { getFriendlyOkrError } from '@/utils/okrErrorMessages';
+import {
+  OkrSetting,
+  OkrSettingRequest,
+  UpdateOkrSettingPayload,
+} from './interface';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -172,5 +177,67 @@ export const useSwitchOkrMode = () => {
         });
       }
     },
+  });
+};
+
+/**
+ * Update OKR setting for current tenant via PATCH /okr-setting.
+ * Used for updating scoringMode and related OKR setting fields.
+ */
+const patchOkrSetting = async (
+  payload: UpdateOkrSettingPayload,
+): Promise<OkrSetting> => {
+  const token = await getCurrentToken();
+  const currentTenantId =
+    useAuthenticationStore.getState().tenantId || tenantId;
+  const response = (await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/okr-setting`,
+    method: 'PATCH',
+    data: payload,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: currentTenantId,
+    },
+  })) as OkrSetting;
+  return response;
+};
+
+export const usePatchOkrSetting = () => {
+  const queryClient = useQueryClient();
+  return useMutation(patchOkrSetting, {
+    onSuccess: () => {
+      NotificationMessage.success({
+        message: 'OKR Setting Updated',
+        description: 'OKR setting has been successfully updated.',
+      });
+      queryClient.invalidateQueries('okrSettingCheck');
+      queryClient.invalidateQueries('okrSetting');
+    },
+    onError: (error: any) => {
+      NotificationMessage.error({
+        message: 'Failed to Update Setting',
+        description: getFriendlyOkrError(error, 'Failed to update OKR setting.')
+          .message,
+      });
+    },
+  });
+};
+
+/**
+ * Scoring-mode switch. The settings page explains failures inside its own
+ * confirmation dialog, so no error toast here (that would duplicate it).
+ */
+export const usePatchOkrScoringMode = () => {
+  const queryClient = useQueryClient();
+  return useMutation(patchOkrSetting, {
+    onSuccess: () => {
+      NotificationMessage.success({
+        message: 'Scoring Mode Updated',
+        description: 'The scoring mode has been updated.',
+      });
+      queryClient.invalidateQueries('okrSettingCheck');
+      queryClient.invalidateQueries('okrSetting');
+    },
+    onError: () => undefined,
   });
 };

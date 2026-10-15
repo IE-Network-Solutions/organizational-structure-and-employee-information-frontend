@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import CourseCategorySidebar from './_components/courseSidebar';
@@ -21,10 +21,29 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import TnaManagementSkeleton from './_components/tnaManagementSkeleton';
 import EmptyState from '@/components/empty';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import ExternalTnaCard from '@/app/(afterLogin)/(tna)/tna/management/_components/externalTnaCard';
+import MyCommitmentsPanel from '@/app/(afterLogin)/(tna)/tna/management/_components/myCommitmentsPanel';
+import { useExternalTrainingStore } from '@/store/uistate/features/tna/externalTraining';
+import {
+  useGetTrainingRequests,
+  useGetTrainingRequestsByUser,
+} from '@/store/server/features/tna/externalTraining/queries';
+import { useGetTrainingApprovalsAllStatus } from '@/store/server/features/tna/trainingApproval/queries';
+import { TnaSourceType } from '@/types/tna/externalTna';
 
 const TnaManagementPage = () => {
-  const { setIsShowCourseSidebar, isShowCourseSidebar, setCourseCategory } =
-    useTnaManagementStore();
+  const {
+    setIsShowCourseSidebar,
+    isShowCourseSidebar,
+    setCourseCategory,
+    setCourseId,
+  } = useTnaManagementStore();
+  const {
+    sourceTypeFilter,
+    setSourceTypeFilter,
+    setCreateModalTab,
+    setTrainingRequestId,
+  } = useExternalTrainingStore();
   const { userId } = useAuthenticationStore();
   const { data: categoryData, isFetching } = useGetCourseCategory({});
   const [filter, setFilter] = useState<Partial<CourseManagementRequestBody>>(
@@ -69,23 +88,134 @@ const TnaManagementPage = () => {
       ? myCoursesData
       : (myCoursesData?.items ?? []);
 
+  /**
+   * External (non-catalogue) TNAs: employees see their own, approvers also see
+   * what is routed to them, and anyone who can act on a request org-wide sees
+   * everything. Recording payment and confirming are permission-driven rather
+   * than tied to the workflow, so those holders need the whole list to reach
+   * the requests they are meant to act on.
+   */
+  const hasViewAllTnaPermission =
+    AccessGuard.checkAccess({ permissions: [Permissions.ViewAllTna] }) ||
+    AccessGuard.checkAccess({
+      permissions: [Permissions.MarkTrainingAsPaid],
+    }) ||
+    AccessGuard.checkAccess({
+      permissions: [Permissions.ConfirmTnaCommitment],
+    });
+
+  const canCreateExternalTna = AccessGuard.checkAccess({
+    permissions: [Permissions.CreateExternalTna],
+  });
+
+  const externalSearch = filter.modifiers?.search
+    ? { modifiers: { search: filter.modifiers.search } }
+    : {};
+
+  const {
+    data: allExternalData,
+    isLoading: isLoadingAllExternal,
+    refetch: refetchAllExternal,
+  } = useGetTrainingRequests(
+    { page: 1, limit: 200 },
+    externalSearch,
+    hasViewAllTnaPermission,
+  );
+
+  const {
+    data: myExternalData,
+    isLoading: isLoadingMyExternal,
+    refetch: refetchMyExternal,
+  } = useGetTrainingRequestsByUser(userId ?? '', !hasViewAllTnaPermission);
+
+  /**
+   * Requests routed to this user as an approver. Approval duty is workflow
+   * data, not a permission, so this is the only thing that decides whether an
+   * approver may see someone else's external TNA. The all-status feed keeps
+   * returning a request after it has been decided, so an approver retains a
+   * read-only view of their own decisions.
+   */
+  const { data: approverExternalData, refetch: refetchApproverExternal } =
+    useGetTrainingApprovalsAllStatus(userId ?? '', 1, 200);
+
+  // `by-user` returns a bare array; the paginated list returns `{ items }`.
+  const externalItems = useMemo(() => {
+    if (hasViewAllTnaPermission) return allExternalData?.items ?? [];
+
+    const own = myExternalData ?? [];
+    const toApprove =
+      approverExternalData?.data?.items ?? approverExternalData?.items ?? [];
+
+    // A user can be both requester and approver on different requests.
+    const byId = new Map<string, any>();
+    [...own, ...toApprove].forEach((item: any) => {
+      if (item?.id && !byId.has(item.id)) byId.set(item.id, item);
+    });
+    return Array.from(byId.values());
+  }, [
+    hasViewAllTnaPermission,
+    allExternalData?.items,
+    myExternalData,
+    approverExternalData,
+  ]);
+  const isLoadingExternal = hasViewAllTnaPermission
+    ? isLoadingAllExternal
+    : isLoadingMyExternal;
+  // Memoised: an effect below depends on this, so a fresh function identity
+  // each render would put it into a refetch loop.
+  const refetchExternal = useCallback(() => {
+    if (hasViewAllTnaPermission) {
+      refetchAllExternal();
+      return;
+    }
+    // Non-admins draw on two feeds — their own requests and the ones they
+    // approve — so both have to be refreshed.
+    refetchMyExternal();
+    refetchApproverExternal();
+  }, [
+    hasViewAllTnaPermission,
+    refetchAllExternal,
+    refetchMyExternal,
+    refetchApproverExternal,
+  ]);
+
   const displayCourses = useMemo(() => {
+    if (sourceTypeFilter === TnaSourceType.EXTERNAL) return [];
     return normalizedCourses.filter((item) => {
       if (hasViewAllCoursePermission) return true;
       if (item.isDraft) return item.preparedBy === localUserID;
       return true;
     });
-  }, [normalizedCourses, hasViewAllCoursePermission]);
+  }, [normalizedCourses, hasViewAllCoursePermission, sourceTypeFilter]);
+
+  const displayExternalTnas = useMemo(() => {
+    if (sourceTypeFilter === TnaSourceType.INTERNAL) return [];
+    // Course categories are a catalogue concept, so that filter excludes externals.
+    if (filter.filter?.courseCategoryId?.length) return [];
+    return externalItems;
+  }, [externalItems, sourceTypeFilter, filter.filter?.courseCategoryId]);
+
+  const totalResults = displayCourses.length + displayExternalTnas.length;
 
   const hasActiveFilters = Boolean(
-    filter.modifiers?.search || filter.filter?.courseCategoryId?.length,
+    filter.modifiers?.search ||
+    filter.filter?.courseCategoryId?.length ||
+    sourceTypeFilter,
   );
+
+  const openCreateModal = (tab: TnaSourceType) => {
+    setCourseId(null);
+    setTrainingRequestId(null);
+    setCreateModalTab(tab);
+    setIsShowCourseSidebar(true);
+  };
 
   useEffect(() => {
     if (!isShowCourseSidebar) {
       refetch();
+      refetchExternal();
     }
-  }, [isShowCourseSidebar, refetch]);
+  }, [isShowCourseSidebar, refetch, refetchExternal]);
 
   useEffect(() => {
     if (categoryData?.items) {
@@ -172,7 +302,10 @@ const TnaManagementPage = () => {
                     data-cy="tna-management-page-header-actions"
                   >
                     <AccessGuard
-                      permissions={[Permissions.CreateCourse]}
+                      permissions={[
+                        Permissions.CreateCourse,
+                        Permissions.CreateExternalTna,
+                      ]}
                       data-cy="tna-management-create-course-guard"
                       id="tna-management-create-course-guard"
                     >
@@ -184,7 +317,13 @@ const TnaManagementPage = () => {
                         className="!flex !h-10 !w-10 !min-w-10 !items-center !justify-center !rounded-lg !border-none !bg-[#1E40AF] !p-0 !text-white shadow-none md:!h-10 md:!min-w-[135px] md:!w-auto md:!px-[15px] font-[Calibri,sans-serif] [&_.ant-btn-icon]:text-white md:text-base md:font-normal md:leading-6"
                         icon={<LuPlus size={18} className="text-white" />}
                         loading={isFetching}
-                        onClick={() => setIsShowCourseSidebar(true)}
+                        onClick={() =>
+                          openCreateModal(
+                            canCreateCourse
+                              ? TnaSourceType.INTERNAL
+                              : TnaSourceType.EXTERNAL,
+                          )
+                        }
                       >
                         <span
                           className="hidden md:inline"
@@ -205,14 +344,18 @@ const TnaManagementPage = () => {
           className="box-border flex w-full max-w-[404px] flex-col gap-4 md:max-w-none"
           data-cy="tna-management-main-panel"
         >
+          <MyCommitmentsPanel data-cy="tna-management-my-commitments" />
+
           <div className="w-full" data-cy="tna-management-filter-wrap">
             <CourseFilter
               onChange={onFilterChange}
+              sourceType={sourceTypeFilter}
+              onSourceTypeChange={setSourceTypeFilter}
               data-cy="tna-management-filter"
             />
           </div>
 
-          {isLoading ? (
+          {isLoading || isLoadingExternal ? (
             <div
               className="w-full"
               id="tnaManagementLoadingId"
@@ -220,23 +363,32 @@ const TnaManagementPage = () => {
             >
               <TnaManagementSkeleton />
             </div>
-          ) : displayCourses.length === 0 ? (
+          ) : totalResults === 0 ? (
             <div
               className="w-full"
               data-cy="tna-management-courses-empty"
               id="tnaManagementCoursesEmptyId"
             >
               <EmptyState
-                title="No courses found"
+                title="No TNAs found"
                 description={
                   hasActiveFilters
-                    ? 'Try adjusting your search or category filter.'
-                    : 'When courses are available, they will appear here.'
+                    ? 'Try adjusting your search, type or category filter.'
+                    : 'When courses and training requests are available, they will appear here.'
                 }
-                actionText={canCreateCourse ? 'New Course' : undefined}
+                actionText={
+                  canCreateCourse || canCreateExternalTna
+                    ? 'New TNA'
+                    : undefined
+                }
                 onAction={
-                  canCreateCourse
-                    ? () => setIsShowCourseSidebar(true)
+                  canCreateCourse || canCreateExternalTna
+                    ? () =>
+                        openCreateModal(
+                          canCreateCourse
+                            ? TnaSourceType.INTERNAL
+                            : TnaSourceType.EXTERNAL,
+                        )
                     : undefined
                 }
               />
@@ -251,6 +403,18 @@ const TnaManagementPage = () => {
                 className="grid w-full max-w-[380px] grid-cols-1 gap-[32px] md:max-w-none md:grid-cols-2 xl:grid-cols-3"
                 data-cy="settings-recognition-grid"
               >
+                {displayExternalTnas.map((item) => (
+                  <ExternalTnaCard
+                    item={item}
+                    key={item.id}
+                    refetch={refetchExternal}
+                    onEdit={(request) => {
+                      setTrainingRequestId(request.id);
+                      setCreateModalTab(TnaSourceType.EXTERNAL);
+                      setIsShowCourseSidebar(true);
+                    }}
+                  />
+                ))}
                 {displayCourses.map((item) => (
                   <CourseCard
                     item={item}

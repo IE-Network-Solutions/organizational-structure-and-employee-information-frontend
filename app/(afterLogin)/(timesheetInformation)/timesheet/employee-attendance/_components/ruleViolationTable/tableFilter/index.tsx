@@ -1,8 +1,10 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 import { Col, DatePicker, Form, Row, Select, Dropdown, Button } from 'antd';
+import type { FormInstance } from 'antd/es/form';
 import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
 import { AttendanceActionType } from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
+import { Dayjs } from 'dayjs';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
@@ -11,6 +13,20 @@ import { useGetAttendanceRuleTypes } from '@/store/server/features/timesheet/att
 
 interface TableFilterProps {
   onChange: (val: CommonObject) => void;
+}
+
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface RuleViolationFilterPanelProps {
+  form: FormInstance;
+  onChange: (val: CommonObject) => void;
+  onClose: () => void;
+  onReset: () => void;
+  getFilterValues: () => CommonObject;
+  ruleTypeOptions: SelectOption[];
 }
 
 const ACTION_TYPE_OPTIONS = [
@@ -32,37 +48,46 @@ const ACTION_TYPE_OPTIONS = [
   },
 ] as const;
 
-const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
-  const [form] = Form.useForm();
-  const [searchText, setSearchText] = useState('');
-  const { data: employeeData } = useGetAllUsers();
-  const { showViolationFilter, setShowViolationFilter } =
-    useEmployeeAttendanceStore();
-  const { data: attendanceRuleTypesData } = useGetAttendanceRuleTypes();
+const labelClassName = 'text-sm font-medium text-gray-800 mb-2 block';
+const selectClassName = 'w-full h-10 rounded-md border-gray-300';
 
-  const employeeOptions =
-    employeeData?.items?.map((employee: any) => ({
-      value: employee.id,
-      label: `${employee?.firstName} ${employee?.middleName} ${employee?.lastName}`,
-    })) || [];
+function isDatePickerPopupOpen(): boolean {
+  if (typeof document === 'undefined') return false;
+  return Boolean(
+    document.querySelector(
+      '.ant-picker-dropdown:not(.ant-picker-dropdown-hidden)',
+    ),
+  );
+}
 
-  const labelClassName = 'text-sm font-medium text-gray-800 mb-2 block';
-  const selectClassName = 'w-full h-10 rounded-md border-gray-300';
-
-  const getFilterValues = (): CommonObject => ({
-    ...form.getFieldsValue(),
-    search: searchText.trim() || undefined,
-  });
-
-  const applyFilters = () => {
+/** Stable module-level panel — avoids remount on every TableFilter render. */
+const RuleViolationFilterPanel: FC<RuleViolationFilterPanelProps> = ({
+  form,
+  onChange,
+  onClose,
+  onReset,
+  getFilterValues,
+  ruleTypeOptions,
+}) => {
+  const applyFilters = useCallback(() => {
     onChange(getFilterValues());
-  };
+  }, [getFilterValues, onChange]);
 
-  const MobileFilters = () => (
+  const handleDateChange = useCallback(
+    (field: 'startDate' | 'endDate', value: Dayjs | null) => {
+      form.setFieldsValue({ [field]: value });
+      onChange(getFilterValues());
+    },
+    [form, getFilterValues, onChange],
+  );
+
+  return (
     <div
       className="bg-white rounded-lg border border-gray-200 min-w-[320px] sm:max-w-[420px] overflow-hidden"
       id="time-attendance-rule-violation-mobile-filter-menu"
       data-cy="time-attendance-rule-violation-mobile-filter-menu"
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
     >
       <div
         className="px-6 pt-5 pb-1 relative"
@@ -73,7 +98,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
           id="time-attendance-rule-violation-mobile-filter-close-button"
           data-cy="time-attendance-rule-violation-mobile-filter-close-button"
           type="button"
-          onClick={() => setShowViolationFilter(false)}
+          onClick={onClose}
           className="absolute top-5 right-6 p-1 text-gray-500 hover:text-gray-700 rounded transition-colors"
           aria-label="Close filter"
         >
@@ -120,10 +145,10 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                   placeholder="Select Rule"
                   allowClear
                   className={selectClassName}
-                  options={attendanceRuleTypesData?.items?.map((item) => ({
-                    label: item.name,
-                    value: item.id,
-                  }))}
+                  options={ruleTypeOptions}
+                  getPopupContainer={(trigger) =>
+                    trigger.parentElement ?? document.body
+                  }
                   onChange={() => applyFilters()}
                   id="time-attendance-rule-violation-mobile-filter-rule-select"
                   data-cy="time-attendance-rule-violation-mobile-filter-rule-select"
@@ -148,6 +173,9 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                   allowClear
                   className={selectClassName}
                   options={ACTION_TYPE_OPTIONS as any}
+                  getPopupContainer={(trigger) =>
+                    trigger.parentElement ?? document.body
+                  }
                   onChange={() => applyFilters()}
                   id="time-attendance-rule-violation-mobile-filter-action-select"
                   data-cy="time-attendance-rule-violation-mobile-filter-action-select"
@@ -176,7 +204,8 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                       if (
                         !value ||
                         !getFieldValue('endDate') ||
-                        value.isBefore(getFieldValue('endDate'))
+                        value.isBefore(getFieldValue('endDate')) ||
+                        value.isSame(getFieldValue('endDate'), 'day')
                       ) {
                         return Promise.resolve();
                       }
@@ -191,7 +220,8 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                   className="w-full h-[40px]"
                   placeholder="Select Date"
                   format={DATE_FORMAT}
-                  onChange={() => applyFilters()}
+                  getPopupContainer={() => document.body}
+                  onChange={(value) => handleDateChange('startDate', value)}
                   id="time-attendance-rule-violation-mobile-filter-start-date-picker"
                   data-cy="time-attendance-rule-violation-mobile-filter-start-date-picker"
                 />
@@ -217,7 +247,8 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                       if (
                         !value ||
                         !getFieldValue('startDate') ||
-                        value.isAfter(getFieldValue('startDate'))
+                        value.isAfter(getFieldValue('startDate')) ||
+                        value.isSame(getFieldValue('startDate'), 'day')
                       ) {
                         return Promise.resolve();
                       }
@@ -232,7 +263,8 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                   className="w-full h-[40px]"
                   placeholder="Select Date"
                   format={DATE_FORMAT}
-                  onChange={() => applyFilters()}
+                  getPopupContainer={() => document.body}
+                  onChange={(value) => handleDateChange('endDate', value)}
                   id="time-attendance-rule-violation-mobile-filter-end-date-picker"
                   data-cy="time-attendance-rule-violation-mobile-filter-end-date-picker"
                 />
@@ -247,11 +279,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
         className="px-6 py-4 flex justify-end gap-2"
       >
         <Button
-          onClick={() => {
-            form.resetFields();
-            setSearchText('');
-            onChange({});
-          }}
+          onClick={onReset}
           className="h-8 border-[#d9d9d9] text-sm font-normal text-[#4d4d4d]"
           data-cy="time-attendance-rule-violation-mobile-filter-reset"
         >
@@ -262,7 +290,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
           className="h-8 font-normal text-sm text-white"
           onClick={() => {
             applyFilters();
-            setShowViolationFilter(false);
+            onClose();
           }}
           data-cy="time-attendance-rule-violation-mobile-filter-save"
         >
@@ -270,6 +298,82 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
         </Button>
       </div>
     </div>
+  );
+};
+
+const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
+  const [form] = Form.useForm();
+  const [searchText, setSearchText] = useState('');
+  const { data: employeeData } = useGetAllUsers();
+  const { showViolationFilter, setShowViolationFilter } =
+    useEmployeeAttendanceStore();
+  const { data: attendanceRuleTypesData } = useGetAttendanceRuleTypes();
+
+  const employeeOptions = useMemo(
+    () =>
+      employeeData?.items?.map((employee: any) => ({
+        value: employee.id,
+        label: `${employee?.firstName} ${employee?.middleName} ${employee?.lastName}`,
+      })) || [],
+    [employeeData?.items],
+  );
+
+  const ruleTypeOptions = useMemo(
+    () =>
+      attendanceRuleTypesData?.items?.map((item) => ({
+        label: item.name,
+        value: item.id,
+      })) || [],
+    [attendanceRuleTypesData?.items],
+  );
+
+  const getFilterValues = useCallback(
+    (): CommonObject => ({
+      ...form.getFieldsValue(),
+      search: searchText.trim() || undefined,
+    }),
+    [form, searchText],
+  );
+
+  const handleReset = useCallback(() => {
+    form.resetFields();
+    setSearchText('');
+    onChange({});
+  }, [form, onChange]);
+
+  const handleCloseFilters = useCallback(() => {
+    setShowViolationFilter(false);
+  }, [setShowViolationFilter]);
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open && isDatePickerPopupOpen()) {
+        return;
+      }
+      setShowViolationFilter(open);
+    },
+    [setShowViolationFilter],
+  );
+
+  const filterDropdown = useCallback(
+    () => (
+      <RuleViolationFilterPanel
+        form={form}
+        onChange={onChange}
+        onClose={handleCloseFilters}
+        onReset={handleReset}
+        getFilterValues={getFilterValues}
+        ruleTypeOptions={ruleTypeOptions}
+      />
+    ),
+    [
+      form,
+      onChange,
+      handleCloseFilters,
+      handleReset,
+      getFilterValues,
+      ruleTypeOptions,
+    ],
   );
 
   return (
@@ -300,7 +404,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                 options={employeeOptions}
                 showSearch
                 optionFilterProp="label"
-                onChange={() => applyFilters()}
+                onChange={() => onChange(getFilterValues())}
                 filterOption={(input, option) =>
                   (typeof option?.label === 'string'
                     ? option.label.toLowerCase()
@@ -323,10 +427,11 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
         </div>
 
         <Dropdown
-          overlay={<MobileFilters />}
+          dropdownRender={filterDropdown}
           trigger={['click']}
           open={showViolationFilter}
-          onOpenChange={setShowViolationFilter}
+          onOpenChange={handleOpenChange}
+          destroyPopupOnHide={false}
           data-cy="time-attendance-rule-violation-filter-dropdown"
         >
           <Button

@@ -105,7 +105,9 @@ export default function WorkFromHomeApprovalsTable() {
     refetch();
   }, [userCurrentPage, pageSize, searchEmployee, filterStatus, refetch]);
 
-  const isApprovalListLoading = isLoadingApproval || isFetchingApproval;
+  // Only show skeleton on initial load — bare isFetching flickers on every refetch.
+  const isApprovalListLoading =
+    (isLoadingApproval || isFetchingApproval) && !approvalData;
 
   const payload = approvalData?.data ?? approvalData;
   const rawItems = payload?.items ?? approvalData?.items ?? [];

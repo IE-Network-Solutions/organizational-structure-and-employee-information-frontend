@@ -62,6 +62,8 @@ export type PlanningPeriodUser = {
   userId: string;
   tenantId: string;
   planningPeriodId: string;
+  /** This period's reports progress KR / Average OKR for the user. */
+  drivesOkrProgress?: boolean;
   planningPeriod?: PlanningPeriod;
   /** When true, reports for this period update KR progress. At most one per user. */
   canProgress?: boolean;
@@ -104,7 +106,7 @@ export type PaginatedGroupedUsers = {
 export interface PlanningUserPayload {
   userIds: string[];
   /** Preferred field for update/create APIs that expect period ids. */
-  planningPeriodIds?: string[];
+  planningPeriodIds: string[];
   /** Form / assign endpoint field name (kept for backward compatibility). */
   planningPeriods?: string[];
   /**
@@ -112,6 +114,8 @@ export interface PlanningUserPayload {
    * Must be one of the assigned period ids, or null/omitted for none.
    */
   canProgressPlanningPeriodId?: string | null;
+  /** Assigned period whose reports progress KR / Average OKR. */
+  okrProgressPlanningPeriodId?: string;
   scoringConfigurationId?: string;
   okrRuleId?: string;
 }

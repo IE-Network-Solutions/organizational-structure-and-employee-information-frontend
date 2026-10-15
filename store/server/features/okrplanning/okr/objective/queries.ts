@@ -99,7 +99,7 @@ const getObjectiveByCompany = async (
   id: number | string,
   pageSize: number,
   currentPage: number,
-  users: number[],
+  users: (string | number)[],
   userId: string,
   metricTypeId: string,
   fiscalYearId?: string,
@@ -163,6 +163,44 @@ const getEmployeeOkr = async (
     throw error;
   }
 };
+
+export type ObjectiveTypeWeightAllocation = {
+  objectiveTypeId: string;
+  name?: string;
+  typeWeight: number;
+  allocated: number;
+  remaining: number;
+};
+
+const getObjectiveTypeWeightAllocation = async (userId: string) => {
+  const token = await getCurrentToken();
+  return crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/objective/type-weight-allocation/${userId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+/**
+ * Per objective type: weight, already allocated by the user's objectives, and
+ * what is left. Keyed under ObjectiveInformation so objective create / update /
+ * delete invalidations refresh it.
+ */
+export const useGetObjectiveTypeWeightAllocation = (
+  userId?: string,
+  options?: { enabled?: boolean },
+) =>
+  useQuery<ObjectiveTypeWeightAllocation[]>(
+    ['ObjectiveInformation', 'typeWeightAllocation', userId],
+    () => getObjectiveTypeWeightAllocation(userId as string),
+    {
+      enabled: Boolean(userId) && (options?.enabled ?? true),
+      refetchOnWindowFocus: false,
+    },
+  );
 
 export const useGetUserObjective = (
   postId: number | string,
@@ -239,7 +277,8 @@ export const useGetTeamObjective = (
     {
       keepPreviousData: true,
       staleTime: 30_000,
-      enabled: (queryOptions?.enabled ?? true) && users.length > 0 && !!userId,
+      // Backend scopes Team OKR by header userId's department; users[] is unused.
+      enabled: (queryOptions?.enabled ?? true) && !!userId,
     },
   );
 
@@ -247,7 +286,7 @@ export const useGetCompanyObjective = (
   postId: number | string,
   pageSize: number,
   currentPage: number,
-  users: number[],
+  users: (string | number)[],
   userId: string,
   metricTypeId: string,
   fiscalYearId?: string,

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ScheduleState } from './interface';
+import { ScheduleState, ShiftDraft } from './interface';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 
@@ -21,6 +21,16 @@ const initializeDetail = () =>
     workDay: false,
   }));
 
+const defaultShift = (): ShiftDraft => ({
+  key: uuidv4(),
+  name: 'Standard',
+  startTime: '9:00 AM',
+  endTime: '5:00 PM',
+  isSwappable: false,
+  applyToAllDays: true,
+  days: [],
+});
+
 const calculateHours = (startTime: any, endTime: any) =>
   startTime && endTime
     ? dayjs(endTime, 'h:mm A').diff(dayjs(startTime, 'h:mm A'), 'hour', true)
@@ -35,6 +45,7 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
   standardHours: 0,
   validationError: '',
   detail: initializeDetail(),
+  shifts: [defaultShift()],
 
   currentPage: 1,
   pageSize: 5,
@@ -59,7 +70,6 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
           ? {
               ...dayItem,
               ...data,
-              // Update duration if startTime or endTime is being updated
               duration:
                 data.startTime !== undefined || data.endTime !== undefined
                   ? calculateHours(
@@ -71,11 +81,36 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
                         : dayItem.endTime,
                     )
                   : data.workDay !== undefined && !data.workDay
-                    ? 0 // Set duration to 0 when workDay is disabled
+                    ? 0
                     : dayItem.duration,
             }
           : dayItem,
       ),
+    })),
+
+  setShifts: (shifts) => set({ shifts }),
+  addShift: (shift) =>
+    set((state) => ({
+      shifts: [
+        ...state.shifts,
+        {
+          ...defaultShift(),
+          name: 'Custom',
+          ...shift,
+          key: uuidv4(),
+        },
+      ],
+    })),
+  updateShift: (key, data) =>
+    set((state) => ({
+      shifts: state.shifts.map((s) => (s.key === key ? { ...s, ...data } : s)),
+    })),
+  removeShift: (key) =>
+    set((state) => ({
+      shifts:
+        state.shifts.length <= 1
+          ? state.shifts
+          : state.shifts.filter((s) => s.key !== key),
     })),
 
   createWorkSchedule: () =>
@@ -91,6 +126,7 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
     return {
       name: state.scheduleName,
       detail: state.detail,
+      shifts: state.shifts,
     };
   },
 
@@ -104,6 +140,7 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
       standardHours: 0,
       validationError: '',
       detail: initializeDetail(),
+      shifts: [defaultShift()],
     })),
 }));
 

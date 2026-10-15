@@ -13,20 +13,30 @@ const PAST_DAYS = 30;
 
 export default function AttendanceSummaryCards() {
   const { userId } = useAuthenticationStore();
-  const end = dayjs();
-  const start = end.subtract(PAST_DAYS, 'day');
 
-  const filter: Partial<AttendanceRequestBody['filter']> = {
-    userIds: [userId ?? ''],
-    date: { from: start.format('YYYY-MM-DD'), to: end.format('YYYY-MM-DD') },
-  };
+  const filter = useMemo<Partial<AttendanceRequestBody['filter']>>(() => {
+    const end = dayjs();
+    const start = end.subtract(PAST_DAYS, 'day');
+    return {
+      userIds: [userId ?? ''],
+      date: {
+        from: start.format('YYYY-MM-DD'),
+        to: end.format('YYYY-MM-DD'),
+      },
+    };
+  }, [userId]);
 
-  const { data, isFetching } = useGetAttendances(
-    { page: 1, limit: 500 },
-    { filter },
+  const queryData = useMemo(() => ({ page: 1, limit: 500 }), []);
+  const body = useMemo(() => ({ filter }), [filter]);
+
+  const { data, isLoading } = useGetAttendances(
+    queryData,
+    body,
     true,
-    true,
+    !!userId,
   );
+
+  const showCardLoading = isLoading && !data;
 
   const counts = useMemo(() => {
     const items = data?.items ?? [];
@@ -42,7 +52,7 @@ export default function AttendanceSummaryCards() {
       id="my-timesheet-attendance-summary-cards"
     >
       <Card
-        loading={isFetching}
+        loading={showCardLoading}
         className="bg-red-50 border-[#FFD6A8] [&_.ant-card-body]:!p-3"
         data-cy="my-timesheet-attendance-summary-late-arrivals"
       >
@@ -80,7 +90,7 @@ export default function AttendanceSummaryCards() {
       </Card>
 
       <Card
-        loading={isFetching}
+        loading={showCardLoading}
         className="bg-red-50 border-[#FFD6A8] [&_.ant-card-body]:!p-3"
         data-cy="my-timesheet-attendance-summary-absents"
       >

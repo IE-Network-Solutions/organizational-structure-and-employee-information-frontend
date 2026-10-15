@@ -55,7 +55,9 @@ const AwaitingApprovalsList: React.FC = () => {
           ? 'Weekly'
           : normalize(period.intervalType) === 'month'
             ? 'Monthly'
-            : period.name;
+            : normalize(period.intervalType) === 'quarter'
+              ? 'Quarterly'
+              : period.name;
     periodMap[period.id] = label;
   });
 
@@ -71,6 +73,11 @@ const AwaitingApprovalsList: React.FC = () => {
   const monthlyPeriodId = planningPeriods?.items?.find(
     (p: any) =>
       normalize(p.intervalType) === 'month' || normalize(p.name) === 'month',
+  )?.id;
+  const quarterlyPeriodId = planningPeriods?.items?.find(
+    (p: any) =>
+      normalize(p.intervalType) === 'quarter' ||
+      normalize(p.name) === 'quarterly',
   )?.id;
 
   // Get plans for each period (similar to planning module)
@@ -89,6 +96,12 @@ const AwaitingApprovalsList: React.FC = () => {
   const { data: monthlyPlans } = useGetPlanning({
     userId: targetUserIds,
     planPeriodId: monthlyPeriodId || '',
+    page: 1,
+    pageSize: 100,
+  });
+  const { data: quarterlyPlans } = useGetPlanning({
+    userId: targetUserIds,
+    planPeriodId: quarterlyPeriodId || '',
     page: 1,
     pageSize: 100,
   });
@@ -112,18 +125,26 @@ const AwaitingApprovalsList: React.FC = () => {
     pageReporting: 1,
     pageSizeReporting: 100,
   });
+  const { data: quarterlyReports } = useGetReporting({
+    userId: targetUserIds,
+    planPeriodId: quarterlyPeriodId || '',
+    pageReporting: 1,
+    pageSizeReporting: 100,
+  });
 
   // Collect all plans and reports
   const allPlans = [
     ...(dailyPlans?.items || []),
     ...(weeklyPlans?.items || []),
     ...(monthlyPlans?.items || []),
+    ...(quarterlyPlans?.items || []),
   ];
 
   const allReports = [
     ...(dailyReports?.items || []),
     ...(weeklyReports?.items || []),
     ...(monthlyReports?.items || []),
+    ...(quarterlyReports?.items || []),
   ];
 
   // Filter open plans (not validated)
@@ -150,6 +171,7 @@ const AwaitingApprovalsList: React.FC = () => {
     Daily: [],
     Weekly: [],
     Monthly: [],
+    Quarterly: [],
   };
 
   // Group plans by their period
@@ -251,7 +273,7 @@ const AwaitingApprovalsList: React.FC = () => {
             id="okr-awaiting-scroll-container-display-div"
             data-cy="okr-awaiting-scroll-container-display-div"
           >
-            {['Daily', 'Weekly', 'Monthly'].map((label) => {
+            {['Daily', 'Weekly', 'Monthly', 'Quarterly'].map((label) => {
               // Filter items by selectedFilter
               const filtered =
                 selectedFilter === 'all'

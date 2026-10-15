@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Button, Card, List, Skeleton, Tag, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -42,19 +43,30 @@ export default function RecentWorkFromHomeRequestCard() {
     permissions: ['view-all-work-from-home-requests'],
   });
 
-  const { data, isFetching } = useGetWorkFromHomeRequest(
-    {
+  const queryData = useMemo(
+    () => ({
       page: 1,
       limit: RECENT_LIMIT,
       orderBy: 'createdAt',
-      orderDirection: 'DESC',
-    },
-    { filter: { userIds: userId ? [userId] : [] } },
+      orderDirection: 'DESC' as const,
+    }),
+    [],
+  );
+
+  const body = useMemo(
+    () => ({ filter: { userIds: userId ? [userId] : [] } }),
+    [userId],
+  );
+
+  const { data, isLoading } = useGetWorkFromHomeRequest(
+    queryData,
+    body,
     true,
     !!userId,
   );
 
   const items = data?.items ?? [];
+  const showSkeleton = isLoading && !data;
 
   const handleOpenCreate = () => {
     setIsShowWorkFromHomeRequestSidebar(true);
@@ -116,7 +128,7 @@ export default function RecentWorkFromHomeRequestCard() {
           className="flex-1 min-h-0 overflow-y-auto pt-2 pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:w-0"
           data-cy="my-timesheet-overview-recent-wfh-list-container"
         >
-          {isFetching ? (
+          {showSkeleton ? (
             <List
               dataSource={Array.from(
                 { length: RECENT_LIMIT },

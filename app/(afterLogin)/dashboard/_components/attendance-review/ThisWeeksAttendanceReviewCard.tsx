@@ -250,7 +250,7 @@ export default function ThisWeeksAttendanceReviewCard() {
   return (
     <Card
       bordered={false}
-      className="bg-white rounded-lg border border-[#E5E7EB] shadow-none "
+      className="bg-white rounded-lg border border-[#E5E7EB] shadow-none h-full"
       bodyStyle={{ padding: 12 }}
       data-cy="this-weeks-attendance-review-card"
     >

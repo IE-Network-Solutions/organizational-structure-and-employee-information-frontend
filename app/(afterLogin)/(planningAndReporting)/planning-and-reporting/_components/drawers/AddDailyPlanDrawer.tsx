@@ -62,6 +62,7 @@ interface WeeklyTaskGroup {
   /** KR payload fields for absolute target bounds */
   keyResultInitialValue?: number | null;
   keyResultTargetValue?: number | null;
+  keyResultStretchValue?: number | null;
   metricTypeName?: string | null;
   remainingCapacity?: number | null;
   isParentCapacityFull?: boolean;
@@ -218,6 +219,7 @@ export default function AddDailyPlanDrawer({
               targetValue: task.targetValue,
               keyResultInitialValue: keyResult.initialValue ?? null,
               keyResultTargetValue: keyResult.targetValue ?? null,
+              keyResultStretchValue: keyResult.stretchValue ?? null,
               metricTypeName,
               remainingCapacity: capacity?.remaining ?? null,
               isParentCapacityFull: capacity?.isFullyUsed === true,
@@ -253,6 +255,7 @@ export default function AddDailyPlanDrawer({
             targetValue: task.targetValue,
             keyResultInitialValue: keyResult.initialValue ?? null,
             keyResultTargetValue: keyResult.targetValue ?? null,
+            keyResultStretchValue: keyResult.stretchValue ?? null,
             metricTypeName,
             remainingCapacity: capacity?.remaining ?? null,
             isParentCapacityFull: capacity?.isFullyUsed === true,
@@ -769,6 +772,8 @@ export default function AddDailyPlanDrawer({
                                                   group.keyResultInitialValue,
                                                 targetValue:
                                                   group.keyResultTargetValue,
+                                                stretchValue:
+                                                  group.keyResultStretchValue,
                                               },
                                             );
                                           if (err) {
@@ -839,6 +844,8 @@ export default function AddDailyPlanDrawer({
                                         initialValue:
                                           group.keyResultInitialValue,
                                         targetValue: group.keyResultTargetValue,
+                                        stretchValue:
+                                          group.keyResultStretchValue,
                                       })}
                                       max={getMetricValueInputMax({
                                         metricType: {
@@ -848,6 +855,8 @@ export default function AddDailyPlanDrawer({
                                         initialValue:
                                           group.keyResultInitialValue,
                                         targetValue: group.keyResultTargetValue,
+                                        stretchValue:
+                                          group.keyResultStretchValue,
                                       })}
                                       className="w-[140px] rounded-lg border-[#E5E7EB] text-right"
                                       controls={false}

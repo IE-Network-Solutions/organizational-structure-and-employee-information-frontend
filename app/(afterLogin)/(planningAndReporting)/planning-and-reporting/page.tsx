@@ -48,6 +48,8 @@ import { PlanningReportingHeaderActions } from './_components/PlanningReportingH
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useSearchParams } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface PlanningPeriod {
   id: string;
@@ -63,6 +65,7 @@ interface PlanningPeriod {
 
 function Page() {
   useFiscalYearSessionSync();
+  const searchParams = useSearchParams();
   const {
     setActiveTab,
     activeTab,
@@ -70,6 +73,11 @@ function Page() {
     setActivePlanPeriod,
     setActivePlanPeriodId,
     setCanProgressForActivePeriod,
+    setSelectedUser,
+    setPlanningFilterPlanType,
+    setPlanningFilterDepartment,
+    setPage,
+    setPageReporting,
     inlinePlanningMode,
     setInlinePlanningMode,
     mobilePlanComposerOpen,
@@ -171,6 +179,51 @@ function Page() {
     );
   }, [processedPlanningPeriods]);
 
+  useEffect(() => {
+    const recipientUserId = useAuthenticationStore.getState().userId;
+    const tab = (searchParams.get('tab') ?? '').toLowerCase();
+    if (tab === 'report' || tab === 'reporting') {
+      setActiveTab(2);
+    } else if (tab === 'plan' || tab === 'planning') {
+      setActiveTab(1);
+    }
+
+    const employeeIdParam = searchParams.get('employeeId');
+    const userIdParam = searchParams.get('userId');
+    const linkedEmployee = employeeIdParam || userIdParam || '';
+    const onlyRecipientFallback =
+      !employeeIdParam && !!userIdParam && userIdParam === recipientUserId;
+
+    if (linkedEmployee && linkedEmployee !== 'all' && !onlyRecipientFallback) {
+      setPlanningFilterPlanType('all');
+      setPlanningFilterDepartment(undefined);
+      setSelectedUser([linkedEmployee]);
+      setPage(1);
+      setPageReporting(1);
+    }
+  }, [
+    searchParams,
+    setActiveTab,
+    setSelectedUser,
+    setPlanningFilterPlanType,
+    setPlanningFilterDepartment,
+    setPage,
+    setPageReporting,
+  ]);
+
+  useEffect(() => {
+    const periodId =
+      searchParams.get('planningPeriodId') ||
+      searchParams.get('periodId') ||
+      '';
+    if (!periodId || tabItems.length === 0) return;
+    const match = tabItems.find((item) => item.id === periodId);
+    if (match?.key) {
+      setActivePlanPeriod(Number(match.key));
+      setActivePlanPeriodId(match.id);
+    }
+  }, [searchParams, tabItems, setActivePlanPeriod, setActivePlanPeriodId]);
+
   const selectedTab = tabItems.find(
     (item) => item.key === String(activePlanPeriod),
   );
@@ -201,8 +254,11 @@ function Page() {
   const {
     planSummaries,
     transformedData,
+    krPlanSummaries,
+    krTransformedData,
     isLoading: planningLoading,
     userId,
+    totalItems: planningTotalItems,
   } = usePlanningData(activeTab === 1);
 
   const {
@@ -249,32 +305,48 @@ function Page() {
     [planningPeriodHierarchy],
   );
 
-  const { reportSummaries, reportingItems } = useReportingData(activeTab === 2);
+  const {
+    reportSummaries,
+    krReportSummaries,
+    krReportingItems,
+    isLoading: reportingLoading,
+    isFilterScopePending: reportingFilterPending,
+  } = useReportingData(activeTab === 2);
 
   const enrichedPlanSummaries = useMemo(
     () =>
       enrichPlanSummariesWithUserKeyResults(planSummaries, userKeyResultItems),
     [planSummaries, userKeyResultItems],
   );
-  const enrichedReportSummaries = useMemo(
+  const enrichedKrPlanSummaries = useMemo(
     () =>
       enrichPlanSummariesWithUserKeyResults(
-        reportSummaries,
+        krPlanSummaries,
         userKeyResultItems,
       ),
-    [reportSummaries, userKeyResultItems],
+    [krPlanSummaries, userKeyResultItems],
+  );
+  const enrichedKrReportSummaries = useMemo(
+    () =>
+      enrichPlanSummariesWithUserKeyResults(
+        krReportSummaries,
+        userKeyResultItems,
+      ),
+    [krReportSummaries, userKeyResultItems],
   );
 
   const krPanelPlans =
-    activeTab === 2 ? enrichedReportSummaries : enrichedPlanSummaries;
+    activeTab === 2 ? enrichedKrReportSummaries : enrichedKrPlanSummaries;
   const krPanelTransformedData =
-    activeTab === 2 ? reportingItems : transformedData;
+    activeTab === 2 ? krReportingItems : krTransformedData;
 
   const krPanelBlockingLoading =
     activeTab === 2
-      ? (userKeyResultsLoading || userObjectivesLoading) &&
-        reportSummaries.length === 0 &&
-        planSummaries.length === 0
+      ? reportingFilterPending ||
+        reportingLoading ||
+        ((userKeyResultsLoading || userObjectivesLoading) &&
+          reportSummaries.length === 0 &&
+          planSummaries.length === 0)
       : planningLoading ||
         ((userKeyResultsLoading || userObjectivesLoading) &&
           planSummaries.length === 0);
@@ -367,6 +439,26 @@ function Page() {
       | undefined;
     return item?.planningPeriod?.name?.trim() || 'Plan';
   }, [processedPlanningPeriods, activePlanPeriod]);
+
+  /** Viewer's progress period; null keeps legacy (every period progresses). */
+  const okrProgressPlanningPeriod = useMemo(() => {
+    const assignments = Array.isArray(planningPeriods) ? planningPeriods : [];
+    return (
+      assignments.find((item: any) => item?.drivesOkrProgress)
+        ?.planningPeriod ?? null
+    );
+  }, [planningPeriods]);
+
+  const isActivePeriodInformational = useMemo(() => {
+    if (!okrProgressPlanningPeriod) return false;
+    const item = processedPlanningPeriods[activePlanPeriod - 1] as
+      | PlanningPeriod
+      | undefined;
+    return (
+      !!item?.planningPeriod?.id &&
+      item.planningPeriod.id !== okrProgressPlanningPeriod.id
+    );
+  }, [okrProgressPlanningPeriod, processedPlanningPeriods, activePlanPeriod]);
 
   useEffect(() => {
     if (!inlinePlanningMode) setSelectedPlanningTargetId(null);
@@ -589,6 +681,12 @@ function Page() {
                               item.canProgress === true,
                             );
                           }}
+                          title={
+                            okrProgressPlanningPeriod?.id ===
+                            item.planningPeriod.id
+                              ? 'Reports on this plan progress your Key Results and Average OKR'
+                              : undefined
+                          }
                           className={classNames(
                             'inline-flex h-9 shrink-0 items-center rounded-md border font-medium transition-colors',
                             'text-xs sm:text-sm',
@@ -599,6 +697,15 @@ function Page() {
                           )}
                         >
                           {item.planningPeriod.name || 'No name available'}
+                          {okrProgressPlanningPeriod?.id ===
+                            item.planningPeriod.id && (
+                            <span
+                              data-cy={`planning-period-pill-okr-badge-${n}`}
+                              className="ml-1.5 rounded bg-blue-50 px-1.5 text-[10px] font-semibold uppercase leading-4 text-blue-700"
+                            >
+                              OKR
+                            </span>
+                          )}
                         </button>
                       );
                     },
@@ -613,6 +720,17 @@ function Page() {
               </div>
             )}
           </div>
+
+          {isActivePeriodInformational && (
+            <div
+              data-cy="planning-period-informational-notice"
+              className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-600 sm:text-sm"
+            >
+              {inlinePlanningPeriodLabel} plans and reports are informational.
+              Your Key Results and Average OKR progress from{' '}
+              {okrProgressPlanningPeriod?.name} reports.
+            </div>
+          )}
 
           {/* ── KR + plans/reports: stacked on mobile/tablet, grid on lg+; same inline create flow everywhere ── */}
           <div
@@ -686,6 +804,7 @@ function Page() {
                       onClearTarget={() => setSelectedPlanningTargetId(null)}
                       onExit={handleInlineWorkspaceExit}
                       editPlanId={inlineEditPlanId}
+                      planAllTargets={planningTargets}
                     />
                   </section>
                 ) : null}
@@ -695,6 +814,7 @@ function Page() {
                   planSummaries={planSummaries}
                   transformedData={transformedData}
                   isLoading={planningLoading}
+                  totalItems={planningTotalItems}
                 />
               </div>
               <div
@@ -820,6 +940,7 @@ function Page() {
               onClearTarget={() => setSelectedPlanningTargetId(null)}
               onExit={handleMobileInlineExit}
               editPlanId={inlineEditPlanId}
+              planAllTargets={planningTargets}
             />
           </div>
         </div>

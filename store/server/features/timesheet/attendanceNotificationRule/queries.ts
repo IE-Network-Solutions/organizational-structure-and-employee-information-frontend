@@ -83,7 +83,7 @@ export const useGetAttendanceNotificationRule = useGetAttendanceRule;
 const getAttendanceRuleTypes = async () => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-types`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-types?page=1&limit=50`,
     method: 'GET',
     headers: requestHeaders,
   });

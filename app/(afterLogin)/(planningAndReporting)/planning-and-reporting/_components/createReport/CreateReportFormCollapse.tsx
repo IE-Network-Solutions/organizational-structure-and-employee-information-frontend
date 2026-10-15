@@ -10,6 +10,7 @@ import {
   validateMetricValueAgainstInitial,
 } from '@/utils/okrMetricValueBounds';
 import { metricAddonSymbol } from './reportFormUtils';
+import { resolveDoneActualValue } from '@/utils/reportActualValue';
 
 const { TextArea } = Input;
 
@@ -132,6 +133,18 @@ export function CreateReportFormCollapse({
                             ),
                           );
                         }
+                        const achievedMax = getMetricValueInputMax(keyresult);
+                        if (
+                          isDone &&
+                          achievedMax != null &&
+                          numericValue > achievedMax
+                        ) {
+                          return Promise.reject(
+                            new Error(
+                              `Max ${Number(achievedMax).toLocaleString()}`,
+                            ),
+                          );
+                        }
                         if (isNot && numericValue > task?.targetValue) {
                           return Promise.reject(
                             new Error(
@@ -187,7 +200,10 @@ export function CreateReportFormCollapse({
                       form.setFieldsValue({
                         [task.taskId]: {
                           status: 'Done',
-                          actualValue: Number(task?.targetValue ?? 0),
+                          actualValue: resolveDoneActualValue(
+                            form.getFieldValue([task.taskId, 'actualValue']),
+                            task?.targetValue,
+                          ),
                         },
                       });
                     }}

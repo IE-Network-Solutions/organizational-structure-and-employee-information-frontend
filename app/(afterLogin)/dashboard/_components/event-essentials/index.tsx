@@ -228,7 +228,7 @@ function EssentialsListCard({
     <Card
       bordered={false}
       bodyStyle={{ padding: 0 }}
-      className="p-4 bg-white rounded-lg border border-[#E5E7EB] shadow-none flex flex-col h-[152px]"
+      className="p-4 bg-white rounded-lg border border-[#E5E7EB] shadow-none flex flex-col h-full min-h-[152px]"
       data-cy={dataCy}
     >
       <div
@@ -260,72 +260,79 @@ function EssentialsListCard({
   );
 }
 
-export default function EventEssentials() {
+export function TodaysBirthdaysEssentialsCard() {
   const { data: birthDays, isLoading: birthdayLoading } = useGetBirthDay();
-  const { data: workAnniversaries, isLoading: anniversaryLoading } =
-    useGetWorkAnniversary();
-
   const birthdays = birthDays ?? [];
-  const anniversaries = workAnniversaries ?? [];
+
+  if (birthdayLoading) return <EssentialsCardSkeleton />;
 
   return (
+    <EssentialsListCard
+      title="Today's Birthdays"
+      icon={<MdOutlineCake />}
+      iconWrapClass="bg-[#FFF0F6] text-[#F759AB]"
+      dataCy="dashboard-event-essentials-birthdays-card"
+    >
+      {birthdays.length === 0 ? (
+        <div
+          className="text-sm text-gray-500 flex items-center justify-center py-8"
+          data-cy="dashboard-event-essentials-birthdays-empty"
+        >
+          No birthdays today
+        </div>
+      ) : (
+        birthdays.map((person, index) => (
+          <BirthdayRow
+            key={`${person.user?.firstName}-${index}`}
+            person={person}
+          />
+        ))
+      )}
+    </EssentialsListCard>
+  );
+}
+
+export function WorkAnniversariesEssentialsCard() {
+  const { data: workAnniversaries, isLoading: anniversaryLoading } =
+    useGetWorkAnniversary();
+  const anniversaries = workAnniversaries ?? [];
+
+  if (anniversaryLoading) return <EssentialsCardSkeleton withBadge />;
+
+  return (
+    <EssentialsListCard
+      title="Work Anniversaries"
+      icon={<MdCardGiftcard />}
+      iconWrapClass="bg-[#FFF7E6] text-[#FA8C16]"
+      dataCy="dashboard-event-essentials-anniversaries-card"
+    >
+      {anniversaries.length === 0 ? (
+        <div
+          className="text-sm text-gray-500 flex items-center justify-center py-8"
+          data-cy="dashboard-event-essentials-anniversaries-empty"
+        >
+          No work anniversaries today
+        </div>
+      ) : (
+        anniversaries.map((person, index) => (
+          <AnniversaryRow
+            key={`${person.user?.firstName}-${person.joinedDate}-${index}`}
+            person={person}
+          />
+        ))
+      )}
+    </EssentialsListCard>
+  );
+}
+
+export default function EventEssentials() {
+  return (
     <div
-      className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-5 "
+      className="grid grid-cols-1 md:grid-cols-2 gap-4 "
       data-cy="dashboard-event-essentials"
     >
-      {birthdayLoading ? (
-        <EssentialsCardSkeleton />
-      ) : (
-        <EssentialsListCard
-          title="Today's Birthdays"
-          icon={<MdOutlineCake />}
-          iconWrapClass="bg-[#FFF0F6] text-[#F759AB]"
-          dataCy="dashboard-event-essentials-birthdays-card"
-        >
-          {birthdays.length === 0 ? (
-            <div
-              className="text-sm text-gray-500 flex items-center justify-center py-8"
-              data-cy="dashboard-event-essentials-birthdays-empty"
-            >
-              No birthdays today
-            </div>
-          ) : (
-            birthdays.map((person, index) => (
-              <BirthdayRow
-                key={`${person.user?.firstName}-${index}`}
-                person={person}
-              />
-            ))
-          )}
-        </EssentialsListCard>
-      )}
-
-      {anniversaryLoading ? (
-        <EssentialsCardSkeleton withBadge />
-      ) : (
-        <EssentialsListCard
-          title="Work Anniversaries"
-          icon={<MdCardGiftcard />}
-          iconWrapClass="bg-[#FFF7E6] text-[#FA8C16]"
-          dataCy="dashboard-event-essentials-anniversaries-card"
-        >
-          {anniversaries.length === 0 ? (
-            <div
-              className="text-sm text-gray-500 flex items-center justify-center py-8"
-              data-cy="dashboard-event-essentials-anniversaries-empty"
-            >
-              No work anniversaries today
-            </div>
-          ) : (
-            anniversaries.map((person, index) => (
-              <AnniversaryRow
-                key={`${person.user?.firstName}-${person.joinedDate}-${index}`}
-                person={person}
-              />
-            ))
-          )}
-        </EssentialsListCard>
-      )}
+      <TodaysBirthdaysEssentialsCard />
+      <WorkAnniversariesEssentialsCard />
     </div>
   );
 }

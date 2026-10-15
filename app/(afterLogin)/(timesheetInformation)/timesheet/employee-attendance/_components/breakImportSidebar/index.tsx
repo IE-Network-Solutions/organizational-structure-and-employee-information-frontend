@@ -139,6 +139,7 @@ const BreakImportSidebar = () => {
           <Form.Item
             name="breakType"
             label="Checkin type"
+            extra="Rows are only imported when this break is assigned to the employee's shift that day."
             id="time-attendance-employee-attendance-break-import-type-select"
             data-cy="time-attendance-employee-attendance-break-import-type-select"
             rules={[{ required: true, message: 'Required' }]}

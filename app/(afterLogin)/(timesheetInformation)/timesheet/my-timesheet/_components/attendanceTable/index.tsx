@@ -93,6 +93,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
 
     { filter: { ...userFilter, ...filter } },
   );
+  const showTableSkeleton = isFetching && !data;
   const { isMobile, isTablet } = useIsMobile();
 
   const safeAttendancePageSize = pageSize > 0 ? pageSize : 1;
@@ -535,7 +536,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         id="time-attendance-attendance-table-content"
         data-cy="time-attendance-attendance-table-content"
       >
-        {isFetching ? (
+        {showTableSkeleton ? (
           <TableSkeleton columns={columns} />
         ) : (
           <Table<AttendanceRecord>

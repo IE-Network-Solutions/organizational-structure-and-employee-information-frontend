@@ -134,6 +134,7 @@ export default function WorkFromHomeMyRequestsTable({
     true,
     showAllEmployees ? true : !!userId,
   );
+  const showTableSkeleton = isFetching && !data;
 
   useEffect(() => {
     if (data?.items) {
@@ -347,7 +348,7 @@ export default function WorkFromHomeMyRequestsTable({
           className="overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           data-cy="time-attendance-wfh-my-requests-table-scroll"
         >
-          {isFetching ? (
+          {showTableSkeleton ? (
             <TableSkeleton columns={columns} />
           ) : (
             <Table
