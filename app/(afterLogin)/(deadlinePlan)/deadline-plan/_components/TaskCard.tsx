@@ -2,7 +2,11 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import classNames from 'classnames';
-import { CalendarOutlined, AimOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  AimOutlined,
+  UnorderedListOutlined,
+} from '@ant-design/icons';
 import { DeadlineTask } from '@/store/server/features/deadlinePlan/interface';
 import TaskCompletion from './TaskCompletion';
 import { UserAvatar } from './TaskBadges';
@@ -86,6 +90,17 @@ export default function TaskCard({
           >
             <CalendarOutlined /> {dateLabel}
           </time>
+          {task.subTasks?.length ? (
+            <span
+              data-cy="deadline-task-subtask-progress"
+              className="inline-flex items-center gap-1.5"
+              aria-label={`${task.subTasks.filter(isTaskDone).length} of ${task.subTasks.length} subtasks completed`}
+              title="Completed subtasks"
+            >
+              <UnorderedListOutlined />
+              {task.subTasks.filter(isTaskDone).length}/{task.subTasks.length}
+            </span>
+          ) : null}
           <span
             data-cy="deadline-task-assignee"
             className="inline-flex min-w-0 max-w-full items-center gap-1.5 sm:ml-auto"

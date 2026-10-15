@@ -7,6 +7,7 @@ import {
   useReportDeadlineTasks,
   useUnreportDeadlineTasks,
   useLockDeadlinePlans,
+  useCommentOnDeadlineTask,
 } from './mutations';
 import { crudRequest } from '@/utils/crudRequest';
 import { searchDeadlineTasks } from './queries';
@@ -152,11 +153,9 @@ describe('visible plan lock actions', () => {
       .mockResolvedValueOnce(taskPage(tasks.slice(0, 100), 3))
       .mockResolvedValueOnce(taskPage(tasks.slice(100, 200), 3, 2))
       .mockResolvedValueOnce(taskPage(tasks.slice(200), 3, 3));
-    jest
-      .mocked(crudRequest)
-      .mockImplementation(async (request: any) => ({
-        affected: request.data.taskIds.length,
-      }));
+    jest.mocked(crudRequest).mockImplementation(async (request: any) => ({
+      affected: request.data.taskIds.length,
+    }));
     const { client, wrapper } = setup();
     const { result } = renderHook(() => useLockDeadlinePlans(), { wrapper });
     let affected = 0;
@@ -207,6 +206,30 @@ describe('visible plan lock actions', () => {
   });
 });
 describe('Deadline report refresh', () => {
+  it('saves manager feedback independently of approval and refreshes the report', async () => {
+    jest
+      .mocked(crudRequest)
+      .mockResolvedValue(
+        activeTask('task', { approvalComment: 'Correct this' }),
+      );
+    const { client, wrapper } = setup();
+    const invalidations = jest.spyOn(client, 'invalidateQueries');
+    const { result } = renderHook(() => useCommentOnDeadlineTask(), {
+      wrapper,
+    });
+    await act(async () => {
+      await result.current.mutateAsync({ id: 'task', comment: 'Correct this' });
+    });
+    expect(crudRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: 'https://okr.example.test/deadline-tasks/task/comment',
+        method: 'patch',
+        data: { comment: 'Correct this' },
+      }),
+    );
+    expect(invalidations).toHaveBeenCalledWith('deadlineTasks');
+    client.clear();
+  });
   it('submits manager feedback with the approval and refreshes tasks', async () => {
     jest.mocked(crudRequest).mockResolvedValue({ affected: 2 });
     const { client, wrapper } = setup();

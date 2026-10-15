@@ -24,7 +24,7 @@ export default function TaskCompletion({
       aria-checked={done}
       aria-label={`${done ? 'Mark as not done' : 'Mark as done'}: ${task.title}`}
       disabled={!actions.canToggle(task, parent) || actions.isToggling}
-      onClick={() => actions.toggleDone(task, onReport)}
+      onClick={() => actions.toggleDone(task, onReport, parent)}
       data-cy={`deadline-task-done-${task.id}`}
       className={classNames(
         'mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-okr-primary disabled:cursor-default',

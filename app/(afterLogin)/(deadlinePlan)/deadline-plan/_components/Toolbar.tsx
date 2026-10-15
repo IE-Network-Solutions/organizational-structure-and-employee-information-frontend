@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import classNames from 'classnames';
-import { Button, DatePicker, Popover, Select } from 'antd';
+import { Button, Checkbox, DatePicker, Popover, Select } from 'antd';
 import { FilterOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   DeadlineTaskSearchFilter,
@@ -41,6 +41,8 @@ interface ToolbarProps {
   directReportIds: string[];
   getDepartmentMemberIds: (department: string) => string[];
   filter: DeadlineTaskSearchFilter;
+  selectedPlanIds?: string[];
+  onPlanSelectionChange?: (ids: string[]) => void;
   className?: string;
 }
 
@@ -52,6 +54,8 @@ export default function Toolbar({
   directReportIds,
   getDepartmentMemberIds,
   filter,
+  selectedPlanIds = [],
+  onPlanSelectionChange,
   className,
 }: ToolbarProps) {
   const {
@@ -102,6 +106,12 @@ export default function Toolbar({
     department !== 'all' ||
     status !== 'active' ||
     assigneeIds !== null;
+  const manageablePlanIds = filter.assigneeIds.filter(
+    (id) => id !== userId && directReportIds.includes(id),
+  );
+  const selectedCount = selectedPlanIds.filter((id) =>
+    manageablePlanIds.includes(id),
+  ).length;
 
   const scopeFields = (
     <>
@@ -351,11 +361,41 @@ export default function Toolbar({
         className="flex flex-wrap items-center justify-between gap-3"
       >
         <ViewSwitcher value={viewMode} onChange={setViewMode} />
-        <PlanLockActions
-          filter={filter}
-          userId={userId}
-          directReportIds={directReportIds}
-        />
+        <div className="flex flex-wrap items-center gap-3">
+          {viewMode === 'grouped' &&
+          onPlanSelectionChange &&
+          manageablePlanIds.length > 0 &&
+          filter.status !== 'reported' ? (
+            <>
+              <Checkbox
+                checked={selectedCount === manageablePlanIds.length}
+                indeterminate={
+                  selectedCount > 0 && selectedCount < manageablePlanIds.length
+                }
+                onChange={(event) =>
+                  onPlanSelectionChange(
+                    event.target.checked ? manageablePlanIds : [],
+                  )
+                }
+              >
+                Select all plans
+              </Checkbox>
+              {selectedCount > 0 ? (
+                <span className="text-xs text-slate-500">
+                  {selectedCount} selected
+                </span>
+              ) : null}
+            </>
+          ) : null}
+          <PlanLockActions
+            filter={filter}
+            userId={userId}
+            directReportIds={directReportIds}
+            selectedAssigneeIds={
+              viewMode === 'grouped' ? selectedPlanIds : undefined
+            }
+          />
+        </div>
       </div>
     </div>
   );

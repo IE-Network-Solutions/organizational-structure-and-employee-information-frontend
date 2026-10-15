@@ -53,15 +53,13 @@ beforeEach(() => {
   });
 });
 
-describe('manager approval comment', () => {
-  it('submits trimmed feedback and closes only after successful approval', () => {
+describe('report approval after feedback', () => {
+  it('approves without coupling comment submission to approval and closes only after success', () => {
     render(<ApproveTaskModal />);
-    fireEvent.change(screen.getByLabelText(/Manager comment/), {
-      target: { value: '  Well done.  ' },
-    });
+    expect(screen.queryByRole('textbox')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Approve report' }));
     expect(mockApprove).toHaveBeenCalledWith(
-      { taskIds: ['task'], comment: 'Well done.' },
+      { taskIds: ['task'] },
       expect.any(Object),
     );
     expect(useDeadlinePlanStore.getState().approvalRequest).not.toBeNull();
@@ -69,24 +67,21 @@ describe('manager approval comment', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('keeps the comment optional and supports bulk approval', () => {
+  it('supports bulk approval and directs managers to save feedback beforehand', () => {
     useDeadlinePlanStore.setState({
       approvalRequest: { taskIds: ['one', 'two'], title: 'Hana’s reports' },
     });
     render(<ApproveTaskModal />);
     fireEvent.click(screen.getByRole('button', { name: 'Approve reports' }));
     expect(mockApprove).toHaveBeenCalledWith(
-      { taskIds: ['one', 'two'], comment: undefined },
+      { taskIds: ['one', 'two'] },
       expect.any(Object),
     );
-    expect(screen.getByText(/saved on each approved task report/)).toBeTruthy();
+    expect(screen.getByText(/Save any feedback in each task/)).toBeTruthy();
   });
 
-  it('discards a canceled draft and clears it when a different approval is opened', () => {
+  it('cancels without approving and opens the next report', () => {
     render(<ApproveTaskModal />);
-    fireEvent.change(screen.getByLabelText(/Manager comment/), {
-      target: { value: 'Old draft' },
-    });
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(mockApprove).not.toHaveBeenCalled();
     act(() =>
@@ -94,18 +89,12 @@ describe('manager approval comment', () => {
         approvalRequest: { taskIds: ['next'], title: 'Next report' },
       }),
     );
-    expect(
-      (screen.getByLabelText(/Manager comment/) as HTMLTextAreaElement).value,
-    ).toBe('');
+    expect(screen.getByText('Next report')).toBeTruthy();
   });
 
-  it('disables submission and input while approval is pending', () => {
+  it('disables submission while approval is pending', () => {
     mockIsLoading = true;
     render(<ApproveTaskModal />);
-    expect(
-      (screen.getByLabelText(/Manager comment/) as HTMLTextAreaElement)
-        .disabled,
-    ).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: 'Approve report' }));
     expect(mockApprove).not.toHaveBeenCalled();
   });

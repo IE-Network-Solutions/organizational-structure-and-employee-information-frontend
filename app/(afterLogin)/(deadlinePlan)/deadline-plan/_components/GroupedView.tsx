@@ -15,6 +15,8 @@ interface GroupedViewProps {
   filter: Omit<DeadlineTaskSearchFilter, 'assigneeIds'>;
   viewer: TaskViewer;
   getPerson: (id: string | null | undefined) => PersonOption | null;
+  selectedPlanIds?: string[];
+  onPlanSelectionChange?: (id: string, selected: boolean) => void;
 }
 
 /** One plan card per selected person, "My Plan" first. */
@@ -23,6 +25,8 @@ export default function GroupedView({
   filter,
   viewer,
   getPerson,
+  selectedPlanIds = [],
+  onPlanSelectionChange,
 }: GroupedViewProps) {
   const [visibleCount, setVisibleCount] = useState(CARD_BATCH_SIZE);
 
@@ -45,6 +49,12 @@ export default function GroupedView({
           filter={filter}
           viewer={viewer}
           getPerson={getPerson}
+          selected={selectedPlanIds.includes(assigneeId)}
+          onSelectionChange={
+            onPlanSelectionChange
+              ? (selected) => onPlanSelectionChange(assigneeId, selected)
+              : undefined
+          }
         />
       ))}
 

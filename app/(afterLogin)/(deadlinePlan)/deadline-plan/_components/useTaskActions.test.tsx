@@ -80,25 +80,7 @@ beforeEach(() => {
 });
 
 describe('preserved task actions', () => {
-  it('opens comment review before approving a subordinate report', () => {
-    const { result } = renderHook(() =>
-      useTaskActions({ ...viewer, subordinateIds: ['employee'] }),
-    );
-    const task = taskOf({
-      assigneeId: 'employee',
-      status: 'reported',
-      approvalStatus: 'pending',
-    });
-    const approval = result.current
-      .menuItemsOf(task)
-      ?.find((item: any) => item?.key === 'approve') as any;
-    act(() => approval.onClick());
-    expect(mockSetApprovalRequest).toHaveBeenCalledWith({
-      taskIds: ['task'],
-      title: 'Prepare the launch',
-    });
-  });
-  it('keeps task locks outside the menu and retains report approval', () => {
+  it('keeps lock and approval controls outside the menu', () => {
     const { result } = renderHook(() =>
       useTaskActions({ ...viewer, subordinateIds: ['employee'] }),
     );
@@ -113,7 +95,24 @@ describe('preserved task actions', () => {
       result.current
         .menuItemsOf(taskOf({ assigneeId: 'employee', status: 'reported' }))
         ?.map((item: any) => item?.label),
-    ).toContain('Approve reported');
+    ).not.toContain('Approve reported');
+  });
+
+  it('gives managers no Edit, Report, Delete or completion access to subordinate tasks and subtasks', () => {
+    const { result } = renderHook(() =>
+      useTaskActions({ ...viewer, subordinateIds: ['employee'] }),
+    );
+    const parent = taskOf({ assigneeId: 'employee' });
+    const child = taskOf({ assigneeId: 'employee', parentTaskId: 'task' });
+    expect(result.current.menuItemsOf(parent)).toEqual([]);
+    expect(result.current.menuItemsOf(child, parent)).toEqual([]);
+    expect(result.current.canToggle(parent)).toBe(false);
+    expect(result.current.canToggle(child, parent)).toBe(false);
+    act(() => result.current.toggleDone(parent));
+    act(() => result.current.toggleDone(child, undefined, parent));
+    expect(mockReport).not.toHaveBeenCalled();
+    expect(mockSetReportingTask).not.toHaveBeenCalled();
+    expect(mockOpenTaskForm).not.toHaveBeenCalled();
   });
 
   it('exposes a visible task lock button only for the direct manager', () => {
@@ -223,6 +222,52 @@ describe('preserved task actions', () => {
         }),
       ),
     ).toBe(false);
+  });
+
+  it('shows completed subtask progress on the card and resets it after reports are undone', () => {
+    const { result } = renderHook(() => useTaskActions(viewer));
+    const children = [
+      taskOf({ id: 'one', status: 'reported', outcome: 'done' }),
+      taskOf({ id: 'two', status: 'reported', outcome: 'not_done' }),
+      taskOf({ id: 'three' }),
+    ];
+    const { rerender } = render(
+      <TaskCard
+        task={taskOf({ subTasks: children })}
+        person={null}
+        actions={result.current}
+        onOpen={jest.fn()}
+      />,
+    );
+    expect(
+      screen.getByLabelText('1 of 3 subtasks completed').textContent,
+    ).toContain('1/3');
+    rerender(
+      <TaskCard
+        task={taskOf({
+          subTasks: children.map((child) => ({
+            ...child,
+            status: 'active',
+            outcome: null,
+          })),
+        })}
+        person={null}
+        actions={result.current}
+        onOpen={jest.fn()}
+      />,
+    );
+    expect(
+      screen.getByLabelText('0 of 3 subtasks completed').textContent,
+    ).toContain('0/3');
+    rerender(
+      <TaskCard
+        task={taskOf()}
+        person={null}
+        actions={result.current}
+        onOpen={jest.fn()}
+      />,
+    );
+    expect(screen.queryByTitle('Completed subtasks')).toBeNull();
   });
 
   it('opens details from the card and keeps the completion control separate', () => {

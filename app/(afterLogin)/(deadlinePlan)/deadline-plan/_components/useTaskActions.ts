@@ -20,9 +20,6 @@ export function useTaskActions(viewer: TaskViewer) {
   const setReportingTask = useDeadlinePlanStore(
     (state) => state.setReportingTask,
   );
-  const setApprovalRequest = useDeadlinePlanStore(
-    (state) => state.setApprovalRequest,
-  );
   const { mutate: reportTasks, isLoading: isReporting } =
     useReportDeadlineTasks();
   const { mutate: unreportTasks, isLoading: isUndoing } =
@@ -40,7 +37,12 @@ export function useTaskActions(viewer: TaskViewer) {
       : permissions.canReport;
   };
 
-  const toggleDone = (task: DeadlineTask, onReport?: () => void) => {
+  const toggleDone = (
+    task: DeadlineTask,
+    onReport?: () => void,
+    parent?: DeadlineTask,
+  ) => {
+    if (!canToggle(task, parent) || isReporting || isUndoing) return;
     if (isTaskDone(task)) {
       unreportTasks([task.id]);
     } else if (
@@ -59,6 +61,11 @@ export function useTaskActions(viewer: TaskViewer) {
     if (isLocking || !(isLocked ? permissions.canLock : permissions.canUnlock))
       return;
     lockTasks({ taskIds: [task.id], isLocked });
+  };
+
+  const undoReport = (task: DeadlineTask) => {
+    if (!permissionsOf(task).canUndoReport || isUndoing) return;
+    unreportTasks([task.id]);
   };
 
   const menuItemsOf = (
@@ -116,15 +123,7 @@ export function useTaskActions(viewer: TaskViewer) {
       items.push({
         key: 'undo',
         label: task.approvalStatus === 'closed' ? 'Reopen' : 'Undo report',
-        onClick: () => unreportTasks([task.id]),
-      });
-    }
-    if (permissions.canApprove) {
-      items.push({
-        key: 'approve',
-        label: 'Approve reported',
-        onClick: () =>
-          setApprovalRequest({ taskIds: [task.id], title: task.title }),
+        onClick: () => undoReport(task),
       });
     }
     if (permissions.canEdit) {
@@ -145,6 +144,7 @@ export function useTaskActions(viewer: TaskViewer) {
     permissionsOf,
     canToggle,
     toggleDone,
+    undoReport,
     menuItemsOf,
     setLock,
     isLocking,

@@ -18,6 +18,12 @@ jest.mock('@/store/server/features/deadlinePlan/queries', () => ({
 }));
 
 jest.mock('antd', () => ({
+  Checkbox: ({ checked, onChange, children }: any) => (
+    <label>
+      <input type="checkbox" checked={checked} onChange={onChange} />
+      {children}
+    </label>
+  ),
   Button: ({ children, onClick, ...props }: any) => (
     <button
       onClick={onClick}
@@ -237,5 +243,40 @@ describe('explicit filter application', () => {
     expect(lock.disabled).toBe(true);
     fireEvent.click(lock);
     expect(mockLockPlans).not.toHaveBeenCalled();
+  });
+
+  it('selects multiple direct reports for a bulk lock without including Self or unrelated plans', () => {
+    useDeadlinePlanStore.setState({ viewMode: 'grouped' });
+    const onSelectionChange = jest.fn();
+    const bulkProps = {
+      ...props,
+      directReportIds: ['alice', 'bob'],
+      filter: { ...props.filter, assigneeIds: ['me', 'alice', 'bob', 'other'] },
+      onPlanSelectionChange: onSelectionChange,
+    };
+    const { rerender } = render(
+      <Toolbar {...bulkProps} selectedPlanIds={[]} />,
+    );
+    expect(
+      (screen.getByRole('button', { name: 'Lock plans' }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Select all plans' }));
+    expect(onSelectionChange).toHaveBeenCalledWith(['alice', 'bob']);
+    rerender(<Toolbar {...bulkProps} selectedPlanIds={['alice', 'bob']} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Lock plans' }));
+    expect(mockLockPlans).toHaveBeenLastCalledWith({
+      filter: { ...bulkProps.filter, assigneeIds: ['alice', 'bob'] },
+      isLocked: true,
+    });
+    mockLockState = 'locked';
+    rerender(<Toolbar {...bulkProps} selectedPlanIds={['bob']} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Unlock plans' }));
+    expect(mockLockPlans).toHaveBeenLastCalledWith({
+      filter: { ...bulkProps.filter, assigneeIds: ['bob'] },
+      isLocked: false,
+    });
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Select all plans' }));
+    expect(onSelectionChange).toHaveBeenLastCalledWith(['alice', 'bob']);
   });
 });

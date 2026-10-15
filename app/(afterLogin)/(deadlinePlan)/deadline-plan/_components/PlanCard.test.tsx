@@ -94,6 +94,42 @@ beforeEach(() => {
 });
 
 describe('grouped subordinate plan controls', () => {
+  it('offers plan selection only for direct reports', () => {
+    const onSelectionChange = jest.fn();
+    const { rerender } = render(
+      <PlanCard
+        assigneeId="employee"
+        filter={filter}
+        viewer={viewer}
+        getPerson={getPerson}
+        onSelectionChange={onSelectionChange}
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole('checkbox', { name: "Select Hana Bekele's plan" }),
+    );
+    expect(onSelectionChange).toHaveBeenCalledWith(true);
+    rerender(
+      <PlanCard
+        assigneeId="manager"
+        filter={filter}
+        viewer={viewer}
+        getPerson={getPerson}
+        onSelectionChange={onSelectionChange}
+      />,
+    );
+    expect(screen.queryByRole('checkbox')).toBeNull();
+    rerender(
+      <PlanCard
+        assigneeId="employee"
+        filter={filter}
+        viewer={{ ...viewer, subordinateIds: [], canManageAll: true }}
+        getPerson={getPerson}
+        onSelectionChange={onSelectionChange}
+      />,
+    );
+    expect(screen.queryByRole('checkbox')).toBeNull();
+  });
   it('queries the chosen person and opens task creation with that assignee', () => {
     render(
       <PlanCard

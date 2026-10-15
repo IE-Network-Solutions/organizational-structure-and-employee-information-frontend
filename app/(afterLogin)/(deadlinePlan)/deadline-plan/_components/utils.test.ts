@@ -191,6 +191,7 @@ describe('resolveTaskPermissions', () => {
       canLock: false,
       canUnlock: false,
       canApprove: false,
+      canComment: false,
     });
   });
 
@@ -216,6 +217,25 @@ describe('resolveTaskPermissions', () => {
     expect(permissions.canEdit).toBe(false);
   });
 
+  it('keeps subordinate editing and reporting assignee-only while allowing manager locks and feedback', () => {
+    const permissions = resolveTaskPermissions(
+      taskOf({ assigneeId: 'alice' }),
+      viewerOf({ subordinateIds: ['alice'] }),
+    );
+    expect(permissions).toMatchObject({
+      canEdit: false,
+      canReport: false,
+      canLock: true,
+      canComment: true,
+    });
+    expect(
+      resolveTaskPermissions(
+        taskOf({ assigneeId: 'alice', approvalStatus: 'closed' }),
+        viewerOf({ subordinateIds: ['alice'] }),
+      ).canComment,
+    ).toBe(false);
+  });
+
   it('does not grant approval to the task creator', () => {
     expect(
       resolveTaskPermissions(
@@ -235,6 +255,7 @@ describe('resolveTaskPermissions', () => {
       canLock: false,
       canUnlock: false,
       canApprove: false,
+      canComment: false,
     });
   });
 

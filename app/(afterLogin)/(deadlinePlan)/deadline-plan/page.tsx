@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { DeadlineTaskSearchFilter } from '@/store/server/features/deadlinePlan/interface';
@@ -61,6 +61,11 @@ function DeadlinePlanPage() {
     () => ({ ...baseFilter, assigneeIds: selectedAssigneeIds }),
     [baseFilter, selectedAssigneeIds],
   );
+  const [selectedPlanIds, setSelectedPlanIds] = useState<string[]>([]);
+  const selectionScope = JSON.stringify([listFilter, viewMode]);
+  useEffect(() => {
+    setSelectedPlanIds([]);
+  }, [selectionScope]);
 
   return (
     <div
@@ -94,6 +99,8 @@ function DeadlinePlanPage() {
           directReportIds={subordinateIds}
           getDepartmentMemberIds={getDepartmentMemberIds}
           filter={listFilter}
+          selectedPlanIds={selectedPlanIds}
+          onPlanSelectionChange={setSelectedPlanIds}
         />
 
         <div
@@ -112,6 +119,14 @@ function DeadlinePlanPage() {
               filter={baseFilter}
               viewer={viewer}
               getPerson={getPerson}
+              selectedPlanIds={selectedPlanIds}
+              onPlanSelectionChange={(id, selected) =>
+                setSelectedPlanIds((current) =>
+                  selected
+                    ? Array.from(new Set([...current, id]))
+                    : current.filter((item) => item !== id),
+                )
+              }
             />
           )}
         </div>

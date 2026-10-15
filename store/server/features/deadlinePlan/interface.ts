@@ -58,6 +58,8 @@ export interface DeadlineTask {
   approvedById: string | null;
   approvedAt?: string | null;
   approvalComment?: string | null;
+  commentedById?: string | null;
+  commentedAt?: string | null;
   createdAt: string;
 }
 

@@ -7,6 +7,7 @@ import {
   AimOutlined,
   CalendarOutlined,
   CheckCircleOutlined,
+  CommentOutlined,
   FileTextOutlined,
   FlagOutlined,
   LinkOutlined,
@@ -26,6 +27,7 @@ import {
 } from './TaskBadges';
 import TaskCompletion from './TaskCompletion';
 import TaskLockButton from './TaskLockButton';
+import TaskReview from './TaskReview';
 import { PersonOption } from './useDeadlinePeople';
 import { isTaskDone, TaskActions } from './useTaskActions';
 import {
@@ -145,6 +147,20 @@ export default function TaskDetailsModal({
               data-cy="deadline-detail-management-actions"
             >
               <TaskLockButton task={task} actions={actions} />
+              {permissions?.canComment ? (
+                <Button
+                  type="text"
+                  icon={<CommentOutlined />}
+                  onClick={() =>
+                    document
+                      .getElementById(`deadline-review-comment-${task.id}`)
+                      ?.focus()
+                  }
+                  className="!text-slate-500"
+                >
+                  Comment
+                </Button>
+              ) : null}
               {menuItems?.length ? (
                 <Dropdown
                   menu={{ items: menuItems }}
@@ -398,36 +414,9 @@ export default function TaskDetailsModal({
                       {task.customReason}
                     </p>
                   ) : null}
-                  {task.approvalStatus === 'closed' && task.approvalComment ? (
-                    <div
-                      className="mt-4 border-t border-[#F1F2F6] pt-4"
-                      data-cy="deadline-detail-manager-comment"
-                    >
-                      <h4
-                        className="text-xs font-semibold text-[#161A2C]"
-                        data-cy="deadline-detail-manager-comment-heading"
-                      >
-                        Manager comment
-                      </h4>
-                      <p
-                        className="mt-1 text-[11px] text-slate-500"
-                        data-cy="deadline-detail-manager-comment-author"
-                      >
-                        {getPerson(task.approvedById)?.name ?? 'Direct manager'}
-                        {task.approvedAt
-                          ? ` · ${dayjs(task.approvedAt).format('MMM D, YYYY · h:mm A')}`
-                          : ''}
-                      </p>
-                      <p
-                        className="mt-2 whitespace-pre-wrap break-words text-sm text-[#161A2C]"
-                        data-cy="deadline-detail-manager-comment-text"
-                      >
-                        {task.approvalComment}
-                      </p>
-                    </div>
-                  ) : null}
                 </div>
               ) : null}
+              <TaskReview task={task} actions={actions} getPerson={getPerson} />
 
               {permissions?.canEdit || permissions?.canReport ? (
                 <div

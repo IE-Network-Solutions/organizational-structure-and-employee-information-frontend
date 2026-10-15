@@ -146,6 +146,7 @@ export interface TaskPermissions {
   canLock: boolean;
   canUnlock: boolean;
   canApprove: boolean;
+  canComment: boolean;
 }
 
 export function resolveTaskPermissions(
@@ -160,13 +161,14 @@ export function resolveTaskPermissions(
   const open = !reported && !closed;
 
   return {
-    canEdit: involved && open && !task.isLocked,
-    canReport: involved && open,
+    canEdit: isOwn && open && !task.isLocked,
+    canReport: isOwn && open,
     // Only a manager can reopen a task that has been closed.
     canUndoReport: (reported || closed) && (closed ? manages : involved),
     canLock: manages && open && !task.isLocked,
     canUnlock: manages && open && task.isLocked,
     canApprove: manages && reported && !closed,
+    canComment: manages && !closed,
   };
 }
 

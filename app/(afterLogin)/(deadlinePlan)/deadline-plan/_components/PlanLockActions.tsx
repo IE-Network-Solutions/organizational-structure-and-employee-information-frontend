@@ -10,27 +10,34 @@ export default function PlanLockActions({
   filter,
   userId,
   directReportIds,
+  selectedAssigneeIds,
 }: {
   filter: DeadlineTaskSearchFilter;
   userId: string;
   directReportIds: string[];
+  selectedAssigneeIds?: string[];
 }) {
   const { mutate, isLoading } = useLockDeadlinePlans();
-  const managedIds = filter.assigneeIds.filter(
+  const availableIds = filter.assigneeIds.filter(
     (id) => id !== userId && directReportIds.includes(id),
   );
+  const managedIds =
+    selectedAssigneeIds === undefined
+      ? availableIds
+      : availableIds.filter((id) => selectedAssigneeIds.includes(id));
   const managedFilter = { ...filter, assigneeIds: managedIds };
   const {
     data: lockState,
     isFetching,
     isError,
   } = useDeadlinePlanLockState(managedFilter);
-  if (!managedIds.length) return null;
+  if (!availableIds.length) return null;
   const reported = filter.status === 'reported';
   const isLocked = lockState === 'locked';
   const label = isLocked ? 'Unlock plans' : 'Lock plans';
   const disabled =
     reported ||
+    !managedIds.length ||
     isLoading ||
     isFetching ||
     isError ||
@@ -50,11 +57,13 @@ export default function PlanLockActions({
         title={
           reported
             ? 'Choose Active or All to manage plan locks.'
-            : isError
-              ? 'Could not load plan locks.'
-              : lockState === 'empty'
-                ? 'No active tasks in the selected plans.'
-                : `${isLocked ? 'Unlock' : 'Lock'} the active tasks in the selected plans.`
+            : !managedIds.length
+              ? 'Select one or more direct reports’ plans.'
+              : isError
+                ? 'Could not load plan locks.'
+                : lockState === 'empty'
+                  ? 'No active tasks in the selected plans.'
+                  : `${isLocked ? 'Unlock' : 'Lock'} the active tasks in the selected plans.`
         }
       >
         <span>

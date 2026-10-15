@@ -147,6 +147,31 @@ const approveDeadlineTasks = async (approval: DeadlineTaskApprovalPayload) =>
     headers: await deadlinePlanHeaders(),
   });
 
+const commentOnDeadlineTask = async ({
+  id,
+  comment,
+}: {
+  id: string;
+  comment: string;
+}): Promise<DeadlineTask> =>
+  crudRequest({
+    url: `${BASE_URL}/${id}/comment`,
+    method: 'patch',
+    data: { comment },
+    headers: await deadlinePlanHeaders(),
+  });
+
+export const useCommentOnDeadlineTask = () => {
+  const queryClient = useQueryClient();
+  return useMutation(commentOnDeadlineTask, {
+    onSuccess: () => {
+      refreshTasks(queryClient);
+      NotificationMessage.success({ message: 'Comment saved' });
+    },
+    onError: (error) => showError(error, 'Could not save the comment'),
+  });
+};
+
 export const useCreateDeadlineTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(createDeadlineTasks, {

@@ -1,6 +1,6 @@
 'use client';
 import React, { useCallback, useMemo } from 'react';
-import { Button, Tooltip } from 'antd';
+import { Button, Checkbox, Tooltip } from 'antd';
 import {
   CheckOutlined,
   LockOutlined,
@@ -22,6 +22,8 @@ interface PlanCardProps {
   filter: Omit<DeadlineTaskSearchFilter, 'assigneeIds'>;
   viewer: TaskViewer;
   getPerson: (id: string | null | undefined) => PersonOption | null;
+  selected?: boolean;
+  onSelectionChange?: (selected: boolean) => void;
 }
 
 /** One person's tasks for the current filters, with plan-level actions. */
@@ -30,6 +32,8 @@ export default function PlanCard({
   filter,
   viewer,
   getPerson,
+  selected = false,
+  onSelectionChange,
 }: PlanCardProps) {
   const openTaskForm = useDeadlinePlanStore((state) => state.openTaskForm);
   const setApprovalRequest = useDeadlinePlanStore(
@@ -89,6 +93,17 @@ export default function PlanCard({
           data-cy="deadline-plan-card-heading"
           className="flex min-w-0 flex-1 basis-[180px] items-center gap-3"
         >
+          {!isSelf &&
+          viewer.subordinateIds.includes(assigneeId) &&
+          filter.status !== 'reported' &&
+          onSelectionChange ? (
+            <Checkbox
+              checked={selected}
+              onChange={(event) => onSelectionChange(event.target.checked)}
+              aria-label={`Select ${person?.name ?? 'Unknown user'}'s plan`}
+              data-cy={`deadline-plan-select-${assigneeId}`}
+            />
+          ) : null}
           <UserAvatar name={person?.name ?? 'Unknown user'} size="lg" />
           <div data-cy="deadline-plan-card-person" className="min-w-0">
             <h2
