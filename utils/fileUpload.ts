@@ -36,17 +36,51 @@ export const resolveUploadedFileUrl = (response: any): string | null => {
 };
 
 /**
+ * A URL-safe version of a file name: whitespace and characters that break
+ * links (`#`, `?`, `%`, `&`, …) become `_`; letters in any script, digits,
+ * `.`, `-` and `_` are kept, as is the extension.
+ * e.g. "tyt fgfd.pdf" → "tyt_fgfd.pdf".
+ */
+export const toSafeUploadName = (name: string): string => {
+  const dot = name.lastIndexOf('.');
+  const hasExtension = dot > 0 && dot < name.length - 1;
+  const base = hasExtension ? name.slice(0, dot) : name;
+  const extension = hasExtension ? name.slice(dot + 1) : '';
+
+  const clean = (part: string) =>
+    part
+      .normalize('NFC')
+      .replace(/[^\p{L}\p{N}._-]+/gu, '_')
+      .replace(/_+/g, '_')
+      .replace(/^[._]+|[._]+$/g, '');
+
+  const safeBase = clean(base) || 'file';
+  const safeExtension = clean(extension);
+  return safeExtension ? `${safeBase}.${safeExtension}` : safeBase;
+};
+
+/**
  * Same upload as `fileUpload`, reporting progress (0–100) and resolving to the
- * stored file's URL. Errors are thrown for the caller to show inline.
+ * stored file's URL. The file is sent under a URL-safe name so the returned
+ * link never contains spaces. Errors are thrown for the caller to show inline.
  */
 export const uploadFileWithProgress = async (
   file: File,
   onProgress?: (percent: number) => void,
 ): Promise<string> => {
   const tenantId = String(useAuthenticationStore.getState().tenantId ?? '');
+  const safeName = toSafeUploadName(file.name);
+  const upload =
+    safeName === file.name
+      ? file
+      : new File([file], safeName, {
+          type: file.type,
+          lastModified: file.lastModified,
+        });
+
   const formData = new FormData();
   formData.append('tenantId', tenantId);
-  formData.append('file', file);
+  formData.append('file', upload);
 
   const response = await apiClient({
     url: FILE_UPLOAD_URL,
