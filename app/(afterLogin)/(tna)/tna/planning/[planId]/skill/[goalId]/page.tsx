@@ -427,6 +427,20 @@ const GrowthPlanSkillDetailPage = () => {
                 add another.
               </p>
             ) : null}
+            {/*
+              Progress counts done weight out of a fixed 100, so a checklist
+              planned below 100% can never complete the skill.
+            */}
+            {canEdit && checklist.length > 0 && !checklistFull ? (
+              <p
+                data-cy="pgp-skill-checklist-uncovered"
+                className="mb-2 text-[11px] text-[#8c8c8c]"
+              >
+                Items cover {usedWeight}% of this skill. Add items for the
+                remaining {Math.round(remainingWeight * 100) / 100}% to be able
+                to complete it.
+              </p>
+            ) : null}
             {checklist.length ? (
               <div
                 data-cy="tna-planning-planid-skill-goalid-page-div-437"

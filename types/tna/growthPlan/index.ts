@@ -322,17 +322,17 @@ export const MAX_CHECKLIST_WEIGHT = 100;
 export const checklistItemWeight = (item: GrowthPlanChecklistItem): number =>
   typeof item.weight === 'number' && item.weight > 0 ? item.weight : 1;
 
+/**
+ * Skill progress, matching the backend: done items' weights out of a fixed
+ * 100 (capped). A checklist planned to 70% and fully ticked is 70%.
+ */
 export const checklistProgressPercent = (
   checklist?: GrowthPlanChecklistItem[] | null,
 ): number => {
-  const items = checklist ?? [];
-  if (!items.length) return 0;
-  const total = items.reduce((sum, i) => sum + checklistItemWeight(i), 0);
-  if (!total) return 0;
-  const done = items
+  const done = (checklist ?? [])
     .filter((i) => i.done)
     .reduce((sum, i) => sum + checklistItemWeight(i), 0);
-  return Math.round((done / total) * 100);
+  return Math.min(MAX_CHECKLIST_WEIGHT, Math.round(done));
 };
 
 export const goalDisplayProgress = (goal: GrowthPlanGoal): number => {
