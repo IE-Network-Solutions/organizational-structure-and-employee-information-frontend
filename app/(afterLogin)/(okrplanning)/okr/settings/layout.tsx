@@ -30,13 +30,16 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     setOpen: setAverageOkrRuleAssignmentOpen,
     setAssignment: setAverageOkrRuleAssignment,
   } = useAverageOkrRuleAssignmentStore();
-  const { showNotReportedList } = useOKRSettingStore();
+  const { showNotReportedList, setSelectedPlanningUser } = useOKRSettingStore();
 
   const isPlanningAssignation = activeTab === 'planning-assignation';
   const isCriteriaManagement = activeTab === 'criteria-management';
   const isAverageOkrRuleAssignment = activeTab === 'okr-rule-assignment';
 
   const handleAddAssignee = () => {
+    // The drawer shows "Edit" while an employee is selected, so drop the one
+    // left over from the last edit before opening it to add a new assignee.
+    setSelectedPlanningUser(null);
     setPlanningOpen(true);
   };
 

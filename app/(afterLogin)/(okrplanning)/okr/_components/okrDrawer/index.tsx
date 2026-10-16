@@ -38,7 +38,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import OKRInlineSuggestions from '@/components/ai/OKRInlineSuggestions';
 import { useIsBasicOkr } from '../../_utils/okrMode';
 import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
-import { getKeyResultBandValidationError } from '@/utils/okrScoringBands';
+import { getObjectiveKeyResultsValidationError } from '../../_utils/createObjectiveValidation';
 import { useGetOkrObjectiveTypes } from '@/store/server/features/okrplanning/okr-objective-type/queries';
 import { useGetOkrPerspectives } from '@/store/server/features/okrplanning/okr-perspective/queries';
 import { useGetEffectiveObjectiveTypeWeights } from '@/store/server/features/okrplanning/okr-objective-type-weight/queries';
@@ -185,91 +185,21 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     form
       .validateFields()
       .then(() => {
-        const keyResults = objective?.keyResults || [];
-        const keyResultSum = keyResults.reduce(
-          (sum: number, keyResult: Record<string, any>) =>
-            sum + Number(keyResult?.weight ?? 0),
-          0,
+        // Read the latest drafts after async form validation, including changes
+        // made while validation was running.
+        const keyResults = useOKRStore.getState().objective?.keyResults || [];
+        const keyResultError = getObjectiveKeyResultsValidationError(
+          keyResults,
+          setting?.scoringMode,
         );
-        if (keyResultSum !== 100) {
+        if (keyResultError) {
           NotificationMessage.warning({
-            message: `The sum of key result should equal to 100. Current sum: ${keyResultSum}`,
+            message: keyResultError,
           });
-          return; // Stop submission if the sum is not 100
+          return;
         }
 
         if (keyResults && keyResults.length !== 0) {
-          // Iterate over each keyResult to validate all milestone key types
-          for (const [index, keyResult] of keyResults.entries()) {
-            const keyType = keyResult?.metricType?.name || keyResult?.key_type;
-            if (
-              keyResult?.title == '' ||
-              keyResult?.title == null ||
-              keyResult?.title == undefined
-            ) {
-              NotificationMessage.warning({
-                message: `Please Enter Number ${index + 1} Key Result Name`,
-              });
-              return; // Stop submission if the sum is not 100
-            }
-            if (keyType === 'Milestone') {
-              // Check if at least one milestone is added
-              if (
-                !keyResult?.milestones ||
-                !Array.isArray(keyResult.milestones) ||
-                keyResult.milestones.length === 0
-              ) {
-                NotificationMessage.warning({
-                  message: `On Number: ${index + 1} Title:${keyResult.title} Please add at least one milestone`,
-                });
-                return; // Stop submission if no milestone is added
-              }
-
-              const hasEmptyMilestoneTitle = keyResult.milestones.some(
-                (milestone: Record<string, any>) =>
-                  !String(milestone?.title ?? '').trim(),
-              );
-
-              if (hasEmptyMilestoneTitle) {
-                NotificationMessage.warning({
-                  message: `On Number: ${index + 1} Title:${keyResult.title} Please enter all milestone names before creating objective.`,
-                });
-                return;
-              }
-
-              // Calculate the sum of milestone values
-              const milestoneSum = keyResult.milestones.reduce(
-                (sum: number, milestone: Record<string, any>) =>
-                  sum + Number(milestone?.weight ?? 0),
-                0,
-              );
-
-              // Check if the sum of milestone values equals 100
-              if (milestoneSum !== 100) {
-                NotificationMessage.warning({
-                  message: `On Number: ${index + 1} Title:${keyResult.title} key result sum of milestones should equal to 100. Current sum: ${milestoneSum}`,
-                });
-                return; // Stop submission if the sum is not 100
-              }
-            }
-            if (
-              keyType === 'Currency' ||
-              keyType === 'Numeric' ||
-              keyType === 'Percentage'
-            ) {
-              const scoreBandError = getKeyResultBandValidationError(
-                keyResult,
-                setting?.scoringMode,
-              );
-              if (scoreBandError) {
-                NotificationMessage.warning({
-                  message: `On number:${index + 1} title:${keyResult.title}: ${scoreBandError}`,
-                });
-                return;
-              }
-            }
-          }
-
           // Transfer key results from objective to objectiveValue for submission
           const formValues = form.getFieldsValue();
           const submissionKeyResults = isTypeWeighted
@@ -339,7 +269,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     if (Array.isArray(keyResults)) {
       keyResults.forEach((keyResult: any) => {
         // Add key result weight only
-        totalWeight += keyResult?.weight || 0;
+        totalWeight += Number(keyResult?.weight ?? 0);
       });
     }
 
@@ -347,11 +277,16 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   };
 
   const totalWeight = calculateTotalWeight();
+  const keyResultsValidationError = getObjectiveKeyResultsValidationError(
+    objective?.keyResults,
+    setting?.scoringMode,
+  );
 
   const isCreateActionEnabled =
     Boolean(objectiveValue?.title?.trim()) &&
     Boolean(objectiveValue?.deadline) &&
     Boolean(objective?.keyResults?.length) &&
+    !keyResultsValidationError &&
     (!isTypeWeighted ||
       (Boolean(objectiveValue?.objectiveTypeId) &&
         Boolean(objectiveValue?.perspectiveId) &&
@@ -367,18 +302,29 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       data-cy="okr-drawer-modal-footer"
       className="w-full flex justify-between items-center pt-2 gap-3"
     >
-      <span
-        data-cy="okr-drawer-footer-total-weight"
-        className="text-sm text-gray-600 font-medium"
-      >
-        Total Weight:{' '}
+      <div data-cy="okr-drawer-footer-validation" className="min-w-0 flex-1">
         <span
-          data-cy="okr-drawer-footer-total-weight-value"
-          className={`font-bold ${totalWeight === 100 ? 'text-green-600' : 'text-red-600'}`}
+          data-cy="okr-drawer-footer-total-weight"
+          className="text-sm text-gray-600 font-medium"
         >
-          {totalWeight}%
+          Total Weight:{' '}
+          <span
+            data-cy="okr-drawer-footer-total-weight-value"
+            className={`font-bold ${totalWeight === 100 ? 'text-green-600' : 'text-red-600'}`}
+          >
+            {totalWeight}%
+          </span>
         </span>
-      </span>
+        {Boolean(objective?.keyResults?.length) && keyResultsValidationError ? (
+          <p
+            data-cy="okr-drawer-validation-message"
+            className="mt-1 text-xs text-red-600"
+            aria-live="polite"
+          >
+            {keyResultsValidationError}
+          </p>
+        ) : null}
+      </div>
       <div
         className="flex items-center gap-3"
         data-cy="okr-drawer-footer-actions"

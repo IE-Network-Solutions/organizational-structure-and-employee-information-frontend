@@ -4,6 +4,7 @@ import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { getFriendlyOkrError } from '@/utils/okrErrorMessages';
 import {
   OkrSetting,
   OkrSettingRequest,
@@ -213,16 +214,30 @@ export const usePatchOkrSetting = () => {
       queryClient.invalidateQueries('okrSetting');
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Failed to update OKR setting.';
       NotificationMessage.error({
         message: 'Failed to Update Setting',
-        description: message,
+        description: getFriendlyOkrError(error, 'Failed to update OKR setting.')
+          .message,
       });
     },
   });
 };
 
-export const usePatchOkrScoringMode = usePatchOkrSetting;
+/**
+ * Scoring-mode switch. The settings page explains failures inside its own
+ * confirmation dialog, so no error toast here (that would duplicate it).
+ */
+export const usePatchOkrScoringMode = () => {
+  const queryClient = useQueryClient();
+  return useMutation(patchOkrSetting, {
+    onSuccess: () => {
+      NotificationMessage.success({
+        message: 'Scoring Mode Updated',
+        description: 'The scoring mode has been updated.',
+      });
+      queryClient.invalidateQueries('okrSettingCheck');
+      queryClient.invalidateQueries('okrSetting');
+    },
+    onError: () => undefined,
+  });
+};

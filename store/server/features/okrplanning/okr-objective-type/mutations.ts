@@ -155,6 +155,8 @@ export const deactivateOkrObjectiveType = async (
 export const useCreateOkrObjectiveType = () => {
   const queryClient = useQueryClient();
   return useMutation(createOkrObjectiveType, {
+    // The request function already shows the error; skip the global toast.
+    onError: () => undefined,
     onSuccess: () => {
       queryClient.invalidateQueries('okrObjectiveTypes');
     },
@@ -164,6 +166,8 @@ export const useCreateOkrObjectiveType = () => {
 export const useUpdateOkrObjectiveType = () => {
   const queryClient = useQueryClient();
   return useMutation(updateOkrObjectiveType, {
+    // The request function already shows the error; skip the global toast.
+    onError: () => undefined,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries('okrObjectiveTypes');
       queryClient.invalidateQueries(['okrObjectiveType', variables.id]);
@@ -174,6 +178,8 @@ export const useUpdateOkrObjectiveType = () => {
 export const useDeleteOkrObjectiveType = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteOkrObjectiveType, {
+    // The request function already shows the error; skip the global toast.
+    onError: () => undefined,
     onSuccess: () => {
       queryClient.invalidateQueries('okrObjectiveTypes');
     },
@@ -183,6 +189,8 @@ export const useDeleteOkrObjectiveType = () => {
 export const useDeactivateOkrObjectiveType = () => {
   const queryClient = useQueryClient();
   return useMutation(deactivateOkrObjectiveType, {
+    // The request function already shows the error; skip the global toast.
+    onError: () => undefined,
     onSuccess: () => {
       queryClient.invalidateQueries('okrObjectiveTypes');
     },

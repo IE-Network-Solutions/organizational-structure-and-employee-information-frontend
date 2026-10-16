@@ -129,7 +129,7 @@ const ObjectiveTypesPage = () => {
 
   return (
     <AccessGuard permissions={[MANAGE_OKR_SETTINGS]}>
-      <div className="rounded-xl bg-white p-4 sm:p-6 lg:p-8">
+      <div className="rounded-xl">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="mb-1 text-xl font-semibold text-[#262626]">
@@ -166,6 +166,7 @@ const ObjectiveTypesPage = () => {
         okText={selectedType ? 'Save changes' : 'Create'}
         confirmLoading={isCreating || isUpdating}
         destroyOnClose
+        centered
       >
         <Form form={form} layout="vertical">
           <Form.Item

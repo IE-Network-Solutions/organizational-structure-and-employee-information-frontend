@@ -258,7 +258,7 @@ const PlanAssignment: React.FC = () => {
                 className="text-[15px] text-[#262626]"
                 data-cy={`okr-planning-assignation-card-edit-text-${item?.userId}`}
               >
-                Edit OKR
+                Edit
               </span>
             </div>
           </AccessGuard>
@@ -292,7 +292,7 @@ const PlanAssignment: React.FC = () => {
                   className="text-[15px]"
                   data-cy={`okr-planning-assignation-card-delete-text-${item?.userId}`}
                 >
-                  Delete OKR
+                  Delete
                 </span>
               </div>
             </Popconfirm>
@@ -309,7 +309,7 @@ const PlanAssignment: React.FC = () => {
       data-cy="okr-planning-assignation-container-display-div"
     >
       <div
-        className="rounded-xl pt-5 px-8 pb-8 bg-white h-[calc(100vh-320px)] flex flex-col"
+        className="flex flex-col"
         id="okr-planning-assignation-main-container"
         data-cy="okr-planning-assignation-main-container"
       >

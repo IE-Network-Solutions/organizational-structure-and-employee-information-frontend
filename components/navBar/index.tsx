@@ -861,6 +861,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             permissions: ['manage_planning_reporting'],
           },
           {
+            title: <span data-cy="nav-tree-deadline-plan">Deadline Plan</span>,
+            key: '/deadline-plan',
+            className: 'font-bold',
+            permissions: ['manage_planning_reporting'],
+          },
+          {
             title: (
               <span data-cy="nav-tree-weekly-priority">Weekly Priority</span>
             ),
@@ -878,7 +884,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       },
       {
         icon: <AssessmentOutlinedIcon style={{ fontSize: 20 }} />,
-        title: 'BSC',
+        title: 'KPI',
         key: 'bsc-menu',
         className: 'font-bold',
         permissions: [Permissions.ViewBsc],

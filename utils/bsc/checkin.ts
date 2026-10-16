@@ -164,8 +164,7 @@ export function buildCheckinQueue(
           !isCheckInWindowOpen(target.cadence, target.checkInDay, dayjs(), {
             effectiveFrom: cycle?.effectiveFrom || cycle?.startDate,
             endDate: cycle?.endDate,
-          }) &&
-          scorecard.status !== ScorecardStatus.NeedsResubmit
+          })
         ) {
           continue;
         }

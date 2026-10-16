@@ -87,6 +87,21 @@ export type RollupSummary = {
   pendingCount: number;
 };
 
+/** Roll-up average label: "—" when nothing is evaluated, else "80.3%". */
+export function formatRollupAverage(
+  summary: Pick<RollupSummary, 'averageScore' | 'evaluatedCount'>,
+): string {
+  if (!summary.evaluatedCount) return '—';
+  return `${formatScore(summary.averageScore)}%`;
+}
+
+/** Coverage caption for company / department roll-up tiles. */
+export function formatRollupCoverage(
+  summary: Pick<RollupSummary, 'evaluatedCount' | 'totalCount'>,
+): string {
+  return `${summary.evaluatedCount}/${summary.totalCount} evaluated`;
+}
+
 export function computeRollup(
   cards: EmployeeScorecard[],
   options?: { scope: 'company' | 'department'; departmentName?: string },

@@ -12,6 +12,7 @@ import {
   Segmented,
   Skeleton,
   Tag,
+  Tooltip,
 } from 'antd';
 import {
   BankOutlined,
@@ -25,6 +26,7 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import { useGetOkrObjectiveTypes } from '@/store/server/features/okrplanning/okr-objective-type/queries';
+import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
 import { useGetObjectiveTypeWeightAssignments } from '@/store/server/features/okrplanning/okr-objective-type-weight/queries';
 import { useDeleteObjectiveTypeWeightAssignment } from '@/store/server/features/okrplanning/okr-objective-type-weight/mutations';
 import {
@@ -89,6 +91,7 @@ const ObjectiveTypeWeightsPage = () => {
     useGetObjectiveTypeWeightAssignments();
   const { data: departmentsData } = useGetDepartments();
   const { data: usersData } = useGetAllUsers();
+  const { data: okrSetting } = useGetOkrSetting({ enabled: true });
   const { mutate: deleteAssignment, isLoading: isDeleting } =
     useDeleteObjectiveTypeWeightAssignment();
 
@@ -225,6 +228,12 @@ const ObjectiveTypeWeightsPage = () => {
     });
   };
 
+  // Scoring needs a tenant default to fall back to, so the backend refuses to
+  // delete it in Type-weighted mode; disable the action instead of failing.
+  const isDefaultLocked = (assignment: OkrObjectiveTypeWeightAssignment) =>
+    assignment.scopeType === 'TENANT' &&
+    okrSetting?.scoringMode === 'TYPE_WEIGHTED';
+
   const getMenuItems = (
     assignment: OkrObjectiveTypeWeightAssignment,
   ): MenuProps['items'] => [
@@ -243,7 +252,17 @@ const ObjectiveTypeWeightsPage = () => {
     { type: 'divider' },
     {
       key: 'delete',
-      label: (
+      disabled: isDefaultLocked(assignment),
+      label: isDefaultLocked(assignment) ? (
+        <Tooltip
+          placement="left"
+          title="The company default is required while Type-weighted scoring is on. Edit it instead, or switch to Classic average first."
+        >
+          <span className="block w-full text-left text-[14px]">
+            Delete assignment
+          </span>
+        </Tooltip>
+      ) : (
         <button
           type="button"
           className="w-full border-none bg-transparent px-0 text-left text-[14px] text-[#ff4d4f]"
@@ -257,17 +276,12 @@ const ObjectiveTypeWeightsPage = () => {
 
   return (
     <AccessGuard permissions={[MANAGE_OKR_SETTINGS]}>
-      <div className="w-full rounded-xl bg-white px-4 py-5 sm:px-6 lg:px-8">
+      <div className="w-full rounded-xl">
         <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="mb-1 text-xl font-semibold text-[#262626]">
               Objective type weights
             </h2>
-            <p className="m-0 max-w-2xl text-sm text-[#595959]">
-              Assign how each objective type contributes to the final OKR score.
-              Company weights are the default; department and user assignments
-              override them.
-            </p>
           </div>
           <Button type="primary" onClick={openCreateModal}>
             Assign weights

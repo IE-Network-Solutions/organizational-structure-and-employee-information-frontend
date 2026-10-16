@@ -4,7 +4,6 @@ export interface OkrPerspective {
   name: string;
   description?: string;
   isSystem: boolean;
-  sortOrder: number;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 }

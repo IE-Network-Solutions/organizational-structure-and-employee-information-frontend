@@ -765,6 +765,7 @@ function Page() {
                       onClearTarget={() => setSelectedPlanningTargetId(null)}
                       onExit={handleInlineWorkspaceExit}
                       editPlanId={inlineEditPlanId}
+                      planAllTargets={planningTargets}
                     />
                   </section>
                 ) : null}
@@ -900,6 +901,7 @@ function Page() {
               onClearTarget={() => setSelectedPlanningTargetId(null)}
               onExit={handleMobileInlineExit}
               editPlanId={inlineEditPlanId}
+              planAllTargets={planningTargets}
             />
           </div>
         </div>

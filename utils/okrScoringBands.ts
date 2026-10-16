@@ -76,11 +76,33 @@ export function getKeyResultBandValidationError(
   values: KeyResultScoreBands,
   scoringMode: OkrScoringMode | undefined,
 ): string | null {
+  // Submission must check completeness as well as band ordering. Individual
+  // Form.Items handle their own required messages through their required rules.
+  const requiredBands: [KeyResultBandField, string][] =
+    shouldIncludeScoringBands(scoringMode)
+      ? [
+          ['initialValue', 'Baseline'],
+          ['thresholdValue', 'Threshold'],
+          ['targetValue', 'Target'],
+          ['stretchValue', 'Stretch'],
+        ]
+      : [
+          ['initialValue', 'Baseline'],
+          ['targetValue', 'Target'],
+        ];
+
+  for (const [field, label] of requiredBands) {
+    if (toFiniteNumber(values[field]) == null) {
+      return `Please enter the ${label}.`;
+    }
+  }
+
   return getKeyResultBandValidationIssue(values, scoringMode)?.message ?? null;
 }
 
 function toFiniteNumber(value: unknown): number | null {
-  if (value === undefined || value === null || value === '') return null;
+  if (typeof value !== 'number' && typeof value !== 'string') return null;
+  if (typeof value === 'string' && !value.trim()) return null;
   const numberValue = Number(value);
   return Number.isFinite(numberValue) ? numberValue : null;
 }

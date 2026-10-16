@@ -52,6 +52,10 @@ import {
   type PlanningTarget,
 } from './buildPlanningTargets';
 import { useRecentlyAchievedMilestones } from '@/utils/recentlyAchievedMilestones';
+import {
+  buildPlanAllDrafts,
+  isQuarterlyPlanningPeriod,
+} from './planAllKeyResults';
 
 type DraftLine = {
   id: string;
@@ -530,6 +534,8 @@ interface InlinePlanningWorkspaceProps {
   hideHeaderCloseButton?: boolean;
   /** When set, load this plan into the same composer and PATCH on save (reuses create UX) */
   editPlanId?: string | null;
+  /** Left-panel planning slots; quarterly "Plan all key results" drafts one task per slot */
+  planAllTargets?: PlanningTarget[];
 }
 
 const InlinePlanningWorkspace = forwardRef<
@@ -544,6 +550,7 @@ const InlinePlanningWorkspace = forwardRef<
     onExit,
     hideHeaderCloseButton = false,
     editPlanId = null,
+    planAllTargets = [],
   },
   ref,
 ) {
@@ -1003,6 +1010,38 @@ const InlinePlanningWorkspace = forwardRef<
     setEditingDraftId((cur) => (cur === id ? null : cur));
   };
 
+  /** Quarterly only: start the plan with one task per open key result / milestone. */
+  const planAllDrafts = useMemo(
+    () =>
+      isQuarterlyPlanningPeriod(planningPeriodLabel)
+        ? buildPlanAllDrafts(planAllTargets, userKeyResultItems)
+        : [],
+    [
+      planningPeriodLabel,
+      planAllTargets,
+      userKeyResultItems,
+      recentlyAchievedIds,
+      reopenedMilestoneIds,
+      reopenedKeyResultIds,
+    ],
+  );
+  const canPlanAll =
+    !isEditMode && draftLines.length === 0 && planAllDrafts.length > 0;
+
+  const handlePlanAll = useCallback(() => {
+    setDraftLines(
+      planAllDrafts.map((d) => ({ ...d, id: crypto.randomUUID() })),
+    );
+    setEditingDraftId(null);
+    setComposerCollapsed(true);
+    onClearTarget();
+    message.success(
+      `Added ${planAllDrafts.length} task${
+        planAllDrafts.length !== 1 ? 's' : ''
+      }. Adjust them if needed, then save your plan.`,
+    );
+  }, [planAllDrafts, onClearTarget]);
+
   const handleSubmit = () => {
     if (draftLines.length === 0) {
       message.warning('Add at least one task.');
@@ -1232,6 +1271,17 @@ const InlinePlanningWorkspace = forwardRef<
                 / 100
               </span>
             </span>
+            {canPlanAll ? (
+              <Button
+                type="default"
+                icon={<PlusOutlined className="text-[13px]" />}
+                onClick={handlePlanAll}
+                className={`!m-0 !h-9 !min-h-9 !px-3.5 text-[12px] md:!h-10 md:!min-h-10 md:!px-5 md:text-[13px] ${inlineComposerOutlineBtnClass}`}
+                data-cy="inline-plan-plan-all-krs"
+              >
+                Plan all key results
+              </Button>
+            ) : null}
             {showDraftAndSubmit ? (
               <Tooltip
                 title={
@@ -1292,6 +1342,21 @@ const InlinePlanningWorkspace = forwardRef<
               >
                 {INLINE_KEY_RESULT_INSTRUCTION}
               </p>
+              {canPlanAll ? (
+                <p
+                  data-cy="inline-plan-plan-all-hint"
+                  className="mt-2 max-w-lg text-[13px] leading-6 text-[#8F94A3]"
+                >
+                  Or use{' '}
+                  <span
+                    data-cy="inline-plan-plan-all-hint-label"
+                    className="font-semibold text-[#1E40AF]"
+                  >
+                    Plan all key results
+                  </span>{' '}
+                  to add a task for every key result, then adjust and save.
+                </p>
+              ) : null}
             </div>
           ) : null}
 

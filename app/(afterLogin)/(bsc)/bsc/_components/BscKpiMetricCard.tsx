@@ -39,6 +39,10 @@ type Props = {
   dataCy: string;
   onClick?: () => void;
   className?: string;
+  /** When false, show "—" and an empty progress bar (unevaluated roll-up). */
+  hasScore?: boolean;
+  /** Optional coverage line under the label (e.g. "3/10 evaluated"). */
+  subtitle?: string;
 };
 
 export default function BscKpiMetricCard({
@@ -47,15 +51,19 @@ export default function BscKpiMetricCard({
   dataCy,
   onClick,
   className = '',
+  hasScore = true,
+  subtitle,
 }: Props) {
   // Scores can exceed 100% up to the stretch cap.
-  const value = Math.max(Number(percent) || 0, 0);
-  const display = `${formatScore(value)}%`;
+  const value = hasScore ? Math.max(Number(percent) || 0, 0) : 0;
+  const display = hasScore ? `${formatScore(value)}%` : '—';
   const clickable = Boolean(onClick);
 
-  const shellClass = `${bscKpiMetricCardShellClass} ${className} ${
-    clickable ? 'cursor-pointer text-left' : 'cursor-default'
-  }`;
+  const shellClass = `${
+    subtitle
+      ? `flex min-h-[122px] h-auto flex-none flex-col gap-2 ${bscKpiMetricCardBorderClass}`
+      : bscKpiMetricCardShellClass
+  } ${className} ${clickable ? 'cursor-pointer text-left' : 'cursor-default'}`;
 
   const content = (
     <>
@@ -76,14 +84,25 @@ export default function BscKpiMetricCard({
           {display}
         </div>
       </div>
-      <div className="mt-3 flex flex-col" data-cy={`${dataCy}-body`}>
+      <div className="mt-1 flex flex-col" data-cy={`${dataCy}-body`}>
         <div
           className="w-full text-start text-base font-normal text-gray-500"
           data-cy={`${dataCy}-label`}
         >
           {label}
         </div>
-        <div className="flex items-center gap-2" data-cy={`${dataCy}-progress`}>
+        {subtitle ? (
+          <div
+            className="mt-0.5 w-full text-start text-xs font-normal text-[#8F94A3]"
+            data-cy={`${dataCy}-subtitle`}
+          >
+            {subtitle}
+          </div>
+        ) : null}
+        <div
+          className="mt-1 flex items-center gap-2"
+          data-cy={`${dataCy}-progress`}
+        >
           <Progress
             size="small"
             percent={value}
