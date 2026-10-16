@@ -23,18 +23,25 @@ jest.mock('antd', () => ({
     children,
   }: any) =>
     open ? (
-      <div role="dialog">
-        <h2>{title}</h2>
-        <button onClick={onOk} disabled={confirmLoading}>
+      <div data-cy="mock-approve-task-dialog" role="dialog">
+        <h2 data-cy="mock-approve-task-title">{title}</h2>
+        <button
+          data-cy="mock-approve-task-confirm"
+          onClick={onOk}
+          disabled={confirmLoading}
+        >
           {okText}
         </button>
-        <button onClick={onCancel}>Cancel</button>
+        <button data-cy="mock-approve-task-cancel" onClick={onCancel}>
+          Cancel
+        </button>
         {children}
       </div>
     ) : null,
   Input: {
     TextArea: ({ id, value, onChange, disabled, maxLength }: any) => (
       <textarea
+        data-cy="mock-approve-task-comment"
         id={id}
         value={value}
         onChange={onChange}

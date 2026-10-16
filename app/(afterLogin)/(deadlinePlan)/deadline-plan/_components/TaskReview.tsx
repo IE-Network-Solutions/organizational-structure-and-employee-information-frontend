@@ -56,12 +56,18 @@ export default function TaskReview({
       aria-label="Manager review"
       data-cy="deadline-task-review"
     >
-      <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#161A2C]">
+      <h3
+        className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#161A2C]"
+        data-cy="deadline-task-review-title"
+      >
         <CommentOutlined className="text-okr-primary" /> Manager feedback
       </h3>
       {task.approvalComment ? (
         <div className="mb-3" data-cy="deadline-detail-manager-comment">
-          <p className="text-[11px] text-slate-500">
+          <p
+            className="text-[11px] text-slate-500"
+            data-cy="deadline-detail-manager-comment-metadata"
+          >
             {getPerson(task.commentedById ?? task.approvedById)?.name ??
               'Direct manager'}
             {(task.commentedAt ?? task.approvedAt)
@@ -79,6 +85,7 @@ export default function TaskReview({
       {permissions.canComment ? (
         <>
           <label
+            data-cy="deadline-task-review-comment-label"
             htmlFor={`deadline-review-comment-${task.id}`}
             className="mb-2 block text-xs font-medium text-slate-500"
           >
@@ -96,11 +103,17 @@ export default function TaskReview({
             disabled={isLoading}
             className="!rounded-lg !bg-white !text-sm focus-within:!ring-2 focus-within:!ring-okr-primary/30"
           />
-          <p className="mt-2 text-xs text-slate-500">
+          <p
+            className="mt-2 text-xs text-slate-500"
+            data-cy="deadline-task-review-comment-help"
+          >
             Save feedback without approving. The assignee can undo their report,
             make corrections, and report again.
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div
+            className="mt-3 flex flex-wrap gap-2"
+            data-cy="deadline-task-review-actions"
+          >
             <Button
               onClick={submit}
               loading={isLoading}
@@ -121,7 +134,10 @@ export default function TaskReview({
             ) : null}
           </div>
           {dirty && permissions.canApprove ? (
-            <p className="mt-2 text-xs text-slate-500">
+            <p
+              className="mt-2 text-xs text-slate-500"
+              data-cy="deadline-task-review-unsaved-comment"
+            >
               Save your comment before approving this report.
             </p>
           ) : null}

@@ -15,13 +15,23 @@ jest.mock('@/store/server/features/deadlinePlan/mutations', () => ({
 }));
 jest.mock('antd', () => ({
   Button: ({ children, onClick, disabled, loading }: any) => (
-    <button onClick={onClick} disabled={disabled || loading}>
+    <button
+      data-cy="mock-task-review-action"
+      onClick={onClick}
+      disabled={disabled || loading}
+    >
       {children}
     </button>
   ),
   Input: {
     TextArea: ({ id, value, onChange, disabled }: any) => (
-      <textarea id={id} value={value} onChange={onChange} disabled={disabled} />
+      <textarea
+        data-cy="mock-task-review-comment"
+        id={id}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+      />
     ),
   },
 }));

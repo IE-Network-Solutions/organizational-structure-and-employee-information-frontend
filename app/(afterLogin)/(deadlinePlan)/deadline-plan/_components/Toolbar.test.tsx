@@ -19,13 +19,19 @@ jest.mock('@/store/server/features/deadlinePlan/queries', () => ({
 
 jest.mock('antd', () => ({
   Checkbox: ({ checked, onChange, children }: any) => (
-    <label>
-      <input type="checkbox" checked={checked} onChange={onChange} />
+    <label data-cy="mock-toolbar-checkbox-label">
+      <input
+        data-cy="mock-toolbar-checkbox"
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+      />
       {children}
     </label>
   ),
   Button: ({ children, onClick, ...props }: any) => (
     <button
+      data-cy="mock-toolbar-action"
       onClick={onClick}
       aria-label={props['aria-label']}
       disabled={props.disabled}
@@ -35,13 +41,18 @@ jest.mock('antd', () => ({
   ),
   Select: ({ value, onChange, options, ...props }: any) => (
     <select
+      data-cy="mock-toolbar-select"
       aria-label={props['aria-label']}
       value={value}
       disabled={props.disabled}
       onChange={(event) => onChange(event.target.value)}
     >
       {options.map((option: any) => (
-        <option key={option.value} value={option.value}>
+        <option
+          data-cy={`mock-toolbar-option-${option.value}`}
+          key={option.value}
+          value={option.value}
+        >
           {option.label}
         </option>
       ))}
@@ -49,8 +60,17 @@ jest.mock('antd', () => ({
   ),
   Popover: ({ children, content, open, onOpenChange }: any) => (
     <>
-      <div onClick={() => onOpenChange(!open)}>{children}</div>
-      {open ? <div role="dialog">{content}</div> : null}
+      <div
+        data-cy="mock-toolbar-popover-trigger"
+        onClick={() => onOpenChange(!open)}
+      >
+        {children}
+      </div>
+      {open ? (
+        <div data-cy="mock-toolbar-popover" role="dialog">
+          {content}
+        </div>
+      ) : null}
     </>
   ),
   DatePicker: { RangePicker: () => null },
@@ -59,9 +79,13 @@ jest.mock('antd', () => ({
 jest.mock('./AssigneePicker', () => ({
   __esModule: true,
   default: ({ people, onChange }: any) => (
-    <div>
+    <div data-cy="mock-toolbar-assignee-picker">
       {people.map((person: any) => (
-        <button key={person.id} onClick={() => onChange([person.id])}>
+        <button
+          data-cy={`mock-toolbar-assignee-${person.id}`}
+          key={person.id}
+          onClick={() => onChange([person.id])}
+        >
           Choose {person.name}
         </button>
       ))}

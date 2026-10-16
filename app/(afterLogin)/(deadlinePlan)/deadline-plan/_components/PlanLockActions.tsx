@@ -66,7 +66,7 @@ export default function PlanLockActions({
                   : `${isLocked ? 'Unlock' : 'Lock'} the active tasks in the selected plans.`
         }
       >
-        <span>
+        <span data-cy="deadline-plan-lock-trigger">
           <Button
             type="text"
             icon={isLocked ? <UnlockOutlined /> : <LockOutlined />}
