@@ -39,25 +39,19 @@ jest.mock('./_components/ApproveTaskModal', () => ({
 jest.mock('./_components/KeyResultPanel', () => ({
   __esModule: true,
   default: ({ ownerIds }: any) => (
-    <div data-cy="mock-deadline-owners" data-testid="owners">
-      {ownerIds.join(',')}
-    </div>
+    <div data-cy="deadline-plan-page-test-div-42" data-testid="owners">{ownerIds.join(',')}</div>
   ),
 }));
 jest.mock('./_components/ListView', () => ({
   __esModule: true,
   default: ({ filter }: any) => (
-    <div data-cy="mock-deadline-tasks" data-testid="tasks">
-      {filter.assigneeIds.join(',')}
-    </div>
+    <div data-cy="deadline-plan-page-test-div-48" data-testid="tasks">{filter.assigneeIds.join(',')}</div>
   ),
 }));
 jest.mock('./_components/GroupedView', () => ({
   __esModule: true,
   default: ({ assigneeIds }: any) => (
-    <div data-cy="mock-deadline-plans" data-testid="plans">
-      {assigneeIds.join(',')}
-    </div>
+    <div data-cy="deadline-plan-page-test-div-54" data-testid="plans">{assigneeIds.join(',')}</div>
   ),
 }));
 

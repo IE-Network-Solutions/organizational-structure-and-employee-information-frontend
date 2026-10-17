@@ -361,10 +361,7 @@ export default function Toolbar({
         className="flex flex-wrap items-center justify-between gap-3"
       >
         <ViewSwitcher value={viewMode} onChange={setViewMode} />
-        <div
-          className="flex flex-wrap items-center gap-3"
-          data-cy="deadline-plan-management-actions"
-        >
+        <div data-cy="deadline-plan-toolbar-div-364" className="flex flex-wrap items-center gap-3">
           {viewMode === 'grouped' &&
           onPlanSelectionChange &&
           manageablePlanIds.length > 0 &&
@@ -384,10 +381,7 @@ export default function Toolbar({
                 Select all plans
               </Checkbox>
               {selectedCount > 0 ? (
-                <span
-                  className="text-xs text-slate-500"
-                  data-cy="deadline-plan-selected-count"
-                >
+                <span data-cy="deadline-plan-toolbar-span-384" className="text-xs text-slate-500">
                   {selectedCount} selected
                 </span>
               ) : null}

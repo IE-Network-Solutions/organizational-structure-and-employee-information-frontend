@@ -18,7 +18,7 @@ import {
   MdAdminPanelSettings,
 } from 'react-icons/md';
 import AlbumIcon from '@mui/icons-material/Album';
-// import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined'; // BSC sidebar entry (hidden)
+import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
@@ -40,7 +40,7 @@ import { BSC_QUERY_KEYS } from '@/store/server/features/bsc/queries';
 
 import {
   menuKeyMatchScore,
-  // scorecardTabHref, // BSC sidebar entry (hidden)
+  scorecardTabHref,
   splitMenuKey,
 } from '@/utils/bsc/scorecardTab';
 
@@ -150,7 +150,7 @@ import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employee
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import {
-  // BSC_ADMIN_PERMISSIONS, // BSC sidebar entry (hidden)
+  BSC_ADMIN_PERMISSIONS,
   BSC_SCORECARD_PERMISSIONS,
 } from '@/utils/bsc/permissions';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
@@ -703,30 +703,28 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   );
 
   const treeData: CustomMenuItem[] = React.useMemo(() => {
-    // BSC sidebar children (KPI / My Scorecard / Settings), hidden with the BSC
-    // menu entry below.
-    // const kpiTabChildren: CustomMenuItem[] = [
-    //   {
-    //     title: <span data-cy="nav-tree-bsc-kpis">KPI</span>,
-    //     key: '/bsc/kpi',
-    //     className: 'font-bold',
-    //     // KPI library + scorecard setup (like OKR settings: admin only).
-    //     permissions: BSC_ADMIN_PERMISSIONS,
-    //     requireAny: true,
-    //   },
-    //   {
-    //     title: <span data-cy="nav-tree-bsc-my-scorecard">My Scorecard</span>,
-    //     key: scorecardTabHref('mine'),
-    //     className: 'font-bold',
-    //     permissions: [Permissions.ViewBsc],
-    //   },
-    //   {
-    //     title: <span data-cy="nav-tree-bsc-settings">Settings</span>,
-    //     key: '/bsc/settings',
-    //     className: 'font-bold',
-    //     permissions: [Permissions.CreateBscPerspective],
-    //   },
-    // ];
+    const kpiTabChildren: CustomMenuItem[] = [
+      {
+        title: <span data-cy="nav-tree-bsc-kpis">KPI</span>,
+        key: '/bsc/kpi',
+        className: 'font-bold',
+        // KPI library + scorecard setup (like OKR settings: admin only).
+        permissions: BSC_ADMIN_PERMISSIONS,
+        requireAny: true,
+      },
+      {
+        title: <span data-cy="nav-tree-bsc-my-scorecard">My Scorecard</span>,
+        key: scorecardTabHref('mine'),
+        className: 'font-bold',
+        permissions: [Permissions.ViewBsc],
+      },
+      {
+        title: <span data-cy="nav-tree-bsc-settings">Settings</span>,
+        key: '/bsc/settings',
+        className: 'font-bold',
+        permissions: [Permissions.CreateBscPerspective],
+      },
+    ];
 
     return [
       {
@@ -884,18 +882,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           },
         ],
       },
-      // BSC is hidden from the sidebar for now. Its pages stay reachable by URL
-      // because the /bsc/* hidden routes above keep their permissions.
-      // {
-      //   icon: <AssessmentOutlinedIcon style={{ fontSize: 20 }} />,
-      //   title: 'BSC',
-      //   key: 'bsc-menu',
-      //   className: 'font-bold',
-      //   permissions: [Permissions.ViewBsc],
-      //   disabled: hasEndedFiscalYear,
-      //   moduleCode: 'OKR',
-      //   children: kpiTabChildren,
-      // },
+      {
+        icon: <AssessmentOutlinedIcon style={{ fontSize: 20 }} />,
+        title: 'KPI',
+        key: 'bsc-menu',
+        className: 'font-bold',
+        permissions: [Permissions.ViewBsc],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'OKR',
+        children: kpiTabChildren,
+      },
       {
         icon: <ChatBubbleOutlinedIcon style={{ fontSize: 20 }} />,
         title: 'CFR',
@@ -949,6 +945,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             key: '/tna/management',
             className: 'font-bold',
             permissions: ['manage_training'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-personal-growth-plan">
+                Personal Growth Plan
+              </span>
+            ),
+            key: '/tna/planning',
+            className: 'font-bold',
+            permissions: ['manage_growth_plan'],
           },
           {
             title: (

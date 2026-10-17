@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { Button, Empty, Table, Tag } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Button, Empty, Input, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { LeftOutlined } from '@ant-design/icons';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -18,6 +18,7 @@ import { EmployeeScorecard } from '@/types/bsc';
 import {
   computeRollup,
   departmentRollups,
+  formatRollupAverage,
   formatScore,
   isScorecardApproved,
   isScorecardEvaluated,
@@ -50,10 +51,17 @@ type ContributorRow = EmployeeScorecard & {
   evaluated: boolean;
 };
 
+function contributorStatusRank(row: ContributorRow): number {
+  if (isScorecardApproved(row)) return 2;
+  if (row.evaluated) return 1;
+  return 0;
+}
+
 export default function BscRollupDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setScorecardTab = useBscUiStore((s) => s.setScorecardTab);
+  const [contributorSearch, setContributorSearch] = useState('');
 
   // Hub links carry ?resultsScope=; default the roll-up to company-wide data.
   const resultsScope: ResultsScope = searchParams.get('resultsScope')
@@ -120,6 +128,18 @@ export default function BscRollupDetailPage() {
       });
   }, [latestCards, view, departmentName]);
 
+  const filteredContributors = useMemo(() => {
+    const q = contributorSearch.trim().toLowerCase();
+    if (!q) return contributors;
+    return contributors.filter((row) => {
+      const haystack = [row.userName, row.positionTitle, row.departmentName]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [contributors, contributorSearch]);
+
   const detailSummary = useMemo(
     () =>
       view === 'department' && departmentName
@@ -168,6 +188,7 @@ export default function BscRollupDetailPage() {
       ),
       dataIndex: 'userName',
       key: 'userName',
+      sorter: (a, b) => a.userName.localeCompare(b.userName),
       render: (name: string, row) => (
         <div
           className="flex flex-col gap-0.5"
@@ -226,6 +247,10 @@ export default function BscRollupDetailPage() {
       dataIndex: 'kpiScore',
       key: 'kpiScore',
       width: 110,
+      sorter: (a, b) => {
+        if (a.evaluated !== b.evaluated) return a.evaluated ? -1 : 1;
+        return a.kpiScore - b.kpiScore;
+      },
       render: (score: number, row) => (
         <span className={tableCellClassName} data-cy="bsc-rollup-score-cell">
           {row.evaluated ? `${formatScore(score)}%` : '—'}
@@ -240,6 +265,7 @@ export default function BscRollupDetailPage() {
       ),
       key: 'status',
       width: 120,
+      sorter: (a, b) => contributorStatusRank(a) - contributorStatusRank(b),
       render: (unused: unknown, row) =>
         isScorecardApproved(row) ? (
           <Tag color="green" data-cy="bsc-rollup-status-approved">
@@ -274,7 +300,7 @@ export default function BscRollupDetailPage() {
           className="!px-0 text-[#595959]"
           data-cy="bsc-rollup-detail-back"
         >
-          {view === 'hub' ? 'Back to Results' : 'Back to roll-up cards'}
+          {view === 'hub' ? 'Back to Results' : 'Back to roll-up'}
         </Button>
       </div>
 
@@ -294,7 +320,6 @@ export default function BscRollupDetailPage() {
             <Empty description="No employee scorecards in this scope yet" />
           </div>
         ) : (
-          // Prototype design: company + department metric cards in one grid.
           <RollupHubCards
             companyRollup={companySummary}
             deptRollups={departmentSummaries}
@@ -339,7 +364,7 @@ export default function BscRollupDetailPage() {
                 className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]"
                 data-cy="bsc-rollup-avg-tag"
               >
-                Avg {formatScore(detailSummary.averageScore)}%
+                Avg {formatRollupAverage(detailSummary)}
               </Tag>
               <Tag
                 className="m-0 h-5 rounded border border-[#d9d9d9] bg-[#fafafa] px-1.5 text-[11px] font-normal leading-5 text-[#595959]"
@@ -348,6 +373,14 @@ export default function BscRollupDetailPage() {
                 {detailSummary.evaluatedCount}/{detailSummary.totalCount}{' '}
                 evaluated
               </Tag>
+              <Input.Search
+                allowClear
+                placeholder="Search employees"
+                value={contributorSearch}
+                onChange={(e) => setContributorSearch(e.target.value)}
+                className="w-full max-w-[240px]"
+                data-cy="bsc-rollup-contributor-search"
+              />
             </div>
           </div>
 
@@ -355,12 +388,19 @@ export default function BscRollupDetailPage() {
             <div className="px-4 py-12" data-cy="bsc-rollup-empty">
               <Empty description="No contributing employees in this scope" />
             </div>
+          ) : !filteredContributors.length ? (
+            <div
+              className="px-4 py-10 text-center text-sm text-[#8F94A3]"
+              data-cy="bsc-rollup-search-empty"
+            >
+              No employees match your search
+            </div>
           ) : (
             <div className="overflow-x-auto" data-cy="bsc-rollup-table-wrap">
               <Table
                 className="w-full cursor-pointer"
                 columns={columns}
-                dataSource={contributors}
+                dataSource={filteredContributors}
                 pagination={false}
                 rowKey="id"
                 rowHoverable={false}

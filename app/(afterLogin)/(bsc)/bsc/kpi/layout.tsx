@@ -30,7 +30,7 @@ const RECALCULATE_HINT =
 
 const TABS = [
   { key: 'kpis' as const, label: 'KPI', href: bscKpiAdminHref('kpis') },
-  { key: 'bsc' as const, label: 'BSC', href: bscKpiAdminHref('bsc') },
+  { key: 'bsc' as const, label: 'Scorecard', href: bscKpiAdminHref('bsc') },
 ];
 
 export default function BscKpiAdminLayout({
@@ -115,7 +115,7 @@ export default function BscKpiAdminLayout({
               className="!text-gray-800"
               data-cy="bsc-kpi-admin-breadcrumb-bsc"
             >
-              BSC
+              Scorecard
             </Link>
             <span data-cy="layout-span-82" className="mx-2 text-gray-400">
               /

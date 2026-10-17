@@ -56,18 +56,12 @@ export default function TaskReview({
       aria-label="Manager review"
       data-cy="deadline-task-review"
     >
-      <h3
-        className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#161A2C]"
-        data-cy="deadline-task-review-title"
-      >
+      <h3 data-cy="deadline-plan-task-review-h3-59" className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#161A2C]">
         <CommentOutlined className="text-okr-primary" /> Manager feedback
       </h3>
       {task.approvalComment ? (
         <div className="mb-3" data-cy="deadline-detail-manager-comment">
-          <p
-            className="text-[11px] text-slate-500"
-            data-cy="deadline-detail-manager-comment-metadata"
-          >
+          <p data-cy="deadline-plan-task-review-p-64" className="text-[11px] text-slate-500">
             {getPerson(task.commentedById ?? task.approvedById)?.name ??
               'Direct manager'}
             {(task.commentedAt ?? task.approvedAt)
@@ -84,8 +78,7 @@ export default function TaskReview({
       ) : null}
       {permissions.canComment ? (
         <>
-          <label
-            data-cy="deadline-task-review-comment-label"
+          <label data-cy="deadline-plan-task-review-label-81"
             htmlFor={`deadline-review-comment-${task.id}`}
             className="mb-2 block text-xs font-medium text-slate-500"
           >
@@ -103,17 +96,11 @@ export default function TaskReview({
             disabled={isLoading}
             className="!rounded-lg !bg-white !text-sm focus-within:!ring-2 focus-within:!ring-okr-primary/30"
           />
-          <p
-            className="mt-2 text-xs text-slate-500"
-            data-cy="deadline-task-review-comment-help"
-          >
+          <p data-cy="deadline-plan-task-review-p-99" className="mt-2 text-xs text-slate-500">
             Save feedback without approving. The assignee can undo their report,
             make corrections, and report again.
           </p>
-          <div
-            className="mt-3 flex flex-wrap gap-2"
-            data-cy="deadline-task-review-actions"
-          >
+          <div data-cy="deadline-plan-task-review-div-103" className="mt-3 flex flex-wrap gap-2">
             <Button
               onClick={submit}
               loading={isLoading}
@@ -134,10 +121,7 @@ export default function TaskReview({
             ) : null}
           </div>
           {dirty && permissions.canApprove ? (
-            <p
-              className="mt-2 text-xs text-slate-500"
-              data-cy="deadline-task-review-unsaved-comment"
-            >
+            <p data-cy="deadline-plan-task-review-p-124" className="mt-2 text-xs text-slate-500">
               Save your comment before approving this report.
             </p>
           ) : null}
