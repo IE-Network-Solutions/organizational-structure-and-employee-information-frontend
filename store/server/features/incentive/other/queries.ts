@@ -135,13 +135,19 @@ const fetchIncentiveFormula = async (recognitionTypeId: string | undefined) => {
 };
 
 export const useAllChildrenRecognition = () => {
-  return useQuery<any>('allChildRecognition', fetchAllChildrenRecognition);
+  return useQuery<any>('allChildRecognition', fetchAllChildrenRecognition, {
+    refetchOnMount: 'always',
+    staleTime: 0,
+  });
 };
 export const useUserDetail = () => {
   return useQuery<any>('useDetail', fetchUserDetail);
 };
 export const useParentRecognition = () => {
-  return useQuery<any>('parentRecognition', fetchParentRecognition);
+  return useQuery<any>('parentRecognition', fetchParentRecognition, {
+    refetchOnMount: 'always',
+    staleTime: 0,
+  });
 };
 export const useRecognitionByParentId = (recognitionTypeId: string) => {
   return useQuery<any>(['childRecognition', recognitionTypeId], () =>
@@ -239,6 +245,11 @@ export const useGetAllIncentiveData = (
         current,
         payPeriodId,
       ),
+    {
+      // Top Incentive KPI cards + category bonus pills.
+      refetchOnMount: 'always',
+      staleTime: 0,
+    },
   );
 };
 

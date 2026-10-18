@@ -2,6 +2,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { requestHeader } from '@/helpers/requestHeader';
 import { INCENTIVE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { invalidateIncentiveCaches } from '@/utils/invalidateRecognitionCascadeCaches';
 import { useMutation, useQueryClient } from 'react-query';
 
 const setIncentiveFormula = async (data: any) => {
@@ -112,7 +113,7 @@ export const useDeleteIncentive = () => {
   const queryClient = useQueryClient();
   return useMutation(({ id }: { id: string }) => deleteIncentive(id), {
     onSuccess: () => {
-      queryClient.invalidateQueries(['getAllIncentiveData']);
+      void invalidateIncentiveCaches(queryClient);
       NotificationMessage.success({
         message: 'Incentive deleted successfully!',
         description: 'Incentive record has been successfully deleted',
@@ -133,7 +134,7 @@ export const useDeleteBulkIncentives = () => {
     ({ ids }: { ids: string[] }) => deleteBulkIncentives(ids),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['getAllIncentiveData']);
+        void invalidateIncentiveCaches(queryClient);
         NotificationMessage.success({
           message: 'Incentives deleted successfully!',
           description:

@@ -158,7 +158,8 @@ const Page = () => {
                                 className: 'text-xs text-gray-600',
                                 label: (
                                   <Popconfirm
-                                    title="Are you sure you want to delete?"
+                                    title="Delete this recognition type?"
+                                    description="This will also permanently delete all child recognition types, recognitions, and linked incentives."
                                     onConfirm={() => {
                                       deleteRecognitionType(String(item?.id));
                                       setRecognitionOpenDropdownId(null);

@@ -372,7 +372,7 @@ function DetailPage() {
               open={deleteModalOpen[record.id] || false}
               onCancel={() => handleDeleteCancel(record.id)}
               onConfirm={() => handleDeleteConfirm(record.id)}
-              message="Are you sure you want to permanently delete this record?"
+              message="Are you sure you want to permanently delete this recognition? Its linked incentive will also be removed."
               loading={isDeletingSingle}
             >
               <button
@@ -833,7 +833,7 @@ function DetailPage() {
         open={showBulkDeleteModal}
         onCancel={() => setShowBulkDeleteModal(false)}
         onConfirm={handleBulkDelete}
-        deleteMessage={`Are you sure you want to permanently delete ${selectedRowKeys?.length || 0} selected record(s)? This action cannot be undone.`}
+        deleteMessage={`Are you sure you want to permanently delete ${selectedRowKeys?.length || 0} selected recognition(s)? Linked incentives will also be removed. This cannot be undone.`}
         loading={isDeleting}
       />
     </div>

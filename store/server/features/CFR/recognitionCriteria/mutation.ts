@@ -2,6 +2,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { invalidateRecognitionTypeCascadeCaches } from '@/utils/invalidateRecognitionCascadeCaches';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -69,8 +70,7 @@ export const useDeleteRecognitionCriteria = () => {
   return useMutation(deleteRecognitionCriteia, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('recognitionTypes');
-      queryClient.invalidateQueries('recognitionTypesWithRelations');
+      void invalidateRecognitionTypeCascadeCaches(queryClient);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

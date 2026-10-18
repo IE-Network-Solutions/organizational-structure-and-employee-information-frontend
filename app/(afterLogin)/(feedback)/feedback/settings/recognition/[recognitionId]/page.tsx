@@ -353,7 +353,8 @@ export default function RecognitionDetailPage() {
 
                                 label: (
                                   <Popconfirm
-                                    title="Are you sure you want to delete?"
+                                    title="Delete this recognition type?"
+                                    description="This will also permanently delete all related recognitions and linked incentives."
                                     onConfirm={() => {
                                       handleDeleteRecognitionType(child?.id);
                                     }}

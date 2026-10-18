@@ -279,7 +279,8 @@ export const useGetRecognitionsByParentRecognitionType = (
       ),
     {
       enabled: !!params?.parentRecognitionTypeId,
-      keepPreviousData: true,
+      // Do not keep deleted rows visible after cascade delete refetch.
+      keepPreviousData: false,
     },
   );
 };
@@ -357,6 +358,11 @@ export const useGetRecognitionTypeDashboardStats = () => {
   return useQuery<any>(
     'recognitionTypeDashboardStats',
     getRecognitionTypeDashboardStats,
+    {
+      // Top KPI cards on CFR → Recognition.
+      refetchOnMount: 'always',
+      staleTime: 0,
+    },
   );
 };
 
@@ -373,6 +379,12 @@ export const useGetRecognitionTypeParentWithChildren = (
         pageSize,
         current,
       ),
+    {
+      // CFR → Recognition category cards must refresh after cascade deletes.
+      refetchOnMount: 'always',
+      staleTime: 0,
+      keepPreviousData: false,
+    },
   );
 };
 
