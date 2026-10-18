@@ -429,13 +429,13 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           layout="vertical"
           requiredMark={false}
           onFinish={(values) => {
-            const payload = {
-              ...values,
-            };
-
             if (recognitionCategoryEditId?.trim()) {
               updateCategory(
-                { ...payload, id: recognitionCategoryEditId },
+                {
+                  name: values.name,
+                  description: values.description ?? '',
+                  id: recognitionCategoryEditId,
+                },
                 {
                   onSuccess: () => {
                     setOpenRecognitionCategoryModal(false);
@@ -447,12 +447,24 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
               return;
             }
 
-            createCategory(payload, {
-              onSuccess: () => {
-                setOpenRecognitionCategoryModal(false);
-                categoryForm.resetFields();
+            createCategory(
+              {
+                recognitionTypes: [
+                  {
+                    name: values.name,
+                    description: values.description ?? '',
+                    isMonetized: false,
+                    requiresCertification: false,
+                  },
+                ],
               },
-            });
+              {
+                onSuccess: () => {
+                  setOpenRecognitionCategoryModal(false);
+                  categoryForm.resetFields();
+                },
+              },
+            );
           }}
           data-cy="recognition-category-form"
         >
