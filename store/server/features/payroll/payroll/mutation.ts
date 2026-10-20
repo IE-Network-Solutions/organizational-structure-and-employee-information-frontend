@@ -39,7 +39,10 @@ const regeneratePayroll = async ({
   payPeriodId: string;
   data: {
     includePayroll: boolean;
-    includeVariablePay: boolean;
+    includeMonthlyVariablePay?: boolean;
+    includeSessionVariablePay?: boolean;
+    /** @deprecated Prefer includeMonthlyVariablePay; treated as monthly-only. */
+    includeVariablePay?: boolean;
     includeIncentive: boolean;
     payrollItems: { userId: string; basicSalary: number };
   };

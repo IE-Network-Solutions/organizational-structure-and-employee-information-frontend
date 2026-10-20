@@ -149,7 +149,7 @@ const VariablePayFilter: React.FC = () => {
 
           {/* Refresh icon button */}
           <Button
-            title="Refresh VP"
+            title="Refresh PP"
             type="text"
             size="small"
             className="w-10 h-10"
@@ -278,7 +278,7 @@ const VariablePayFilter: React.FC = () => {
           >
             <Button
               data-cy="compensation-benefit-variable-pay-desktop-refresh-button"
-              title="Refresh VP"
+              title="Refresh PP"
               className="w-full h-10"
               type="primary"
               onClick={() => refetch()}
@@ -290,7 +290,7 @@ const VariablePayFilter: React.FC = () => {
                 data-cy="compensation-benefit-variable-pay-desktop-refresh-button-text"
                 className="truncate"
               >
-                {refreshLoading || isFetching ? <Spin /> : 'Refresh VP'}
+                {refreshLoading || isFetching ? <Spin /> : 'Refresh PP'}
               </span>
             </Button>
           </Col>

@@ -244,7 +244,7 @@ export default function Graph({
       labels: chartLabels,
       datasets: [
         {
-          label: 'Total Variable Pay',
+          label: 'Total Performance Pay',
           data: monthlyVariablePayOverview?.items?.length
             ? monthlyVariablePayOverview.items.map(
                 (item: MonthlyVariablePayOverviewItem) => item.totalVariablePay,
@@ -340,7 +340,7 @@ export default function Graph({
   );
 
   const title =
-    salaryChartView === 'salary-breakdown' ? 'Salary' : 'Total Variable Pay';
+    salaryChartView === 'salary-breakdown' ? 'Salary' : 'Total Performance Pay';
 
   if (isLoadingGraph) {
     return <PayrollGraphSkeleton data-cy={`${dataCy}-skeleton`} />;
@@ -366,7 +366,7 @@ export default function Graph({
           className="inline-flex items-center gap-1"
           data-cy={`${dataCy}-toggle`}
           role="group"
-          aria-label="Salary breakdown or variable pay"
+          aria-label="Salary breakdown or performance pay"
         >
           <Tag
             bordered
@@ -413,7 +413,7 @@ export default function Graph({
             }}
             data-cy={`${dataCy}-toggle-variable-pay`}
           >
-            Variable Pay
+            Performance Pay
           </Tag>
         </div>
       </div>

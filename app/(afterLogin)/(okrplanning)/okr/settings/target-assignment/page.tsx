@@ -195,7 +195,7 @@ function Page() {
               description={
                 isFilteredOnlyEmpty
                   ? 'Try adjusting search or the criteria type filter.'
-                  : 'Create an assignment to set monthly VP targets by department and criteria.'
+                  : 'Create an assignment to set monthly PP targets by department and criteria.'
               }
               actionText={
                 canAssignVpTargets && !isFilteredOnlyEmpty

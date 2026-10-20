@@ -609,7 +609,7 @@ const CheckInRuleDrawer: React.FC<CheckInRuleDrawerProps> = ({
           }
         });
 
-        // Apply user type filter - use same logic as VP configuration
+        // Apply user type filter - use same logic as PP configuration
         let filteredUsersList = allUsers;
         const currentUserTypeFilter = checkInRule.userTypeFilter || 'all';
         if (currentUserTypeFilter !== 'all') {

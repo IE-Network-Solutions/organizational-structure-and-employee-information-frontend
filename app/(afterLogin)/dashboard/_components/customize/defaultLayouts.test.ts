@@ -54,7 +54,7 @@ describe.each(PLAN_KEYS)('%s plan rows', (planKey) => {
 });
 
 describe('KPI row', () => {
-  it('spans the whole grid, five equal cards wide', () => {
+  it('spans the whole grid, six equal cards wide', () => {
     const kpiCards = getDefaultLayout('performance').filter((item) =>
       item.id.startsWith('kpi-'),
     );
@@ -66,9 +66,9 @@ describe('KPI row', () => {
     const kpiCards = getDefaultLayout('performance').filter((item) =>
       item.id.startsWith('kpi-'),
     );
-    expect(kpiCards).toHaveLength(5);
+    expect(kpiCards).toHaveLength(6);
     kpiCards.forEach((card) => {
-      expect({ w: card.w, h: card.h }).toEqual({ w: 12, h: 8 });
+      expect({ w: card.w, h: card.h }).toEqual({ w: 10, h: 8 });
     });
   });
 });

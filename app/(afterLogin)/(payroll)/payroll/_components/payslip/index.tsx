@@ -6,6 +6,15 @@ import { useSendEmail } from '@/store/server/features/payroll/payroll/mutation';
 import dayjs from 'dayjs';
 import { Button } from 'antd';
 
+/** Breakdown PP entries are `{ type, amount }`; older data may be an array of them. */
+const vpAmount = (entry: any) =>
+  Array.isArray(entry)
+    ? entry.find((vp: any) => vp.type === 'VP')?.amount
+    : entry?.amount;
+
+const formatVpAmount = (amount: any) =>
+  Number(amount) ? Number(amount).toLocaleString() : 'ETB 0';
+
 const PaySlip = ({ data }: { data: any[] }) => {
   const { mutate: sendEmail } = useSendEmail();
 
@@ -434,6 +443,40 @@ const PaySlip = ({ data }: { data: any[] }) => {
               id={`payroll-payslip-bonus-view-tbody-${employeeData?.employeeId}`}
               data-cy={`payroll-payslip-bonus-view-tbody-${employeeData?.employeeId}`}
             >
+              {[
+                {
+                  key: 'monthly',
+                  label: 'PP Monthly',
+                  entry: employeeData?.breakdown?.variablePayMonthly,
+                },
+                {
+                  key: 'quarterly',
+                  label: 'PP Quarterly',
+                  entry: employeeData?.breakdown?.variablePaySession,
+                },
+              ]
+                .filter((row) => row.entry !== undefined)
+                .map((row) => (
+                  <tr
+                    key={row.key}
+                    id={`payroll-payslip-bonus-vp-${row.key}-row-${employeeData?.employeeId}`}
+                    data-cy={`payroll-payslip-bonus-vp-${row.key}-row-${employeeData?.employeeId}`}
+                    className="border border-gray-300"
+                  >
+                    <td
+                      data-cy={`payroll-payslip-bonus-vp-${row.key}-label-cell-${employeeData?.employeeId}`}
+                      className="p-2 border border-gray-300"
+                    >
+                      {row.label}
+                    </td>
+                    <td
+                      data-cy={`payroll-payslip-bonus-vp-${row.key}-value-cell-${employeeData?.employeeId}`}
+                      className="p-2 border border-gray-300"
+                    >
+                      {formatVpAmount(vpAmount(row.entry))}
+                    </td>
+                  </tr>
+                ))}
               <tr
                 id={`payroll-payslip-bonus-variable-row-${employeeData?.employeeId}`}
                 data-cy={`payroll-payslip-bonus-variable-row-${employeeData?.employeeId}`}
@@ -444,18 +487,16 @@ const PaySlip = ({ data }: { data: any[] }) => {
                   data-cy={`payroll-payslip-bonus-variable-label-cell-${employeeData?.employeeId}`}
                   className="p-2 border border-gray-300"
                 >
-                  Variable Pay
+                  Performance Pay
                 </td>
                 <td
                   id={`payroll-payslip-bonus-variable-value-cell-${employeeData?.employeeId}`}
                   data-cy={`payroll-payslip-bonus-variable-value-cell-${employeeData?.employeeId}`}
                   className="p-2 border border-gray-300"
                 >
-                  {employeeData?.breakdown?.variablePay?.length > 0
-                    ? employeeData?.breakdown?.variablePay.find(
-                        (vp: any) => vp.type === 'VP',
-                      )?.amount || 'ETB 0'
-                    : 'ETB 0'}
+                  {formatVpAmount(
+                    vpAmount(employeeData?.breakdown?.variablePay),
+                  )}
                 </td>
               </tr>
               <tr

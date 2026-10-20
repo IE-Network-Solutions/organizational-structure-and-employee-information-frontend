@@ -147,7 +147,7 @@ export default function VpDeductionDetailModal({
           style={{ fontSize: 13, color: '#1d4ed8' }}
           data-cy="variable-pay-vp-deduction-detail-modal-note-text"
         >
-          Note that deselecting an item means removing the VP deduction action
+          Note that deselecting an item means removing the PP deduction action
           for that Rule Violation.
         </Text>
       </div>
@@ -172,7 +172,7 @@ export default function VpDeductionDetailModal({
             style={{ fontSize: 13 }}
             data-cy="variable-pay-vp-deduction-detail-modal-empty"
           >
-            No VP deductions found for this period.
+            No PP deductions found for this period.
           </Text>
         ) : (
           <Checkbox.Group
@@ -211,7 +211,7 @@ export default function VpDeductionDetailModal({
                       style={{ fontSize: 13 }}
                       data-cy={`variable-pay-vp-deduction-detail-item-amount-${item.id}`}
                     >
-                      {item.deductedAmount} VP deduction
+                      {item.deductedAmount} PP deduction
                     </Text>
                   </div>
                 </Checkbox>

@@ -23,6 +23,10 @@ interface Props {
 
 export interface Incentive {
   includeIncentive: boolean;
+  /** PP Monthly (scoreBy MONTH) payouts for the pay period. */
+  includeMonthlyVariablePay: boolean;
+  /** PP Quarterly (scoreBy SESSION) payouts for the pay period. */
+  includeSessionVariablePay: boolean;
 }
 
 const GeneratePayrollModal: React.FC<Props> = ({
@@ -50,7 +54,11 @@ const GeneratePayrollModal: React.FC<Props> = ({
     form
       .validateFields()
       .then((values) => {
-        onGenerate({ includeIncentive: values.includeIncentive });
+        onGenerate({
+          includeIncentive: values.includeIncentive,
+          includeMonthlyVariablePay: Boolean(values.includeMonthlyVariablePay),
+          includeSessionVariablePay: Boolean(values.includeSessionVariablePay),
+        });
       })
       .catch(() => {
         // validation errors are displayed by antd Form; no console output needed
@@ -155,7 +163,11 @@ const GeneratePayrollModal: React.FC<Props> = ({
             form={form}
             layout="vertical"
             requiredMark={customizeRequiredMark}
-            initialValues={{ includeIncentive: true }}
+            initialValues={{
+              includeIncentive: true,
+              includeMonthlyVariablePay: true,
+              includeSessionVariablePay: true,
+            }}
             data-cy="payroll-generate-modal-form"
           >
             <div data-cy="payroll-generate-modal-incentive-toggle-view-container">
@@ -174,6 +186,42 @@ const GeneratePayrollModal: React.FC<Props> = ({
                 required
               >
                 <Switch data-cy="payroll-generate-modal-incentive-toggle-switch" />
+              </Form.Item>
+            </div>
+
+            <div data-cy="payroll-generate-modal-vp-monthly-toggle-view-container">
+              <Form.Item
+                label={
+                  <span
+                    data-cy="payroll-generate-modal-vp-monthly-label-view-text"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Include PP Monthly
+                  </span>
+                }
+                name="includeMonthlyVariablePay"
+                valuePropName="checked"
+                className="mb-5"
+              >
+                <Switch data-cy="payroll-generate-modal-vp-monthly-toggle-switch" />
+              </Form.Item>
+            </div>
+
+            <div data-cy="payroll-generate-modal-vp-quarterly-toggle-view-container">
+              <Form.Item
+                label={
+                  <span
+                    data-cy="payroll-generate-modal-vp-quarterly-label-view-text"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Include PP Quarterly
+                  </span>
+                }
+                name="includeSessionVariablePay"
+                valuePropName="checked"
+                className="mb-5"
+              >
+                <Switch data-cy="payroll-generate-modal-vp-quarterly-toggle-switch" />
               </Form.Item>
             </div>
 

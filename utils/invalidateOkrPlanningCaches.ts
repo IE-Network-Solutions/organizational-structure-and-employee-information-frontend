@@ -62,8 +62,8 @@ export function invalidateReportingCaches(
 }
 
 /**
- * Dashboard OKR totals + VP recalculate async after report.
- * Re-invalidate shortly after so cards pick up the finished summary/VP.
+ * Dashboard OKR totals + PP recalculate async after report.
+ * Re-invalidate shortly after so cards pick up the finished summary/PP.
  */
 export function scheduleDashboardAndVpRefetch(
   queryClient: QueryClient,

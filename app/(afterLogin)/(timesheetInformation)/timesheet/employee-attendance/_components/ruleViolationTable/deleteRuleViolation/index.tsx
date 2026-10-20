@@ -27,7 +27,7 @@ const ACTION_TYPE_OPTIONS = [
     value: AttendanceActionType.SALARY_DEDUCTION,
   },
   {
-    label: 'VP Deduction',
+    label: 'PP Deduction',
     value: AttendanceActionType.VP_DEDUCTION,
   },
 ] as const;
@@ -186,7 +186,7 @@ export default function DeleteRuleViolationModal({
       >
         {activeActionOptions.length === 0 ? (
           <Text type="secondary" style={{ fontSize: 13 }}>
-            No actions can be removed while VP deduction is already sent.
+            No actions can be removed while PP deduction is already sent.
           </Text>
         ) : (
           <Checkbox.Group

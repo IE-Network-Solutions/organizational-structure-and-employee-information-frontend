@@ -112,7 +112,7 @@ const PayrollDetails = ({
           <Divider data-cy="payroll-details-allowances-divider" />
         </div>
 
-        {/* Entitled Benefits (merits only — no Project Incentive / VP) */}
+        {/* Entitled Benefits (merits only — no Project Incentive / PP) */}
         <div
           id="payroll-details-benefits-section-view-container"
           data-cy="payroll-details-benefits-section-view-container"
@@ -165,7 +165,7 @@ const PayrollDetails = ({
           <Divider data-cy="payroll-details-benefits-divider" />
         </div>
 
-        {/* Incentive: Variable Pay + Project Incentive / Incentives */}
+        {/* Incentive: Performance Pay + Project Incentive / Incentives */}
         <div
           id="payroll-details-incentive-section-view-container"
           data-cy="payroll-details-incentive-section-view-container"

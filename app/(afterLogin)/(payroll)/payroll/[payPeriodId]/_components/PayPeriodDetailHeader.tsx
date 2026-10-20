@@ -76,6 +76,8 @@ const PayPeriodDetailHeader = () => {
             basicSalary: parseInt(item.basicSalary, 10),
           })),
           includeIncentive: data.includeIncentive,
+          includeMonthlyVariablePay: data.includeMonthlyVariablePay,
+          includeSessionVariablePay: data.includeSessionVariablePay,
         },
       },
       {

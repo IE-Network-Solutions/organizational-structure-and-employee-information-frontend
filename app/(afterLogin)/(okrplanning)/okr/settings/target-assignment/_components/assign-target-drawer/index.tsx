@@ -9,6 +9,7 @@ import {
   useGetActiveSession,
   useGetTargetAssignmentById,
 } from '@/store/server/features/okrplanning/okr/target/queries';
+import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
   useCreateAssignTarget,
@@ -17,10 +18,13 @@ import {
 
 const { Option } = Select;
 
+type TargetPeriod = 'MONTH' | 'SESSION';
+
 const AssignTargetModal: React.FC = () => {
   const { data: criteriaData } = useGetCriteriaTargets();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: activeSessionData } = useGetActiveSession();
+  const { data: activeFiscalYear } = useGetActiveFiscalYearsData();
   const {
     mutate: createAssignTarget,
     isLoading: isCreateLoading,
@@ -42,34 +46,87 @@ const AssignTargetModal: React.FC = () => {
   const { userId } = useAuthenticationStore();
   const { data: getTargetById } = useGetTargetAssignmentById(currentId || '');
 
+  const targetPeriod = Form.useWatch('targetPeriod', form) as
+    | TargetPeriod
+    | undefined;
+  const isQuarterly = targetPeriod === 'SESSION';
+
+  const sessionOptions =
+    activeFiscalYear?.sessions?.map((session: any) => ({
+      value: session.id,
+      label: session.name,
+    })) ||
+    (activeSessionData?.id
+      ? [
+          {
+            value: activeSessionData.id,
+            label: activeSessionData.name || 'Active session',
+          },
+        ]
+      : []);
+
+  const activeMonthNames =
+    activeSessionData?.months?.map((month: any) => month.name) || [];
+
   const resetState = () => {
     form.resetFields();
     setSelectedMonths([]);
     form.setFieldsValue({
-      department: '',
-      criteria: '',
+      department: undefined,
+      criteria: undefined,
+      targetPeriod: 'MONTH',
       month: [],
+      sessionId: undefined,
+      sessionTarget: undefined,
     });
   };
 
   useEffect(() => {
+    if (!isDrawerVisible) return;
+
     if (currentId && getTargetById) {
-      form.setFieldsValue({
-        department: getTargetById.departmentId,
-        criteria: getTargetById.vpCriteriaId,
-        month: [getTargetById.month],
-        [getTargetById.month]: getTargetById.target,
-      });
-      setSelectedMonths([getTargetById.month]);
-    } else if (!currentId && activeSessionData) {
-      const allActiveMonths =
-        activeSessionData?.months?.map((month: any) => month.name) || [];
-      form.setFieldsValue({
-        month: allActiveMonths,
-      });
-      setSelectedMonths(allActiveMonths);
+      const isSessionTarget = Boolean(getTargetById.sessionId);
+      if (isSessionTarget) {
+        form.setFieldsValue({
+          department: getTargetById.departmentId,
+          criteria: getTargetById.vpCriteriaId,
+          targetPeriod: 'SESSION',
+          sessionId: getTargetById.sessionId,
+          sessionTarget: getTargetById.target,
+          month: [],
+        });
+        setSelectedMonths([]);
+      } else {
+        form.setFieldsValue({
+          department: getTargetById.departmentId,
+          criteria: getTargetById.vpCriteriaId,
+          targetPeriod: 'MONTH',
+          sessionId: undefined,
+          month: [getTargetById.month],
+          [getTargetById.month]: getTargetById.target,
+        });
+        setSelectedMonths([getTargetById.month].filter(Boolean));
+      }
+      return;
     }
-  }, [currentId, getTargetById, activeSessionData, setSelectedMonths, form]);
+
+    if (!currentId) {
+      form.setFieldsValue({
+        targetPeriod: 'MONTH',
+        month: activeMonthNames,
+        sessionId: undefined,
+        sessionTarget: undefined,
+      });
+      setSelectedMonths(activeMonthNames);
+    }
+  }, [
+    isDrawerVisible,
+    currentId,
+    getTargetById,
+    activeSessionData,
+    setSelectedMonths,
+    form,
+  ]);
 
   useEffect(() => {
     if (isCreateSuccess || isUpdateSuccess) {
@@ -82,16 +139,61 @@ const AssignTargetModal: React.FC = () => {
     closeDrawer();
   };
 
+  const handleTargetPeriodChange = (period: TargetPeriod) => {
+    if (period === 'MONTH') {
+      form.setFieldsValue({
+        sessionId: undefined,
+        sessionTarget: undefined,
+        month: activeMonthNames,
+      });
+      setSelectedMonths(activeMonthNames);
+      return;
+    }
+
+    form.setFieldsValue({
+      month: [],
+      sessionId:
+        form.getFieldValue('sessionId') ||
+        activeSessionData?.id ||
+        activeSessionData?.data?.id,
+    });
+    setSelectedMonths([]);
+    activeMonthNames.forEach((month: string) => {
+      form.setFieldValue(month, undefined);
+    });
+  };
+
   const onSubmit = (values: any) => {
-    const target = (values.month || []).map((month: string) => ({
-      month,
-      target: values[month],
-    }));
+    const period: TargetPeriod = values.targetPeriod || 'MONTH';
+
+    let target: Array<{
+      month?: string | null;
+      target: number;
+      sessionId?: string;
+    }> = [];
+
+    if (period === 'SESSION') {
+      target = [
+        {
+          month: null,
+          target: Number(values.sessionTarget),
+          sessionId: values.sessionId,
+        },
+      ];
+    } else {
+      target = (values.month || selectedMonths || []).map((month: string) => ({
+        month,
+        target: Number(values[month]),
+      }));
+    }
 
     const payload: Record<string, any> = {
       departmentId: values.department || null,
       vpCriteriaId: values.criteria,
       target,
+      ...(period === 'SESSION' && values.sessionId
+        ? { sessionId: values.sessionId }
+        : {}),
       ...(getTargetById && currentId
         ? { updatedBy: userId }
         : { createdBy: userId }),
@@ -156,7 +258,7 @@ const AssignTargetModal: React.FC = () => {
         form={form}
         layout="vertical"
         onFinish={onSubmit}
-        className=""
+        initialValues={{ targetPeriod: 'MONTH' }}
         id="okr-target-modal-form"
         data-cy="okr-target-modal-form"
       >
@@ -217,7 +319,7 @@ const AssignTargetModal: React.FC = () => {
                   >
                     Criteria
                   </span>
-                  <Tooltip title="Select the criteria for this assignment.">
+                  <Tooltip title="Same criteria can be used for both monthly and quarterly PP — create separate targets for each.">
                     <QuestionCircleOutlined
                       className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
                       data-cy="okr-target-modal-criteria-tooltip"
@@ -236,65 +338,167 @@ const AssignTargetModal: React.FC = () => {
                 dropdownClassName="custom-assignee-dropdown"
                 data-cy="okr-target-modal-criteria-select"
               >
-                {criteriaData?.items?.map((criteria: any) => (
-                  <Option
-                    key={criteria.id}
-                    value={criteria.id}
-                    data-cy={`okr-target-modal-criteria-option-${criteria.id}`}
-                  >
-                    {criteria.name}
-                  </Option>
-                ))}
+                {/* DIRECT_PERCENT criteria (OKR %, Scorecard Progress) are scored as is and need no target. */}
+                {criteriaData?.items
+                  ?.filter(
+                    (criteria: any) =>
+                      criteria.scoringMode !== 'DIRECT_PERCENT',
+                  )
+                  .map((criteria: any) => (
+                    <Option
+                      key={criteria.id}
+                      value={criteria.id}
+                      data-cy={`okr-target-modal-criteria-option-${criteria.id}`}
+                    >
+                      {criteria.name}
+                    </Option>
+                  ))}
               </Select>
             </Form.Item>
           </Col>
         </Row>
 
-        {/* Dynamic Month Targets Grid */}
-        <Row gutter={16} className="mt-2" data-cy="okr-target-modal-months-row">
-          {selectedMonths?.map((month) => (
-            <Col
-              key={month}
-              span={8}
-              data-cy={`okr-target-modal-month-col-${month}`}
+        <Form.Item
+          label={
+            <div
+              className="flex items-center gap-1"
+              data-cy="okr-target-modal-period-label"
             >
-              <Form.Item
-                label={
-                  <div
-                    className="flex items-center gap-1"
-                    data-cy={`okr-target-modal-month-label-${month}`}
-                  >
-                    <span
-                      className="text-[14px] font-medium text-[#262626]"
-                      data-cy={`okr-target-modal-month-label-text-${month}`}
-                    >
-                      {month} Target
-                    </span>
-                  </div>
-                }
-                name={month}
-                required
-                rules={[{ required: true, message: 'Required' }]}
-                data-cy={`okr-target-modal-month-field-${month}`}
+              <span
+                className="text-[14px] font-medium text-[#262626]"
+                data-cy="okr-target-modal-period-label-text"
               >
-                <Input
-                  type="number"
-                  placeholder="Input"
-                  className="h-11"
-                  data-cy={`okr-target-modal-month-input-${month}`}
+                Target type
+              </span>
+              <Tooltip title="Monthly targets use calendar months. Quarterly targets use a session and a single target value.">
+                <QuestionCircleOutlined
+                  className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                  data-cy="okr-target-modal-period-tooltip"
                 />
-              </Form.Item>
-            </Col>
-          ))}
-        </Row>
-
-        {/* Hidden Month Multi-select for logic consistency */}
-        {!currentId && (
-          <Form.Item
-            name="month"
-            noStyle
-            data-cy="okr-target-modal-hidden-month-field"
+              </Tooltip>
+            </div>
+          }
+          name="targetPeriod"
+          required
+          rules={[{ required: true, message: 'Please select target type' }]}
+          data-cy="okr-target-modal-period-field"
+        >
+          <Select
+            className="w-full h-11 custom-modal-select"
+            options={[
+              { value: 'MONTH', label: 'Monthly (for PP Monthly)' },
+              { value: 'SESSION', label: 'Quarterly (for PP Quarterly)' },
+            ]}
+            onChange={handleTargetPeriodChange}
+            data-cy="okr-target-modal-period-select"
           />
+        </Form.Item>
+
+        {isQuarterly ? (
+          <>
+            <Form.Item
+              label={
+                <div
+                  className="flex items-center gap-1"
+                  data-cy="okr-target-modal-session-label"
+                >
+                  <span
+                    className="text-[14px] font-medium text-[#262626]"
+                    data-cy="okr-target-modal-session-label-text"
+                  >
+                    Session
+                  </span>
+                  <Tooltip title="Required for quarterly PP. Must match the active session used when refreshing PP.">
+                    <QuestionCircleOutlined
+                      className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                      data-cy="okr-target-modal-session-tooltip"
+                    />
+                  </Tooltip>
+                </div>
+              }
+              name="sessionId"
+              required
+              rules={[{ required: true, message: 'Please select a session' }]}
+              data-cy="okr-target-modal-session-field"
+            >
+              <Select
+                placeholder="Select session"
+                className="w-full h-11 custom-modal-select"
+                options={sessionOptions}
+                data-cy="okr-target-modal-session-select"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label={
+                <span
+                  className="text-[14px] font-medium text-[#262626]"
+                  data-cy="okr-target-modal-session-target-label"
+                >
+                  Session target
+                </span>
+              }
+              name="sessionTarget"
+              required
+              rules={[
+                { required: true, message: 'Please enter the session target' },
+              ]}
+              data-cy="okr-target-modal-session-target-field"
+            >
+              <Input
+                type="number"
+                placeholder="Enter quarterly target"
+                className="h-11"
+                data-cy="okr-target-modal-session-target-input"
+              />
+            </Form.Item>
+          </>
+        ) : (
+          <>
+            <Row
+              gutter={16}
+              className="mt-2"
+              data-cy="okr-target-modal-months-row"
+            >
+              {selectedMonths?.map((month) => (
+                <Col
+                  key={month}
+                  span={8}
+                  data-cy={`okr-target-modal-month-col-${month}`}
+                >
+                  <Form.Item
+                    label={
+                      <span
+                        className="text-[14px] font-medium text-[#262626]"
+                        data-cy={`okr-target-modal-month-label-text-${month}`}
+                      >
+                        {month} Target
+                      </span>
+                    }
+                    name={month}
+                    required
+                    rules={[{ required: true, message: 'Required' }]}
+                    data-cy={`okr-target-modal-month-field-${month}`}
+                  >
+                    <Input
+                      type="number"
+                      placeholder="Input"
+                      className="h-11"
+                      data-cy={`okr-target-modal-month-input-${month}`}
+                    />
+                  </Form.Item>
+                </Col>
+              ))}
+            </Row>
+
+            {!currentId && (
+              <Form.Item
+                name="month"
+                noStyle
+                data-cy="okr-target-modal-hidden-month-field"
+              />
+            )}
+          </>
         )}
 
         <style jsx global data-cy="okr-target-modal-styles">{`

@@ -67,7 +67,7 @@ export const useCreateVpTimeConfiguration = () => {
         message: 'Error',
         description:
           error?.response?.data?.message ||
-          'Failed to create VP time configuration.',
+          'Failed to create PP time configuration.',
       });
     },
   });
@@ -85,7 +85,7 @@ export const useUpdateVpTimeConfiguration = () => {
         message: 'Error',
         description:
           error?.response?.data?.message ||
-          'Failed to update VP time configuration.',
+          'Failed to update PP time configuration.',
       });
     },
   });
@@ -103,7 +103,7 @@ export const useDeleteVpTimeConfiguration = () => {
         message: 'Error',
         description:
           error?.response?.data?.message ||
-          'Failed to delete VP time configuration.',
+          'Failed to delete PP time configuration.',
       });
     },
   });

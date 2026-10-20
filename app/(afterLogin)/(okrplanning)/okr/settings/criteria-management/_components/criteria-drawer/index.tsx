@@ -114,12 +114,22 @@ const ScoringModal: React.FC = () => {
       form.setFieldsValue({
         name: scoringData.name,
         totalPercentage: scoringData.totalPercentage,
+        scoreBy: scoringData.scoreBy || 'MONTH',
         department: scoringData.userVpScoring
           ?.map((u: any) => {
+            const dept = departmentData?.find((d: any) =>
+              (d.users || []).some((emp: any) => emp.id === u.userId),
+            );
+            if (dept?.id) return dept.id;
             const user = departmentData
-              ?.flatMap((d: any) => d.users)
+              ?.flatMap((d: any) => d.users || [])
               ?.find((emp: any) => emp.id === u.userId);
-            return user?.departmentId;
+            return (
+              user?.departmentId ||
+              user?.employeeJobInformation?.find(
+                (job: any) => job.isPositionActive,
+              )?.departmentId
+            );
           })
           .filter((v: any, i: any, a: any) => v && a.indexOf(v) === i),
         users: scoringData.userVpScoring.map((item: any) => item.userId),
@@ -267,9 +277,27 @@ const ScoringModal: React.FC = () => {
       return criteriaMapping;
     });
 
+    if (mappedCriteria.length === 0) {
+      message.error('Please select at least one criteria.');
+      return;
+    }
+
+    const totalPercentage = parseFloat(values.totalPercentage);
+    const weightSum = mappedCriteria.reduce(
+      (sum, item) => sum + Number(item.weight || 0),
+      0,
+    );
+    if (Math.abs(weightSum - totalPercentage) > 0.01) {
+      message.error(
+        `Sum of criteria weights (${weightSum}) must equal total percentage (${totalPercentage}).`,
+      );
+      return;
+    }
+
     const payload: any = {
       name: values.name,
-      totalPercentage: parseFloat(values.totalPercentage),
+      totalPercentage,
+      scoreBy: values.scoreBy || 'MONTH',
       createUserVpScoringDto: mappedUsers,
       vpScoringCriteria: mappedCriteria,
     };
@@ -347,7 +375,7 @@ const ScoringModal: React.FC = () => {
           data-cy="okr-criteria-modal-form"
         >
           <Row gutter={[24, 16]} data-cy="okr-criteria-modal-name-row">
-            <Col xs={24} sm={18} data-cy="okr-criteria-modal-name-col">
+            <Col xs={24} sm={12} data-cy="okr-criteria-modal-name-col">
               <Form.Item
                 label={
                   <div
@@ -377,6 +405,43 @@ const ScoringModal: React.FC = () => {
                   placeholder="Update all UI screens"
                   className="h-11"
                   data-cy="okr-criteria-modal-name-input"
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={6} data-cy="okr-criteria-modal-scoreby-col">
+              <Form.Item
+                label={
+                  <div
+                    className="flex items-center gap-1"
+                    data-cy="okr-criteria-modal-scoreby-label"
+                  >
+                    <span
+                      className="text-[14px] font-medium text-[#262626]"
+                      data-cy="okr-criteria-modal-scoreby-label-text"
+                    >
+                      Score by
+                    </span>
+                    <Tooltip title="Monthly uses month periods; Quarterly uses sessions.">
+                      <QuestionCircleOutlined
+                        className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                        data-cy="okr-criteria-modal-scoreby-tooltip"
+                      />
+                    </Tooltip>
+                  </div>
+                }
+                name="scoreBy"
+                initialValue="MONTH"
+                required
+                rules={[{ required: true, message: 'Please select score by' }]}
+                data-cy="okr-criteria-modal-scoreby-field"
+              >
+                <Select
+                  className="h-11"
+                  options={[
+                    { value: 'MONTH', label: 'Monthly' },
+                    { value: 'SESSION', label: 'Quarterly' },
+                  ]}
+                  data-cy="okr-criteria-modal-scoreby-select"
                 />
               </Form.Item>
             </Col>

@@ -117,7 +117,7 @@ export default function VpViolationDetailModal({
             style={{ fontSize: 13 }}
             data-cy="vp-dashboard-violation-detail-modal-empty"
           >
-            No VP deductions found for this period.
+            No PP deductions found for this period.
           </Text>
         ) : (
           items.map((item) => (
@@ -135,7 +135,7 @@ export default function VpViolationDetailModal({
                 }}
                 data-cy={`vp-dashboard-violation-detail-item-amount-${item.id}`}
               >
-                {item.deductedAmount} VP Deduction
+                {item.deductedAmount} PP Deduction
               </Text>
               <Text
                 type="secondary"

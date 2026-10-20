@@ -7,9 +7,9 @@ export type PayrollView =
 
 export const PAYROLL_VIEW_OPTIONS: { value: PayrollView; label: string }[] = [
   { value: 'payroll', label: 'Payroll' },
-  { value: 'vp', label: 'VP' },
+  { value: 'vp', label: 'PP' },
   { value: 'incentive', label: 'Incentive' },
-  { value: 'vp_incentive', label: 'VP + Incentive' },
+  { value: 'vp_incentive', label: 'PP + Incentive' },
   { value: 'all', label: 'All' },
 ];
 
@@ -32,42 +32,71 @@ export function payrollViewToQueryParams(
   }
 }
 
-/** Prefill generate/regenerate include switches from the active list view. */
-export function payrollViewToIncludeFlags(view: PayrollView): {
+export type PayrollIncludeFlags = {
   includePayroll: boolean;
-  includeVariablePay: boolean;
+  includeMonthlyVariablePay: boolean;
+  includeSessionVariablePay: boolean;
   includeIncentive: boolean;
-} {
+};
+
+/** True when any PP track is included (new flags or legacy includeVariablePay). */
+export function hasAnyVariablePayInclude(flags: {
+  includeMonthlyVariablePay?: boolean;
+  includeSessionVariablePay?: boolean;
+  /** Legacy: treat as monthly-only when new flags are absent. */
+  includeVariablePay?: boolean;
+}): boolean {
+  const hasNewFlags =
+    flags.includeMonthlyVariablePay !== undefined ||
+    flags.includeSessionVariablePay !== undefined;
+  if (hasNewFlags) {
+    return (
+      Boolean(flags.includeMonthlyVariablePay) ||
+      Boolean(flags.includeSessionVariablePay)
+    );
+  }
+  return Boolean(flags.includeVariablePay);
+}
+
+/** Prefill generate/regenerate include switches from the active list view. */
+export function payrollViewToIncludeFlags(
+  view: PayrollView,
+): PayrollIncludeFlags {
   switch (view) {
     case 'vp':
       return {
         includePayroll: false,
-        includeVariablePay: true,
+        includeMonthlyVariablePay: true,
+        includeSessionVariablePay: true,
         includeIncentive: false,
       };
     case 'incentive':
       return {
         includePayroll: false,
-        includeVariablePay: false,
+        includeMonthlyVariablePay: false,
+        includeSessionVariablePay: false,
         includeIncentive: true,
       };
     case 'vp_incentive':
       return {
         includePayroll: false,
-        includeVariablePay: true,
+        includeMonthlyVariablePay: true,
+        includeSessionVariablePay: true,
         includeIncentive: true,
       };
     case 'all':
       return {
         includePayroll: true,
-        includeVariablePay: true,
+        includeMonthlyVariablePay: true,
+        includeSessionVariablePay: true,
         includeIncentive: true,
       };
     case 'payroll':
     default:
       return {
         includePayroll: true,
-        includeVariablePay: false,
+        includeMonthlyVariablePay: false,
+        includeSessionVariablePay: false,
         includeIncentive: false,
       };
   }
@@ -76,10 +105,13 @@ export function payrollViewToIncludeFlags(view: PayrollView): {
 /** After generate, switch list view to match what was just created. */
 export function includeFlagsToPayrollView(flags: {
   includePayroll: boolean;
-  includeVariablePay: boolean;
   includeIncentive: boolean;
+  includeMonthlyVariablePay?: boolean;
+  includeSessionVariablePay?: boolean;
+  includeVariablePay?: boolean;
 }): PayrollView {
-  const { includePayroll, includeVariablePay, includeIncentive } = flags;
+  const { includePayroll, includeIncentive } = flags;
+  const includeVariablePay = hasAnyVariablePayInclude(flags);
   if (includePayroll && includeVariablePay && includeIncentive) return 'all';
   if (!includePayroll && includeVariablePay && includeIncentive)
     return 'vp_incentive';
@@ -88,7 +120,7 @@ export function includeFlagsToPayrollView(flags: {
     return 'incentive';
   if (includePayroll && !includeVariablePay && !includeIncentive)
     return 'payroll';
-  // Payroll + VP or Payroll + Incentive → show All so both row types appear
+  // Payroll + PP or Payroll + Incentive → show All so both row types appear
   if (includePayroll && (includeVariablePay || includeIncentive)) return 'all';
   return 'payroll';
 }

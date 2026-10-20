@@ -44,9 +44,9 @@ const GeneralPayrollSettings = () => {
                 className="text-sm font-medium text-[#262626]"
                 data-cy="payroll-settings-general-vp-title"
               >
-                Apply working days to VP-only runs
+                Apply working days to PP-only runs
               </span>
-              <Tooltip title="When enabled, VP-only payroll uses working-day proration. Does not affect full payroll runs.">
+              <Tooltip title="When enabled, PP-only payroll uses working-day proration. Does not affect full payroll runs.">
                 <QuestionCircleOutlined
                   className="text-[#bfbfbf] text-sm cursor-help"
                   data-cy="payroll-settings-general-vp-tooltip"

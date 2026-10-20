@@ -8,7 +8,7 @@ import {
   useGetVariablePay,
 } from '@/store/server/features/payroll/payroll/queries';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
-import { Modal, Select, Spin } from 'antd';
+import { Modal, Segmented, Select, Spin } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
 
@@ -57,6 +57,7 @@ const VariablePayModal: React.FC = () => {
   const [selectedPayPeriodId, setSelectedPayPeriodId] = useState<string>();
   const [selectedSessionId, setSelectedSessionId] = useState<string>('');
   const [selectedMonthId, setSelectedMonthId] = useState<string>('');
+  const [scoreBy, setScoreBy] = useState<'MONTH' | 'SESSION'>('MONTH');
 
   const { data: activeCalender } = useGetActiveFiscalYears();
   const { data: activeMonth } = useGetActiveMonth();
@@ -104,29 +105,50 @@ const VariablePayModal: React.FC = () => {
     (month) => month.value === selectedMonthId,
   );
 
+  const isQuarterly = scoreBy === 'SESSION';
+  const selectedPeriodId = isQuarterly ? selectedSessionId : selectedMonthId;
+
   const variablePayFilterPayload = useMemo(
-    () => ({
-      monthIds: selectedMonthId ? [selectedMonthId] : [],
-    }),
-    [selectedMonthId],
+    () =>
+      isQuarterly
+        ? {
+            scoreBy: 'SESSION',
+            sessionIds: selectedSessionId ? [selectedSessionId] : [],
+          }
+        : {
+            scoreBy: 'MONTH',
+            monthIds: selectedMonthId ? [selectedMonthId] : [],
+          },
+    [isQuarterly, selectedMonthId, selectedSessionId],
   );
 
   const { data: monthVariablePay, isFetching: isFetchingVp } =
     useGetVariablePay(variablePayFilterPayload, { enabled: openModal });
 
   const employeesToSend = useMemo(() => {
-    if (!selectedMonthId || !Array.isArray(monthVariablePay?.items)) return [];
+    if (!selectedPeriodId || !Array.isArray(monthVariablePay?.items)) return [];
     return monthVariablePay.items.map((variablePay: any) => ({
       userId: variablePay?.userId,
       totalPercentage: variablePay?.vpScoring?.totalPercentage,
       vpScore: (+variablePay?.vpScore || 0).toFixed(2),
+      scoreBy: scoreBy,
+      ...(isQuarterly
+        ? { sessionId: selectedSessionId }
+        : { monthId: selectedMonthId }),
     }));
-  }, [monthVariablePay?.items, selectedMonthId]);
+  }, [
+    monthVariablePay?.items,
+    selectedPeriodId,
+    scoreBy,
+    isQuarterly,
+    selectedSessionId,
+    selectedMonthId,
+  ]);
 
   const employeeCount = employeesToSend.length;
   const canSend =
     Boolean(selectedPayPeriodId) &&
-    Boolean(selectedMonthId) &&
+    Boolean(selectedPeriodId) &&
     employeeCount > 0 &&
     !isFetchingVp;
 
@@ -168,6 +190,7 @@ const VariablePayModal: React.FC = () => {
     setSelectedPayPeriodId(undefined);
     setSelectedSessionId('');
     setSelectedMonthId('');
+    setScoreBy('MONTH');
   };
 
   const handleSessionChange = (sessionId?: string) => {
@@ -218,6 +241,31 @@ const VariablePayModal: React.FC = () => {
           id="compensation-benefit-variable-pay-modal-details"
           data-cy="compensation-benefit-variable-pay-modal-details"
         >
+          <div
+            className="my-3"
+            data-testid="score-by-info"
+            id="compensation-benefit-variable-pay-modal-score-by"
+            data-cy="compensation-benefit-variable-pay-modal-score-by"
+          >
+            <label
+              id="compensation-benefit-variable-pay-modal-score-by-label"
+              data-cy="compensation-benefit-variable-pay-modal-score-by-label"
+              className="mb-1 block font-semibold"
+            >
+              PP Type
+            </label>
+            <Segmented
+              block
+              value={scoreBy}
+              onChange={(value) => setScoreBy(value as 'MONTH' | 'SESSION')}
+              data-cy="compensation-benefit-variable-pay-modal-score-by-select"
+              options={[
+                { label: 'PP Monthly', value: 'MONTH' },
+                { label: 'PP Quarterly', value: 'SESSION' },
+              ]}
+            />
+          </div>
+
           <div
             className="my-3"
             data-testid="pay-period-info"
@@ -274,46 +322,48 @@ const VariablePayModal: React.FC = () => {
             />
           </div>
 
-          <div
-            className="my-3"
-            data-testid="month-range-info"
-            id="compensation-benefit-variable-pay-modal-month-range"
-            data-cy="compensation-benefit-variable-pay-modal-month-range"
-          >
-            <label
-              id="compensation-benefit-variable-pay-modal-month-range-label"
-              data-cy="compensation-benefit-variable-pay-modal-month-range-label"
-              className="mb-1 block font-semibold"
+          {!isQuarterly && (
+            <div
+              className="my-3"
+              data-testid="month-range-info"
+              id="compensation-benefit-variable-pay-modal-month-range"
+              data-cy="compensation-benefit-variable-pay-modal-month-range"
             >
-              VP Month
-            </label>
-            <Select
-              className="w-full"
-              placeholder="Select month"
-              value={selectedMonthId || undefined}
-              onChange={(value) => setSelectedMonthId(value || '')}
-              allowClear
-              disabled={!selectedSessionId}
-              data-cy="compensation-benefit-variable-pay-modal-month-select"
-              options={monthOptions.map((month) => ({
-                value: month.value,
-                label: month.startDate
-                  ? `${month.label} (${formatDateRange(month.startDate, month.endDate)})`
-                  : month.label,
-              }))}
-            />
-            {selectedMonth?.startDate ? (
-              <p
-                className="mt-1 mb-0 text-xs text-gray-500"
-                data-cy="compensation-benefit-variable-pay-modal-month-range-dates"
+              <label
+                id="compensation-benefit-variable-pay-modal-month-range-label"
+                data-cy="compensation-benefit-variable-pay-modal-month-range-label"
+                className="mb-1 block font-semibold"
               >
-                {formatDateRange(
-                  selectedMonth.startDate,
-                  selectedMonth.endDate,
-                )}
-              </p>
-            ) : null}
-          </div>
+                PP Month
+              </label>
+              <Select
+                className="w-full"
+                placeholder="Select month"
+                value={selectedMonthId || undefined}
+                onChange={(value) => setSelectedMonthId(value || '')}
+                allowClear
+                disabled={!selectedSessionId}
+                data-cy="compensation-benefit-variable-pay-modal-month-select"
+                options={monthOptions.map((month) => ({
+                  value: month.value,
+                  label: month.startDate
+                    ? `${month.label} (${formatDateRange(month.startDate, month.endDate)})`
+                    : month.label,
+                }))}
+              />
+              {selectedMonth?.startDate ? (
+                <p
+                  className="mt-1 mb-0 text-xs text-gray-500"
+                  data-cy="compensation-benefit-variable-pay-modal-month-range-dates"
+                >
+                  {formatDateRange(
+                    selectedMonth.startDate,
+                    selectedMonth.endDate,
+                  )}
+                </p>
+              ) : null}
+            </div>
+          )}
 
           <div
             className="flex items-center justify-start my-2"
@@ -325,7 +375,7 @@ const VariablePayModal: React.FC = () => {
             >
               Employees to send:{' '}
             </span>
-            {isFetchingVp && selectedMonthId ? (
+            {isFetchingVp && selectedPeriodId ? (
               <Spin
                 size="small"
                 className="ml-2"

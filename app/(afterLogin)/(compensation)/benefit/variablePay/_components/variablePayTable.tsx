@@ -309,7 +309,7 @@ const ExpandedVPDetails = ({
           className="flex flex-nowrap gap-4 lg:gap-6 w-max items-center"
           data-cy="expanded-vp-details-cards-strip"
         >
-          {/* Card 1: Total VP */}
+          {/* Card 1: Total PP */}
           <div
             className="bg-white border border-gray-200 shadow-sm flex flex-col justify-between p-4 w-[256px] flex-shrink-0"
             style={{ height: '136px', borderRadius: '8px' }}
@@ -323,7 +323,7 @@ const ExpandedVPDetails = ({
                 className="text-gray-500 text-[14px] font-medium"
                 data-cy="expanded-vp-details-total-card-title"
               >
-                Total VP
+                Total PP
               </span>
               <span
                 className="text-gray-500 text-[14px] font-medium"
@@ -390,7 +390,7 @@ const ExpandedVPDetails = ({
             </div>
           </div>
 
-          {/* Card 2: VP Deduction */}
+          {/* Card 2: PP Deduction */}
           <div
             className="bg-white border border-gray-200 shadow-sm flex flex-col justify-between p-4 w-[256px] flex-shrink-0"
             style={{ height: '124px', borderRadius: '8px' }}
@@ -404,7 +404,7 @@ const ExpandedVPDetails = ({
                 className="text-gray-500 text-[14px] font-medium"
                 data-cy="expanded-vp-details-vp-deduction-card-title"
               >
-                VP Deduction
+                PP Deduction
               </span>
               <button
                 type="button"
@@ -660,7 +660,7 @@ const VariablePayTable = () => {
       ),
     },
     {
-      title: 'VP in %',
+      title: 'PP in %',
       dataIndex: 'VpInPercentile',
       key: 'VpInPercentile',
       sorter: true,
@@ -677,7 +677,7 @@ const VariablePayTable = () => {
       ),
     },
     {
-      title: 'VP Score',
+      title: 'PP Score',
       dataIndex: 'VpScore',
       key: 'VpScore',
       sorter: (a, b) => (a.VpScore || 0) - (b.VpScore || 0),

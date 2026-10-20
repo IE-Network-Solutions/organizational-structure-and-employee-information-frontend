@@ -13,12 +13,12 @@ const toNumber = (value: unknown) => {
 
 /**
  * Split payroll breakdown into display sections without double-counting
- * Project Incentive (stored in merits on full payroll, and in incentives on VP/incentive-only).
+ * Project Incentive (stored in merits on full payroll, and in incentives on PP/incentive-only).
  *
  * Layout (email PDF + employee download / cards):
  * - Allowances
  * - Benefits = merits excluding Project Incentive
- * - Incentive = Variable Pay + Project Incentive/Incentives (once)
+ * - Incentive = Performance Pay + Project Incentive/Incentives (once)
  * - Deductions
  */
 export function getPayslipEarningsSections(breakdown?: {
@@ -44,7 +44,7 @@ export function getPayslipEarningsSections(breakdown?: {
 
   const incentiveItems: PayslipAmountItem[] = [
     {
-      type: 'Variable Pay',
+      type: 'Performance Pay',
       amount: variablePayAmount,
     },
     {

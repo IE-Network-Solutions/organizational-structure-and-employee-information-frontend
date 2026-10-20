@@ -259,9 +259,16 @@ export const useGetVariablePay = (
       ? payload
       : [];
 
+  const sessionIds = Array.isArray(payload?.sessionIds)
+    ? payload.sessionIds
+    : [];
+  const hasPeriod =
+    monthIds.filter(Boolean).length > 0 ||
+    sessionIds.filter(Boolean).length > 0;
+
   return useQuery(['variablePay', payload], () => getVariablePay(payload), {
     keepPreviousData: true,
-    enabled: monthIds.filter(Boolean).length > 0 && (options?.enabled ?? true),
+    enabled: hasPeriod && (options?.enabled ?? true),
   });
 };
 
