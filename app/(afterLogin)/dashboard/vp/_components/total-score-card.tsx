@@ -1,15 +1,19 @@
 'use client';
 
+import { useGetVpScoreCalculate } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import {
-  useGetVpScoreCalculate,
-  useGetVPScore,
-} from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+  useVpTrackScore,
+  VpTrack,
+} from '@/store/server/features/okrplanning/okr/dashboard/VP/useVpTrackScore';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { Skeleton } from 'antd';
 
-const TotalScoreCard = () => {
+const TotalScoreCard = ({ track = 'MONTH' }: { track?: VpTrack }) => {
   const userId = useAuthenticationStore.getState().userId;
-  const { data: vpScore, isLoading: isScoreLoading } = useGetVPScore(userId);
+  const { data: vpScore, isLoading: isScoreLoading } = useVpTrackScore(
+    userId,
+    track,
+  );
   const { isLoading: isRefreshing, isRefetching } = useGetVpScoreCalculate(
     userId,
     false,
@@ -66,17 +70,19 @@ const TotalScoreCard = () => {
             )}
           </div>
         </div>
-        <span
-          className={`rounded border px-2 py-1 text-xs ${
-            delta >= 0
-              ? 'border-[#b7eb8f] bg-[#f6ffed] text-[#389e0d]'
-              : 'border-[#ffa39e] bg-[#fff1f0] text-[#ff4d4f]'
-          }`}
-          data-cy="vp-total-score-delta"
-        >
-          {delta >= 0 ? '+' : ''}
-          {delta.toFixed(2)} vs last month
-        </span>
+        {track === 'MONTH' && (
+          <span
+            className={`rounded border px-2 py-1 text-xs ${
+              delta >= 0
+                ? 'border-[#b7eb8f] bg-[#f6ffed] text-[#389e0d]'
+                : 'border-[#ffa39e] bg-[#fff1f0] text-[#ff4d4f]'
+            }`}
+            data-cy="vp-total-score-delta"
+          >
+            {delta >= 0 ? '+' : ''}
+            {delta.toFixed(2)} vs last month
+          </span>
+        )}
       </div>
 
       <div

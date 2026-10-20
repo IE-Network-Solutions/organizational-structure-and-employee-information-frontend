@@ -167,17 +167,10 @@ export const useGetVpScoreCalculate = (userId: string, enabled = true) => {
     {
       enabled,
       keepPreviousData: true,
-      onSuccess: (data) => {
-        const vpScore = data?.vpScore;
-        const currentVp = queryClient.getQueryData(['VPScores', userId]) as any;
-        const updatedVariablePayScoreData = {
-          ...currentVp,
-          score: vpScore,
-        };
-        queryClient.setQueryData(
-          ['VPScores', userId],
-          updatedVariablePayScoreData,
-        );
+      // Calculate now returns one saved score per track (monthly / quarterly),
+      // so refetch every PP score view instead of patching a single cached one.
+      onSuccess: () => {
+        queryClient.invalidateQueries('VPScores');
       },
     },
   );
