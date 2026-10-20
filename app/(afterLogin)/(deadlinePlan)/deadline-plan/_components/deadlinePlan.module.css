@@ -1,0 +1,77 @@
+.detailsModal :global(.ant-modal-content) {
+  overflow: hidden;
+  padding: 0;
+  border-radius: 16px;
+}
+
+.detailsModal :global(.ant-modal-body) {
+  padding: 0;
+}
+
+.detailsModal :global(.ant-modal-close) {
+  top: 14px;
+  right: 16px;
+}
+
+.filterPopover :global(.ant-popover-inner) {
+  padding: 20px;
+  border-radius: 16px;
+}
+
+.formModal :global(.ant-modal-content) {
+  overflow: hidden;
+  padding: 0;
+  border-radius: 16px;
+}
+
+.formModal :global(.ant-modal-header) {
+  margin-bottom: 0;
+  padding: 20px 32px 12px;
+}
+
+.formModal :global(.ant-modal-title) {
+  color: #161a2c;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.formModal :global(.ant-modal-close) {
+  top: 16px;
+  right: 20px;
+}
+
+.formModal :global(.ant-modal-footer) {
+  margin-top: 0;
+  border-top: 1px solid #f1f2f6;
+  padding: 16px 24px;
+}
+
+.formMetadata :global(.ant-select-selector),
+.formMetadata :global(.ant-picker),
+.formMetadata :global(.ant-input-number) {
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.formMetadata :global(.ant-select:hover .ant-select-selector),
+.formMetadata :global(.ant-picker:hover),
+.formMetadata :global(.ant-input-number:hover) {
+  background-color: #fff;
+}
+
+.formModal :global(.ant-input:focus-visible),
+.formModal :global(button:focus-visible),
+.formMetadata :global(.ant-select-focused .ant-select-selector),
+.formMetadata :global(.ant-picker-focused),
+.formMetadata :global(.ant-input-number-focused) {
+  outline: 2px solid rgb(30 64 175 / 35%);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .formModal :global(.ant-modal-header) {
+    padding-left: 24px;
+    padding-right: 56px;
+  }
+}

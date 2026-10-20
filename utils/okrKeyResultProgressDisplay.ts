@@ -997,9 +997,29 @@ export function getKeyResultProgressPercent(
   // neither of which can be derived from this one key result alone.
   const bandedBackendProgress = getBandedBackendProgress(kr);
   if (bandedBackendProgress != null) {
+    // A zero score above threshold can be left behind by an older report/read
+    // path. Recover measurable progress, while preserving real threshold zeros
+    // and positive backend scores (including objective-level stretch caps).
+    const initial = Number(kr?.initialValue ?? 0);
+    const current = getNumericMetricCurrentValue(kr);
+    const target = getNumericMetricTargetValue(kr);
+    const threshold = Number(kr.thresholdValue);
+    const recovered =
+      bandedBackendProgress === 0 &&
+      target > initial &&
+      current > initial &&
+      current >= threshold
+        ? Math.min(
+            100,
+            Math.max(
+              0,
+              Math.round((100 * (current - initial)) / (target - initial)),
+            ),
+          )
+        : bandedBackendProgress;
     return allowStretch && stretchCap != null
-      ? Math.min(stretchCap, bandedBackendProgress)
-      : Math.min(100, bandedBackendProgress);
+      ? Math.min(stretchCap, recovered)
+      : Math.min(100, recovered);
   }
 
   const initial = Number(kr?.initialValue ?? 0);
