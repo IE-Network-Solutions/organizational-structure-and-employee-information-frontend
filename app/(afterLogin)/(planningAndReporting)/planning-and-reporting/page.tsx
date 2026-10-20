@@ -54,11 +54,13 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 interface PlanningPeriod {
   id: string;
   userId: string;
+  canProgress?: boolean;
   planningPeriod: {
     id: string;
     name: string;
     intervalLength: any;
   };
+  planningPeriodId?: string;
 }
 
 function Page() {
@@ -70,6 +72,7 @@ function Page() {
     activePlanPeriod,
     setActivePlanPeriod,
     setActivePlanPeriodId,
+    setCanProgressForActivePeriod,
     setSelectedUser,
     setPlanningFilterPlanType,
     setPlanningFilterDepartment,
@@ -133,6 +136,7 @@ function Page() {
         tenantId: item.tenantId,
         planningPeriodId: item.id,
         planningPeriod: item,
+        canProgress: false,
       }));
 
     const mergedPlanningPeriods = [
@@ -154,9 +158,18 @@ function Page() {
         label: (
           <span
             data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-span-110"
-            className="font-semibold text-sm"
+            className="inline-flex items-center gap-1.5 font-semibold text-sm"
           >
             {item.planningPeriod.name || 'No name available'}
+            {item.canProgress ? (
+              <span
+                className="rounded bg-[#EFF6FF] px-1.5 py-0.5 text-[10px] font-bold text-[#1E40AF]"
+                title="Reports for this period update Key Result progress"
+                data-cy="planning-and-reporting-page-can-progress-kr-badge"
+              >
+                KR
+              </span>
+            ) : null}
           </span>
         ),
         id: item.planningPeriod.id,
@@ -218,6 +231,24 @@ function Page() {
   useEffect(() => {
     setActivePlanPeriodId(selectedTab?.id || '');
   }, [selectedTab?.id, setActivePlanPeriodId]);
+
+  const canProgressForActive = useMemo(() => {
+    const periodId = selectedTab?.id;
+    if (!periodId) return false;
+    const fromTyped = Array.isArray(planningPeriodForUserId)
+      ? planningPeriodForUserId.find((p) => p.planningPeriodId === periodId)
+      : undefined;
+    if (fromTyped?.canProgress === true) return true;
+    const fromTabs = processedPlanningPeriods.find(
+      (p: PlanningPeriod) =>
+        p.planningPeriod?.id === periodId || p.planningPeriodId === periodId,
+    );
+    return fromTabs?.canProgress === true;
+  }, [selectedTab?.id, planningPeriodForUserId, processedPlanningPeriods]);
+
+  useEffect(() => {
+    setCanProgressForActivePeriod(canProgressForActive);
+  }, [canProgressForActive, setCanProgressForActivePeriod]);
 
   // ── Shared KR panel state (lives at page level, persists across tabs) ──
   const {
@@ -641,7 +672,15 @@ function Page() {
                           role="tab"
                           aria-selected={isActive}
                           data-cy={`planning-period-pill-${n}`}
-                          onClick={() => setActivePlanPeriod(n)}
+                          onClick={() => {
+                            // Set index + period id together so report/plan queries
+                            // never briefly use the previous cadence's id.
+                            setActivePlanPeriod(n);
+                            setActivePlanPeriodId(item.planningPeriod.id);
+                            setCanProgressForActivePeriod(
+                              item.canProgress === true,
+                            );
+                          }}
                           title={
                             okrProgressPlanningPeriod?.id ===
                             item.planningPeriod.id

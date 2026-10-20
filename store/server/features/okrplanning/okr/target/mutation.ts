@@ -126,7 +126,7 @@ export const useUpdateAssignedTargets = () => {
     onError: (error) => {
       NotificationMessage.error({
         message: error + '',
-        description: 'VP Scoring Update Failed.',
+        description: 'PP Scoring Update Failed.',
       });
     },
   });

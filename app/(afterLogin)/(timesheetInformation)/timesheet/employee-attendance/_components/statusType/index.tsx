@@ -212,7 +212,7 @@ const statusType = (val: string | null | undefined) => {
         data-cy="VpDeduction"
         className="text-[#722ed1] text-xs font-medium py-1 px-2 bg-[#f9f0ff] border border-[#d3adf7]"
       >
-        VP Deduction
+        PP Deduction
       </Tag>
     );
   } else if (val === 'LATE') {

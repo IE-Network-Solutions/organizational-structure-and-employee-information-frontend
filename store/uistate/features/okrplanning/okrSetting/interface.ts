@@ -27,6 +27,8 @@ export type PlanningPeriodItem = {
   /** This period's reports progress KR / Average OKR for the user. */
   drivesOkrProgress?: boolean;
   planningPeriod: PlanningPeriod;
+  /** When true, reports for this period update KR progress. At most one per user. */
+  canProgress?: boolean;
 };
 
 export type PlanningUser = {

@@ -92,6 +92,10 @@ export const groupUnReportedTasksByKeyResultAndMilestone = (
       isAchieved: task?.isAchieved,
       weight: task?.weight,
       weightPlan: task?.weight ?? task?.planTask?.weight,
+      lockedFromChildren: Boolean(task?.lockedFromChildren),
+      rollupStatus: task?.rollupStatus ?? task?.status,
+      rollupActualValue: task?.rollupActualValue ?? task?.actualValue,
+      rollupCustomReason: task?.rollupCustomReason ?? null,
     };
 
     // If milestone is null or undefined, push task directly to the tasks array

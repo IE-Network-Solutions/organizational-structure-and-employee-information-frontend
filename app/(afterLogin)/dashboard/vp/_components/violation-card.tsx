@@ -126,7 +126,7 @@ const ViolationCard = ({ userId }: ViolationCardProps) => {
               className="text-xs text-[#8c8c8c] mt-1"
               data-cy="vp-criteria-breakdown-violation-points-text"
             >
-              {totalVpDeductions} VP point{totalVpDeductions !== 1 ? 's' : ''}{' '}
+              {totalVpDeductions} PP point{totalVpDeductions !== 1 ? 's' : ''}{' '}
               Removed
             </p>
           </div>
@@ -145,7 +145,7 @@ const ViolationCard = ({ userId }: ViolationCardProps) => {
               className="text-xs text-[#8c8c8c] mt-1"
               data-cy="vp-criteria-breakdown-violation-empty-points"
             >
-              0 VP points removed
+              0 PP points removed
             </p>
           </div>
         )}

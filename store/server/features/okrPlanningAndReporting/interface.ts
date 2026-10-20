@@ -66,6 +66,8 @@ type AssignedPlanningPeriod = {
   tenantId: string;
   planningPeriodId: string;
   planningPeriod: PlanPeriod;
+  /** When true, reports for this period update KR progress. At most one per user. */
+  canProgress?: boolean;
 };
 
 export type AssignedPlanningPeriodLogArray = AssignedPlanningPeriod[];

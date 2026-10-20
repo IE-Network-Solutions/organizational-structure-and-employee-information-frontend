@@ -18,7 +18,7 @@ interface ProgressStatCardProps {
 
 /**
  * The "value on the right, progress bar underneath" KPI card shared by
- * Your Average OKR, Company OKR and Total Variable Pay.
+ * Your Average OKR, Company OKR and Total Performance Pay.
  */
 export default function ProgressStatCard({
   label,

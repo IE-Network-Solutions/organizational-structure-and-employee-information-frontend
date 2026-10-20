@@ -40,7 +40,7 @@ type Props = {
 };
 
 /**
- * VP-style attainment / contribution donut (presentation only).
+ * PP-style attainment / contribution donut (presentation only).
  * Pattern mirrors variable-pay `vpScoreCard` cutout + center overlay.
  */
 export default function BscScoreDonut({

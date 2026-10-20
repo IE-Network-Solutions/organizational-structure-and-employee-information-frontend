@@ -1,7 +1,12 @@
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
-import { OKR_URL, ORG_AND_EMP_URL, PAYROLL_URL } from '@/utils/constants';
+import {
+  CORE_API_URL,
+  OKR_URL,
+  ORG_AND_EMP_URL,
+  PAYROLL_URL,
+} from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -141,7 +146,7 @@ const getPensionRule = async () => {
 const getMonthById = async (id: string[]) => {
   const requestHeaders = await requestHeader();
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/month/${id}`,
+    url: `${CORE_API_URL}/month/${id}`,
     method: 'GET',
     headers: requestHeaders,
   });
@@ -150,7 +155,7 @@ const getMonthById = async (id: string[]) => {
 const getSessionById = async (id: string[]) => {
   const requestHeaders = await requestHeader();
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/session/${id}`,
+    url: `${CORE_API_URL}/session/${id}`,
     method: 'GET',
     headers: requestHeaders,
   });
@@ -168,7 +173,7 @@ const getCalendars = async () => {
 const getActiveMonth = async () => {
   const requestHeaders = await requestHeader();
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/month/active/month`,
+    url: `${CORE_API_URL}/month/active/month`,
     method: 'GET',
     headers: requestHeaders,
   });
@@ -244,9 +249,26 @@ export const useFetchActiveFiscalYearPayPeriods = (
   );
 };
 
-export const useGetVariablePay = (monthIds: any) => {
-  return useQuery(['variablePay', monthIds], () => getVariablePay(monthIds), {
+export const useGetVariablePay = (
+  payload: any,
+  options?: { enabled?: boolean },
+) => {
+  const monthIds = Array.isArray(payload?.monthIds)
+    ? payload.monthIds
+    : Array.isArray(payload)
+      ? payload
+      : [];
+
+  const sessionIds = Array.isArray(payload?.sessionIds)
+    ? payload.sessionIds
+    : [];
+  const hasPeriod =
+    monthIds.filter(Boolean).length > 0 ||
+    sessionIds.filter(Boolean).length > 0;
+
+  return useQuery(['variablePay', payload], () => getVariablePay(payload), {
     keepPreviousData: true,
+    enabled: hasPeriod && (options?.enabled ?? true),
   });
 };
 

@@ -54,6 +54,7 @@ import { useGetAllUsersData } from '@/store/server/features/employees/employeeMa
 import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
+import { toPerformancePayLabel } from '@/utils/performancePayLabel';
 
 const { Text } = Typography;
 
@@ -588,16 +589,31 @@ const PayrollPeriodPayslipsPage = () => {
                           label: m.type,
                           value: formatAmount(m.amount),
                         })) || []),
-                        ...(breakdown?.variablePay
+                        // PP Monthly / PP Quarterly are shown separately; their
+                        // sum is breakdown.variablePay (used in the totals).
+                        ...(breakdown?.variablePayMonthly ||
+                        breakdown?.variablePaySession
                           ? [
-                              {
-                                label: breakdown.variablePay.type,
-                                value: formatAmount(
-                                  breakdown.variablePay.amount,
-                                ),
-                              },
+                              breakdown.variablePayMonthly,
+                              breakdown.variablePaySession,
                             ]
-                          : []),
+                              .filter(Boolean)
+                              .map((vp: any) => ({
+                                label: toPerformancePayLabel(vp.type),
+                                value: formatAmount(vp.amount),
+                              }))
+                          : breakdown?.variablePay
+                            ? [
+                                {
+                                  label: toPerformancePayLabel(
+                                    breakdown.variablePay.type,
+                                  ),
+                                  value: formatAmount(
+                                    breakdown.variablePay.amount,
+                                  ),
+                                },
+                              ]
+                            : []),
                         ...(breakdown?.incentives
                           ? [
                               {

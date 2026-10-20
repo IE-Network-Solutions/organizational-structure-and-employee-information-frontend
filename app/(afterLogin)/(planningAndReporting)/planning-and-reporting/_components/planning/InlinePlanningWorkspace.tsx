@@ -47,6 +47,7 @@ import {
   validateMetricValueAgainstInitial,
   type MetricValueKrInput,
 } from '@/utils/okrMetricValueBounds';
+import { validatePlanTargetAgainstCeilings } from '@/utils/parentTaskCapacity';
 import {
   isPlanningTargetBlocked,
   type PlanningTarget,
@@ -185,13 +186,15 @@ const inputNumH40 =
 const inlineComposerOutlineBtnClass =
   '!rounded-lg !border !border-solid !border-[#E5E7EB] !bg-white !font-semibold !text-[#1E40AF] !shadow-sm hover:!border-[#D1D5DB] hover:!bg-[#F8FAFC] hover:!text-[#1E3A8A] [&_.anticon]:!text-[#1E40AF]';
 
-/** Drawer parity: Achieve KRs (KR-as-task) + Milestone-metric KRs at a milestone row (milestone-as-task). */
+/** Drawer parity: Achieve KRs (KR-as-task) + Milestone-metric KRs at a milestone row (milestone-as-task).
+ * Child/daily slots get progressive achieveMK only when this period canProgress. */
 function canUseAchieveMK(
   metricTypeName: string | null | undefined,
   isDailySlot: boolean,
   milestoneId: string | null | undefined,
+  canProgress = false,
 ): boolean {
-  if (isDailySlot) return false;
+  if (isDailySlot && !canProgress) return false;
   if (metricTypeName === NAME.ACHIEVE) return true;
   if (metricTypeName === NAME.MILESTONE && milestoneId) return true;
   return false;
@@ -555,8 +558,12 @@ const InlinePlanningWorkspace = forwardRef<
   ref,
 ) {
   const { userId } = useAuthenticationStore();
-  const { activePlanPeriodId, setInlinePlanningMode, setMKAsATask } =
-    PlanningAndReportingStore();
+  const {
+    activePlanPeriodId,
+    setInlinePlanningMode,
+    setMKAsATask,
+    canProgressForActivePeriod,
+  } = PlanningAndReportingStore();
   const planningPeriodId = activePlanPeriodId;
   const { data: planningPeriods } = AllPlanningPeriods();
   const planningUserId = useMemo(() => {
@@ -787,6 +794,12 @@ const InlinePlanningWorkspace = forwardRef<
       message.warning('Select a priority.');
       return;
     }
+    if (activeTarget?.isParentCapacityFull) {
+      message.warning(
+        'Parent task is fully achieved. Nothing left to plan under this task.',
+      );
+      return;
+    }
     const w = Number(weight);
     const dailyEqualComposer =
       !!activeTarget?.isDailySlot &&
@@ -830,6 +843,30 @@ const InlinePlanningWorkspace = forwardRef<
           message.warning(initialBoundError);
           return;
         }
+        const baseRemaining =
+          activeTarget?.remainingCapacity != null
+            ? activeTarget.remainingCapacity
+            : null;
+        const parentRemaining =
+          baseRemaining != null && activeTarget?.parentTargetValue != null
+            ? {
+                parentTarget: activeTarget.parentTargetValue,
+                consumed: activeTarget.parentTargetValue - baseRemaining,
+                // Achievement-based remaining; drafts do not consume parent capacity
+                remaining: baseRemaining,
+                isFullyUsed: activeTarget.isParentCapacityFull === true,
+              }
+            : null;
+        const ceilingError = validatePlanTargetAgainstCeilings({
+          targetValue,
+          keyResultTargetValue:
+            activeTarget?.keyResultTargetValue ?? krForBounds?.targetValue,
+          parentRemaining,
+        });
+        if (ceilingError) {
+          message.warning(ceilingError);
+          return;
+        }
       }
       const weightWithout = totalWeight - existing.weight;
       if (weightWithout + w > 100) {
@@ -842,6 +879,7 @@ const InlinePlanningWorkspace = forwardRef<
         existing.metricTypeName,
         existing.isDailySlot,
         existing.milestoneId,
+        canProgressForActivePeriod,
       )
         ? planAsAchieve
         : existing.achieveMK;
@@ -913,6 +951,31 @@ const InlinePlanningWorkspace = forwardRef<
         message.warning(initialBoundError);
         return;
       }
+      const baseRemaining =
+        activeTarget.remainingCapacity != null
+          ? activeTarget.remainingCapacity
+          : null;
+      const parentRemaining =
+        baseRemaining != null && activeTarget.parentTargetValue != null
+          ? {
+              parentTarget: activeTarget.parentTargetValue,
+              consumed: activeTarget.parentTargetValue - baseRemaining,
+              // Achievement-based remaining; drafts do not consume parent capacity
+              remaining: baseRemaining,
+              isFullyUsed: activeTarget.isParentCapacityFull === true,
+            }
+          : null;
+      const ceilingError = validatePlanTargetAgainstCeilings({
+        targetValue,
+        keyResultTargetValue:
+          activeTarget.keyResultTargetValue ??
+          activeKeyResultForBounds?.targetValue,
+        parentRemaining,
+      });
+      if (ceilingError) {
+        message.warning(ceilingError);
+        return;
+      }
     }
     if (!dailyEqualComposer) {
       if (totalWeight + w > 100) {
@@ -929,6 +992,7 @@ const InlinePlanningWorkspace = forwardRef<
         activeTarget.metricTypeName,
         activeTarget.isDailySlot,
         activeTarget.milestoneId,
+        canProgressForActivePeriod,
       );
     if (
       achieveMK &&
@@ -1206,6 +1270,7 @@ const InlinePlanningWorkspace = forwardRef<
       activeTarget.metricTypeName,
       activeTarget.isDailySlot,
       activeTarget.milestoneId,
+      canProgressForActivePeriod,
     );
   return (
     <div
@@ -1603,6 +1668,7 @@ const InlinePlanningWorkspace = forwardRef<
                                   l.metricTypeName,
                                   l.isDailySlot,
                                   l.milestoneId,
+                                  canProgressForActivePeriod,
                                 )
                               }
                               className="!h-10 rounded-lg border-[#E5E7EB] text-[13px] shadow-none hover:border-[#D1D5DB] disabled:cursor-not-allowed disabled:bg-[#F9FAFB] disabled:text-[#575B7A]"
@@ -1611,6 +1677,7 @@ const InlinePlanningWorkspace = forwardRef<
                               l.metricTypeName,
                               l.isDailySlot,
                               l.milestoneId,
+                              canProgressForActivePeriod,
                             ) ? (
                               <OutcomeTaskSwitchRow
                                 milestoneId={l.milestoneId}

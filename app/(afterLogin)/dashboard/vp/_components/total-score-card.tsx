@@ -32,7 +32,7 @@ const TotalScoreCard = () => {
       >
         <div data-cy="vp-total-score-main">
           {/* <div className="flex items-center gap-2">
-            <p className="text-sm text-[#595959]">Total VP Score</p>
+            <p className="text-sm text-[#595959]">Total PP Score</p>
             <Button
               type="text"
               size="small"

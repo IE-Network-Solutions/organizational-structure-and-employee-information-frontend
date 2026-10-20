@@ -75,7 +75,11 @@ export function PlanCardInlineReportForm({
 
   const sourceTasks = isEditMode
     ? allReportedPlanning
-    : allPlannedTaskForReport;
+    : Array.isArray(allPlannedTaskForReport)
+      ? allPlannedTaskForReport.filter(
+          (t: any) => String(t?.plan?.id ?? t?.planId ?? '') === String(planId),
+        )
+      : allPlannedTaskForReport;
   const formattedData =
     sourceTasks != null
       ? groupUnReportedTasksByKeyResultAndMilestone(sourceTasks)

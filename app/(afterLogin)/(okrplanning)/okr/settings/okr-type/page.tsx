@@ -38,13 +38,13 @@ const OKR_MODE_OPTIONS: Array<{
     value: 'Advanced',
     title: 'Advanced OKR',
     description:
-      'Advanced OKR allows employees to define Objectives and Key Results for goal tracking. Daily and weekly plans are not linked to OKRs. OKR progress has no impact on variable pay.',
+      'Advanced OKR allows employees to define Objectives and Key Results for goal tracking. Daily and weekly plans are not linked to OKRs. OKR progress has no impact on performance pay.',
   },
   {
     value: 'Basic',
     title: 'Basic',
     description:
-      'Basic OKR allows employees to define Objectives and Key Results for goal tracking. Daily and weekly plans are not linked to OKRs. OKR progress has no impact on variable pay.',
+      'Basic OKR allows employees to define Objectives and Key Results for goal tracking. Daily and weekly plans are not linked to OKRs. OKR progress has no impact on performance pay.',
   },
 ];
 

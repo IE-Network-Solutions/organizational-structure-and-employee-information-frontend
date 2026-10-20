@@ -1,15 +1,21 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { OKR_URL, ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL, OKR_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery, useQueryClient } from 'react-query';
 
-const getVpScore = async (id: number | string, monthId?: string) => {
+const getVpScore = async (
+  id: number | string,
+  options?: { monthId?: string; sessionId?: string },
+) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const monthQuery = monthId ? `?monthId=${encodeURIComponent(monthId)}` : '';
+  const params = new URLSearchParams();
+  if (options?.monthId) params.set('monthId', options.monthId);
+  if (options?.sessionId) params.set('sessionId', options.sessionId);
+  const query = params.toString() ? `?${params.toString()}` : '';
   return crudRequest({
-    url: `${OKR_URL}/vp-score-instance/score/${id}${monthQuery}`,
+    url: `${OKR_URL}/vp-score-instance/score/${id}${query}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -76,7 +82,7 @@ const getMonthById = async (id: string) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/month/${id}`,
+    url: `${CORE_API_URL}/month/${id}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -130,6 +136,8 @@ export const useGetAllMonth = () => {
 
 type UseGetVPScoreOptions = {
   monthId?: string;
+  sessionId?: string;
+  scoreBy?: 'MONTH' | 'SESSION';
   enabled?: boolean;
 };
 
@@ -139,14 +147,14 @@ export const useGetVPScore = (
 ) => {
   const normalized =
     typeof options === 'boolean' ? { enabled: options } : (options ?? {});
-  const { monthId, enabled = true } = normalized;
+  const { monthId, sessionId, scoreBy, enabled = true } = normalized;
 
   return useQuery<any>(
-    ['VPScores', userId, monthId],
-    () => getVpScore(userId, monthId),
+    ['VPScores', userId, monthId, sessionId, scoreBy],
+    () => getVpScore(userId, { monthId, sessionId }),
     {
       keepPreviousData: true,
-      enabled,
+      enabled: enabled && Boolean(userId),
     },
   );
 };

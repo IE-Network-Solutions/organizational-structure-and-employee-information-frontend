@@ -231,10 +231,10 @@ const MoveToDeductionModal = ({
               onChange={(e) => setMoveToVp(e.target.checked)}
               data-cy="time-attendance-rule-violation-move-to-vp-deduction-checkbox"
             >
-              Move to VP Deduction
+              Move to PP Deduction
             </Checkbox>
             <Text type="secondary" style={{ fontSize: 13, marginTop: -6 }}>
-              Move selected users with VP deduction action to VP deduction
+              Move selected users with PP deduction action to PP deduction
               screen
             </Text>
             {moveToVp && (
@@ -254,7 +254,7 @@ const MoveToDeductionModal = ({
           <Alert
             type="info"
             showIcon
-            message="When you select move, people with VP deduction are moved to the VP deduction screen and people with Salary deduction are moved to the salary deduction screen."
+            message="When you select move, people with PP deduction are moved to the PP deduction screen and people with Salary deduction are moved to the salary deduction screen."
           />
         )}
       </div>

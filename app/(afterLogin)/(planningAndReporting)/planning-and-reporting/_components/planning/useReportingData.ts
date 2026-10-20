@@ -7,6 +7,7 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { resolveActivePlanningPeriodId } from '@/utils/resolveActivePlanningPeriodId';
 import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence, PlanSummary } from '../types';
 import { getEmployeeItems } from './departmentUsers';
@@ -36,8 +37,11 @@ export function useReportingData(enabled = true) {
   const { isFilterScopePending } = usePlanningFilterScopeReady();
   const effectiveSelectedUsers = useEffectivePlanUserIds();
 
-  const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId = resolveActivePlanningPeriodId(
+    activePlanPeriodId,
+    userPlanningPeriods,
+    activePlanPeriod,
+  );
 
   const sessionId =
     selectedSessionIds.length > 0

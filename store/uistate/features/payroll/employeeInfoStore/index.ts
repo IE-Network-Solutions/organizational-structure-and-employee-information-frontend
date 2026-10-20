@@ -249,7 +249,7 @@ interface PayrollState {
 }
 
 const useEmployeeStore = create<PayrollState>((set) => ({
-  searchQuery: '',
+  searchQuery: '&isPerformancePay=false&isIncentivePay=false',
   setSearchQuery: (query) => set({ searchQuery: query }),
   isFilterModalOpen: false,
   setIsFilterModalOpen: (open) => set({ isFilterModalOpen: open }),
@@ -286,7 +286,7 @@ const useEmployeeStore = create<PayrollState>((set) => ({
   // Reset function to restore default state
   resetState: () =>
     set({
-      searchQuery: '',
+      searchQuery: '&isPerformancePay=false&isIncentivePay=false',
       isFilterModalOpen: false,
       activeMergedPayroll: null,
       mergedPayroll: [],

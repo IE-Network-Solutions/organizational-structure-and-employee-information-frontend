@@ -2,22 +2,46 @@
 
 import { useRouter } from 'next/navigation';
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/target/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import ProgressStatCard from './ProgressStatCard';
 import { OkrHeaderStatCardSkeleton } from './shared';
 
-export default function VariablePayCard() {
+interface VariablePayCardProps {
+  /** MONTH = monthly performance pay, SESSION = quarterly (active session). */
+  track?: 'MONTH' | 'SESSION';
+}
+
+export default function VariablePayCard({
+  track = 'MONTH',
+}: VariablePayCardProps) {
   const { userId } = useAuthenticationStore();
-  const { data: vpScore, isLoading } = useGetVPScore(userId, !!userId);
+  const isQuarterly = track === 'SESSION';
+  const { data: activeSession, isLoading: sessionLoading } =
+    useGetActiveSession();
+  const sessionId = activeSession?.id ?? activeSession?.data?.id;
+  const { data: vpScore, isLoading: scoreLoading } = useGetVPScore(
+    userId,
+    isQuarterly
+      ? { sessionId, scoreBy: 'SESSION', enabled: !!userId && !!sessionId }
+      : { scoreBy: 'MONTH', enabled: !!userId },
+  );
   const router = useRouter();
+  const isLoading = isQuarterly ? sessionLoading || scoreLoading : scoreLoading;
 
   if (isLoading) {
-    return <OkrHeaderStatCardSkeleton dataCy="okr-card-vp-score-skeleton" />;
+    return (
+      <OkrHeaderStatCardSkeleton
+        dataCy={`okr-card-vp-score-${isQuarterly ? 'quarterly' : 'monthly'}-skeleton`}
+      />
+    );
   }
 
   return (
     <ProgressStatCard
-      label="Total Variable Pay"
+      label={
+        isQuarterly ? 'Quarterly Performance Pay' : 'Monthly Performance Pay'
+      }
       labelClassName="text-black/45"
       value={`${Number(vpScore?.score || 0)}%`}
       percent={
@@ -40,7 +64,7 @@ export default function VariablePayCard() {
           />
         </svg>
       }
-      dataCy="okr-card-vp-score"
+      dataCy={`okr-card-vp-score-${isQuarterly ? 'quarterly' : 'monthly'}`}
     />
   );
 }

@@ -35,7 +35,7 @@ export const useDeleteVpDeduction = () => {
     onError: (error: unknown) => {
       const message =
         (error as { response?: { data?: { message?: string } } })?.response
-          ?.data?.message || 'Failed to remove VP deduction.';
+          ?.data?.message || 'Failed to remove PP deduction.';
       NotificationMessage.error({
         message: 'Error',
         description: message,
@@ -57,12 +57,12 @@ export const useBulkDeleteVpDeductions = () => {
         queryClient.invalidateQueries('vp-deduction-total');
         queryClient.invalidateQueries('VPScores');
         queryClient.invalidateQueries('attendance-rule-violations');
-        handleSuccessMessage('DELETE', 'VP deductions updated successfully.');
+        handleSuccessMessage('DELETE', 'PP deductions updated successfully.');
       },
       onError: (error: unknown) => {
         const message =
           (error as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message || 'Failed to update VP deductions.';
+            ?.data?.message || 'Failed to update PP deductions.';
         NotificationMessage.error({
           message: 'Error',
           description: message,

@@ -60,7 +60,7 @@ export type VpScoringUserAssignment = {
   vpScoringName: string;
 };
 
-/** Map userId → VP scoring config they are assigned to (all configurations). */
+/** Map userId → PP scoring config they are assigned to (all configurations). */
 export function buildVpScoringAssignedUsersMap(
   configs: Array<{
     id?: string;
@@ -83,7 +83,7 @@ export function buildVpScoringAssignedUsersMap(
 }
 
 /**
- * Loads all VP scoring user assignments for duplicate-assignment prevention.
+ * Loads all PP scoring user assignments for duplicate-assignment prevention.
  * Fetches per-config details when the list endpoint omits userVpScoring.
  */
 export function useVpScoringAssignedUsers(enabled: boolean) {

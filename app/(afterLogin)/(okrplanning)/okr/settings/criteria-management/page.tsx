@@ -46,6 +46,7 @@ function Page() {
     return rawItems.map((item: any) => ({
       key: item.id,
       name: item.name,
+      scoreBy: item.scoreBy === 'SESSION' ? 'Quarterly' : 'Monthly',
       totalPercentage: `${item.totalPercentage}%`,
       criteriaCount: item.vpScoringCriterions.length,
       types: item.vpScoringCriterions.map(
@@ -167,12 +168,12 @@ function Page() {
               title={
                 isFilteredOnlyEmpty
                   ? 'No scoring configurations match your filters'
-                  : 'No VP scoring configurations yet'
+                  : 'No PP scoring configurations yet'
               }
               description={
                 isFilteredOnlyEmpty
                   ? 'Try adjusting search or the criteria type filter.'
-                  : 'Add scoring to define how VP criteria contribute to targets.'
+                  : 'Add scoring to define how PP criteria contribute to targets.'
               }
               actionText={
                 canCreateVpScoring && !isFilteredOnlyEmpty
@@ -207,13 +208,24 @@ function Page() {
                   className="flex items-start justify-between gap-2 mb-4"
                   data-cy={`okr-criteria-card-header-${item.key}`}
                 >
-                  <p
-                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 m-0 leading-5"
-                    id={`okr-criteria-card-name-${item.key}`}
-                    data-cy={`okr-criteria-card-name-${item.key}`}
+                  <div
+                    className="flex-1 min-w-0"
+                    data-cy={`okr-criteria-card-title-wrapper-${item.key}`}
                   >
-                    {item.name}
-                  </p>
+                    <p
+                      className="text-sm font-semibold text-gray-800 m-0 leading-5"
+                      id={`okr-criteria-card-name-${item.key}`}
+                      data-cy={`okr-criteria-card-name-${item.key}`}
+                    >
+                      {item.name}
+                    </p>
+                    <p
+                      className="text-xs text-gray-400 m-0 mt-0.5"
+                      data-cy={`okr-criteria-card-scoreby-${item.key}`}
+                    >
+                      {item.scoreBy}
+                    </p>
+                  </div>
                   <div
                     className="shrink-0"
                     id={`okr-criteria-card-menu-wrapper-${item.key}`}

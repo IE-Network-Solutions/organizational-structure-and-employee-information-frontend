@@ -29,7 +29,7 @@ const Header = () => {
                 className="text-[30px] leading-9 font-semibold text-[#1f1f1f]"
                 data-cy="vp-update-header-title-text"
               >
-                Variable Pay
+                Performance Pay
               </span>
             </div>
           }
@@ -44,7 +44,7 @@ const Header = () => {
                       href="/dashboard/vp"
                       data-cy="vp-update-header-subtitle-link"
                     >
-                      VP
+                      PP
                     </Link>
                   ),
                 },
@@ -65,7 +65,7 @@ const Header = () => {
                   className="hidden md:inline"
                   data-cy="vp-update-header-refresh-text"
                 >
-                  Refresh VP
+                  Refresh PP
                 </span>
               </Button>
             </div>
