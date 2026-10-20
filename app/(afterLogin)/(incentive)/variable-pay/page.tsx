@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from 'antd';
 import { AiOutlineReload } from 'react-icons/ai';
 import { MdOutlineSend } from 'react-icons/md';
@@ -10,16 +10,32 @@ import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/
 import { useGetActiveEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 
+type VpScoreTrack = 'MONTH' | 'SESSION';
+
 const VariablePayPage = () => {
+  const [activeTrack, setActiveTrack] = useState<VpScoreTrack>('MONTH');
   const setOpenModal = useVariablePayStore((s) => s.setOpenModal);
   const { data: activeEmployee } = useGetActiveEmployee();
-  const activeUserIds: string[] =
-    activeEmployee?.items?.map((employee: { id: string }) => employee.id) ?? [];
+  const activeUserIds = useMemo(
+    () =>
+      activeEmployee?.items
+        ?.map((employee: { id: string }) => employee.id)
+        .filter(Boolean) ?? [],
+    [activeEmployee?.items],
+  );
   const {
     isLoading: isRefreshLoading,
     refetch,
     isRefetching,
   } = useGetAllCalculatedVpScore(activeUserIds, false);
+  const hasAutoRefreshed = useRef(false);
+
+  useEffect(() => {
+    if (activeUserIds.length === 0 || hasAutoRefreshed.current) return;
+
+    hasAutoRefreshed.current = true;
+    void refetch();
+  }, [activeUserIds, refetch]);
 
   return (
     <div
@@ -98,8 +114,11 @@ const VariablePayPage = () => {
         />
       </div>
 
-      <VPScoreCard />
-      <VariablePayTable data-cy="variable-pay-table" />
+      <VPScoreCard activeTrack={activeTrack} onTrackChange={setActiveTrack} />
+      <VariablePayTable
+        data-cy="variable-pay-table"
+        scoreBy={activeTrack}
+      />
     </div>
   );
 };
