@@ -3,25 +3,21 @@ import {
   Modal,
   Form,
   Switch,
-  DatePicker,
-  Select,
   Button,
   ConfigProvider,
 } from 'antd';
 import { IoCloseOutline } from 'react-icons/io5';
-import dayjs from 'dayjs';
-
-import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
 
 interface Props {
   onClose: () => void;
-  onGenerate: (data: Incentive) => void;
+  onGenerate: (data: PayrollGenerationOptions) => void;
   loading?: boolean;
   /** When true, modal copy reflects regenerating existing payroll (vs first-time generate). */
   isRegenerate?: boolean;
 }
 
-export interface Incentive {
+export interface PayrollGenerationOptions {
+  includePayroll: boolean;
   includeIncentive: boolean;
   /** PP Monthly (scoreBy MONTH) payouts for the pay period. */
   includeMonthlyVariablePay: boolean;
@@ -36,33 +32,24 @@ const GeneratePayrollModal: React.FC<Props> = ({
   isRegenerate = false,
 }) => {
   const [form] = Form.useForm();
-
-  const { data: payPeriodData } = useGetPayPeriod();
-
-  React.useEffect(() => {
-    if (payPeriodData && payPeriodData.length > 0) {
-      // Find the currently active (OPEN) pay period
-      const activePeriod =
-        payPeriodData.find((p: any) => p.status === 'OPEN') || payPeriodData[0];
-      if (activePeriod && !form.getFieldValue('payPeriod')) {
-        form.setFieldsValue({ payPeriod: activePeriod.id });
-      }
-    }
-  }, [payPeriodData, form]);
+  const [selectionError, setSelectionError] = React.useState('');
 
   const handleGenerate = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        onGenerate({
-          includeIncentive: values.includeIncentive,
-          includeMonthlyVariablePay: Boolean(values.includeMonthlyVariablePay),
-          includeSessionVariablePay: Boolean(values.includeSessionVariablePay),
-        });
-      })
-      .catch(() => {
-        // validation errors are displayed by antd Form; no console output needed
-      });
+    const values = form.getFieldsValue();
+    const generationOptions = {
+      includePayroll: Boolean(values.includePayroll),
+      includeIncentive: Boolean(values.includeIncentive),
+      includeMonthlyVariablePay: Boolean(values.includeMonthlyVariablePay),
+      includeSessionVariablePay: Boolean(values.includeSessionVariablePay),
+    };
+
+    if (!Object.values(generationOptions).some(Boolean)) {
+      setSelectionError('Select at least one payment type');
+      return;
+    }
+
+    setSelectionError('');
+    onGenerate(generationOptions);
   };
 
   const customizeRequiredMark = (
@@ -163,13 +150,35 @@ const GeneratePayrollModal: React.FC<Props> = ({
             form={form}
             layout="vertical"
             requiredMark={customizeRequiredMark}
+            onValuesChange={(_, values) => {
+              if (Object.values(values).some(Boolean)) setSelectionError('');
+            }}
             initialValues={{
-              includeIncentive: true,
-              includeMonthlyVariablePay: true,
-              includeSessionVariablePay: true,
+              includePayroll: true,
+              includeIncentive: false,
+              includeMonthlyVariablePay: false,
+              includeSessionVariablePay: false,
             }}
             data-cy="payroll-generate-modal-form"
           >
+            <div data-cy="payroll-generate-modal-payroll-toggle-view-container">
+              <Form.Item
+                label={
+                  <span
+                    data-cy="payroll-generate-modal-payroll-label-view-text"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Include Payroll
+                  </span>
+                }
+                name="includePayroll"
+                valuePropName="checked"
+                className="mb-5"
+              >
+                <Switch data-cy="payroll-generate-modal-payroll-toggle-switch" />
+              </Form.Item>
+            </div>
+
             <div data-cy="payroll-generate-modal-incentive-toggle-view-container">
               <Form.Item
                 label={
@@ -225,58 +234,16 @@ const GeneratePayrollModal: React.FC<Props> = ({
               </Form.Item>
             </div>
 
-            <div data-cy="payroll-generate-modal-daterange-view-container">
-              <Form.Item
-                label={
-                  <span
-                    data-cy="payroll-generate-modal-daterange-label-view-text"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Date
-                  </span>
-                }
-                name="date"
-                className="mb-5"
-                rules={[{ required: true, message: 'Please select a date' }]}
+            {selectionError && (
+              <div
+                role="alert"
+                className="mb-4 text-sm text-red-500"
+                data-cy="payroll-generate-modal-selection-error"
               >
-                <DatePicker
-                  data-cy="payroll-generate-modal-daterange-view-input"
-                  style={{ width: '100%' }}
-                  placeholder="Select date"
-                  size="large"
-                />
-              </Form.Item>
-            </div>
+                {selectionError}
+              </div>
+            )}
 
-            <div data-cy="payroll-generate-modal-payperiod-view-container">
-              <Form.Item
-                label={
-                  <span
-                    data-cy="payroll-generate-modal-payperiod-label-view-text"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Pay Period
-                  </span>
-                }
-                name="payPeriod"
-                className="mb-0"
-                rules={[
-                  { required: true, message: 'Please select a pay period' },
-                ]}
-              >
-                <Select
-                  data-cy="payroll-generate-modal-payperiod-view-select"
-                  placeholder="Select pay period"
-                  size="large"
-                  options={
-                    payPeriodData?.map((period: any) => ({
-                      value: period.id,
-                      label: `${dayjs(period.startDate).format('MMM DD, YYYY')} - ${dayjs(period.endDate).format('MMM DD, YYYY')}`,
-                    })) || []
-                  }
-                />
-              </Form.Item>
-            </div>
           </Form>
         </div>
       </Modal>

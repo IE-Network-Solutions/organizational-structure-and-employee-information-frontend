@@ -46,6 +46,12 @@ import { Workbook } from 'exceljs';
 
 import FilterPopover from '../../_components/filters/FilterPopover';
 import {
+  DEFAULT_PAYROLL_VIEW,
+  payrollIncludesToQueryParams,
+  payrollViewToQueryParams,
+  PayrollView,
+} from '@/store/uistate/features/payroll/payroll/view';
+import {
   useGetActivePayroll,
   useGetActivePayrollsForExport,
   useGetAllActiveBasicSalary,
@@ -69,7 +75,9 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { TbFileExport } from 'react-icons/tb';
-import GeneratePayrollModal, { Incentive } from '../../_components/modal';
+import GeneratePayrollModal, {
+  PayrollGenerationOptions,
+} from '../../_components/modal';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import PayrollTableLoadingSkeleton from '../../_components/PayrollTableLoadingSkeleton';
@@ -436,6 +444,18 @@ const Payroll = () => {
       queryParams.append('departmentId', merged.departmentId);
     }
 
+    // Payment type (payroll run / standalone PP / incentive) and what it includes
+    // (PP Monthly, PP Quarterly, incentive).
+    const typeParams = {
+      ...payrollViewToQueryParams(
+        (merged.payrollView as PayrollView) || DEFAULT_PAYROLL_VIEW,
+      ),
+      ...payrollIncludesToQueryParams(merged.payrollIncludes),
+    };
+    Object.entries(typeParams).forEach(([key, value]) => {
+      queryParams.append(key, value);
+    });
+
     const searchParams = queryParams.toString()
       ? `&${queryParams.toString()}`
       : '';
@@ -445,7 +465,7 @@ const Payroll = () => {
     refetchExportData();
   };
 
-  const handleGeneratePayroll = async (data: Incentive) => {
+  const handleGeneratePayroll = async (data: PayrollGenerationOptions) => {
     if (!allActiveSalary || allActiveSalary?.length === 0) {
       notification.error({
         message: 'No Active Salaries',
@@ -459,10 +479,12 @@ const Payroll = () => {
 
     try {
       const payRollData = {
+        payPeriodId: currentPayPeriodId || payPeriodIdFromRoute,
         payrollItems: allActiveSalary.map((item: any) => ({
           ...item,
           basicSalary: parseInt(item.basicSalary, 10),
         })),
+        includePayroll: data.includePayroll,
         includeIncentive: data.includeIncentive,
         includeMonthlyVariablePay: data.includeMonthlyVariablePay,
         includeSessionVariablePay: data.includeSessionVariablePay,

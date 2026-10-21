@@ -20,7 +20,9 @@ import {
 } from '@/store/server/features/payroll/payrollApproval/mutation';
 import { usePayrollApproveVisibility } from '@/store/server/features/payroll/payrollApproval/usePayrollApproveVisibility';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import GeneratePayrollModal, { Incentive } from '../../_components/modal';
+import GeneratePayrollModal, {
+  PayrollGenerationOptions,
+} from '../../_components/modal';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const PayPeriodDetailHeader = () => {
@@ -58,7 +60,7 @@ const PayPeriodDetailHeader = () => {
   const canGenerateOrRegenerate =
     !payrollApprovalForPeriod || payrollApprovalForPeriod?.approved === false;
 
-  const handleGeneratePayroll = async (data: Incentive) => {
+  const handleGeneratePayroll = async (data: PayrollGenerationOptions) => {
     if (!allActiveSalary || allActiveSalary?.length === 0) {
       notification.error({
         message: 'No Active Salaries',
@@ -71,10 +73,12 @@ const PayPeriodDetailHeader = () => {
     createPayroll(
       {
         values: {
+          payPeriodId,
           payrollItems: allActiveSalary.map((item: any) => ({
             ...item,
             basicSalary: parseInt(item.basicSalary, 10),
           })),
+          includePayroll: data.includePayroll,
           includeIncentive: data.includeIncentive,
           includeMonthlyVariablePay: data.includeMonthlyVariablePay,
           includeSessionVariablePay: data.includeSessionVariablePay,
