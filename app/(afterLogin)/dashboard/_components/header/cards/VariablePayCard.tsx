@@ -1,8 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
-import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/target/queries';
+import {
+  useVpTrackScore,
+  vpTrackLabel,
+} from '@/store/server/features/okrplanning/okr/dashboard/VP/useVpTrackScore';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import ProgressStatCard from './ProgressStatCard';
 import { OkrHeaderStatCardSkeleton } from './shared';
@@ -17,17 +19,8 @@ export default function VariablePayCard({
 }: VariablePayCardProps) {
   const { userId } = useAuthenticationStore();
   const isQuarterly = track === 'SESSION';
-  const { data: activeSession, isLoading: sessionLoading } =
-    useGetActiveSession();
-  const sessionId = activeSession?.id ?? activeSession?.data?.id;
-  const { data: vpScore, isLoading: scoreLoading } = useGetVPScore(
-    userId,
-    isQuarterly
-      ? { sessionId, scoreBy: 'SESSION', enabled: !!userId && !!sessionId }
-      : { scoreBy: 'MONTH', enabled: !!userId },
-  );
+  const { data: vpScore, isLoading } = useVpTrackScore(userId, track);
   const router = useRouter();
-  const isLoading = isQuarterly ? sessionLoading || scoreLoading : scoreLoading;
 
   if (isLoading) {
     return (
@@ -39,16 +32,14 @@ export default function VariablePayCard({
 
   return (
     <ProgressStatCard
-      label={
-        isQuarterly ? 'Quarterly Performance Pay' : 'Monthly Performance Pay'
-      }
+      label={vpTrackLabel(track)}
       labelClassName="text-black/45"
       value={`${Number(vpScore?.score || 0)}%`}
       percent={
         (Number(vpScore?.score || 0) / Number(vpScore?.maxScore || 100)) * 100
       }
       iconBgClassName="bg-[#FFF2F0]"
-      onClick={() => router.push('/dashboard/vp')}
+      onClick={() => router.push(`/dashboard/vp?track=${track}`)}
       icon={
         <svg
           xmlns="http://www.w3.org/2000/svg"

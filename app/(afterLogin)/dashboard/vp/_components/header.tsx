@@ -7,8 +7,12 @@ import Link from 'next/link';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetVpScoreCalculate } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+import {
+  VpTrack,
+  vpTrackLabel,
+} from '@/store/server/features/okrplanning/okr/dashboard/VP/useVpTrackScore';
 
-const Header = () => {
+const Header = ({ track = 'MONTH' }: { track?: VpTrack }) => {
   const userId = useAuthenticationStore.getState().userId;
   const {
     refetch,
@@ -29,7 +33,7 @@ const Header = () => {
                 className="text-[30px] leading-9 font-semibold text-[#1f1f1f]"
                 data-cy="vp-update-header-title-text"
               >
-                Performance Pay
+                {vpTrackLabel(track)}
               </span>
             </div>
           }

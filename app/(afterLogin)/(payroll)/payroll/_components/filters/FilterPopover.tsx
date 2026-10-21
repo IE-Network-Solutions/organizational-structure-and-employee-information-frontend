@@ -24,7 +24,11 @@ import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import {
+  DEFAULT_PAYROLL_INCLUDES,
+  DEFAULT_PAYROLL_VIEW,
+  PAYROLL_INCLUDES_OPTIONS,
   PAYROLL_VIEW_OPTIONS,
+  PayrollIncludes,
   PayrollView,
 } from '@/store/uistate/features/payroll/payroll/view';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -40,6 +44,7 @@ interface FilterValues {
   payPeriodId?: string;
   monthId?: string;
   payrollView?: PayrollView;
+  payrollIncludes?: PayrollIncludes;
 }
 
 interface FilterPopoverProps {
@@ -116,7 +121,9 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
             yearId: selectedYear.id || '',
             sessionId: selectedSession?.id || '',
             monthId: selectedMonth?.id || '',
-            payrollView: defaultValues?.payrollView || 'payroll',
+            payrollView: defaultValues?.payrollView || DEFAULT_PAYROLL_VIEW,
+            payrollIncludes:
+              defaultValues?.payrollIncludes || DEFAULT_PAYROLL_INCLUDES,
           });
 
           if (!initialSearchTriggered.current) {
@@ -230,7 +237,8 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
         departmentId: undefined,
         payPeriodId: undefined,
         monthId: undefined,
-        payrollView: 'payroll',
+        payrollView: DEFAULT_PAYROLL_VIEW,
+        payrollIncludes: DEFAULT_PAYROLL_INCLUDES,
       });
       return;
     }
@@ -261,7 +269,8 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
       payPeriodId: defaultPayPeriodId,
       divisionId: undefined,
       departmentId: undefined,
-      payrollView: 'payroll',
+      payrollView: DEFAULT_PAYROLL_VIEW,
+      payrollIncludes: DEFAULT_PAYROLL_INCLUDES,
     };
 
     form.setFieldsValue(nextValues);
@@ -277,13 +286,16 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
       payPeriodId: defaultPayPeriodId,
       divisionId: undefined,
       departmentId: undefined,
-      payrollView: 'payroll',
+      payrollView: DEFAULT_PAYROLL_VIEW,
+      payrollIncludes: DEFAULT_PAYROLL_INCLUDES,
     });
   };
 
   const syncFormWithDefaults = () => {
     form.setFieldsValue({
-      payrollView: defaultValues?.payrollView || 'payroll',
+      payrollView: defaultValues?.payrollView || DEFAULT_PAYROLL_VIEW,
+      payrollIncludes:
+        defaultValues?.payrollIncludes || DEFAULT_PAYROLL_INCLUDES,
     });
   };
 
@@ -352,7 +364,9 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
               <Form.Item
                 name="payrollView"
                 label={<CustomLabel title="Payroll Type" />}
-                initialValue={defaultValues?.payrollView || 'payroll'}
+                initialValue={
+                  defaultValues?.payrollView || DEFAULT_PAYROLL_VIEW
+                }
                 data-cy="payroll-filter-popover-view"
               >
                 <Select
@@ -360,6 +374,26 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
                   placeholder="Select type"
                   data-cy="payroll-filter-popover-view-select"
                   options={PAYROLL_VIEW_OPTIONS.map((opt) => ({
+                    value: opt.value,
+                    label: opt.label,
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={24} data-cy="payroll-filter-popover-includes-col">
+              <Form.Item
+                name="payrollIncludes"
+                label={<CustomLabel title="Includes" />}
+                initialValue={
+                  defaultValues?.payrollIncludes || DEFAULT_PAYROLL_INCLUDES
+                }
+                data-cy="payroll-filter-popover-includes"
+              >
+                <Select
+                  size="large"
+                  placeholder="Select what the row includes"
+                  data-cy="payroll-filter-popover-includes-select"
+                  options={PAYROLL_INCLUDES_OPTIONS.map((opt) => ({
                     value: opt.value,
                     label: opt.label,
                   }))}

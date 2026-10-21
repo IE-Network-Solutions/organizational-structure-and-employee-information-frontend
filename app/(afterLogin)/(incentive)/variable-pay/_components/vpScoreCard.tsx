@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Progress, Skeleton, Tabs } from 'antd';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -298,8 +298,10 @@ const hasVpScoreData = (vpScore: any) =>
   (vpScore.score != null ||
     (Array.isArray(vpScore.criteria) && vpScore.criteria.length > 0));
 
-const VPScoreCard: React.FC = () => {
-  const [activeTrack, setActiveTrack] = useState<VpScoreTrack>('MONTH');
+const VPScoreCard: React.FC<{
+  activeTrack: VpScoreTrack;
+  onTrackChange: (track: VpScoreTrack) => void;
+}> = ({ activeTrack, onTrackChange }) => {
   const userId = useAuthenticationStore.getState().userId;
   const { searchParams } = useVariablePayStore();
   const { data: activeMonth } = useGetActiveMonth();
@@ -389,6 +391,12 @@ const VPScoreCard: React.FC = () => {
     ? activeTrack
     : (tabItems[0]?.key ?? 'MONTH');
 
+  useEffect(() => {
+    if (resolvedActiveKey !== activeTrack) {
+      onTrackChange(resolvedActiveKey);
+    }
+  }, [activeTrack, onTrackChange, resolvedActiveKey]);
+
   return (
     <div
       className="mt-4 rounded-xl border border-gray-100 bg-white px-5 py-4 text-[14px]"
@@ -397,7 +405,7 @@ const VPScoreCard: React.FC = () => {
     >
       <Tabs
         activeKey={resolvedActiveKey}
-        onChange={(key) => setActiveTrack(key as VpScoreTrack)}
+        onChange={(key) => onTrackChange(key as VpScoreTrack)}
         items={tabItems}
         data-cy="variable-pay-score-card-tabs"
       />

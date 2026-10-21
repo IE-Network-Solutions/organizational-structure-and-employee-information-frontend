@@ -178,13 +178,21 @@ const ExpandedVPDetailsSkeleton = () => (
 const VpScoreCell = ({
   userId,
   monthId,
+  sessionId,
+  scoreBy,
   fallbackScore,
 }: {
   userId: string;
   monthId?: string;
+  sessionId?: string;
+  scoreBy: 'MONTH' | 'SESSION';
   fallbackScore?: string | number;
 }) => {
-  const { data: vpScore, isLoading } = useGetVPScore(userId, { monthId });
+  const { data: vpScore, isLoading } = useGetVPScore(userId, {
+    monthId: scoreBy === 'MONTH' ? monthId : undefined,
+    sessionId: scoreBy === 'SESSION' ? sessionId : undefined,
+    scoreBy,
+  });
   const score = Number(vpScore?.score ?? fallbackScore ?? 0);
 
   if (isLoading && !fallbackScore) {
@@ -214,14 +222,20 @@ const ExpandedVPDetails = ({
   userId,
   monthId,
   sessionId,
+  scoreBy,
 }: {
   userId: string;
   monthId?: string;
   sessionId?: string;
+  scoreBy: 'MONTH' | 'SESSION';
 }) => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const { data: activeCalender } = useGetActiveFiscalYears();
-  const { data: vpScore, isLoading } = useGetVPScore(userId, { monthId });
+  const { data: vpScore, isLoading } = useGetVPScore(userId, {
+    monthId: scoreBy === 'MONTH' ? monthId : undefined,
+    sessionId: scoreBy === 'SESSION' ? sessionId : undefined,
+    scoreBy,
+  });
   const {
     isLoading: isRefreshLoading,
     refetch,
@@ -526,7 +540,11 @@ const ExpandedVPDetails = ({
   );
 };
 
-const VariablePayTable = () => {
+const VariablePayTable = ({
+  scoreBy = 'MONTH',
+}: {
+  scoreBy?: 'MONTH' | 'SESSION';
+}) => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [employeeSearch, setEmployeeSearch] = useState('');
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(
@@ -573,8 +591,10 @@ const VariablePayTable = () => {
         '';
 
   const variablePayFilterPayload = {
-    monthIds: selectedMonthIds.filter(Boolean),
-    ...(selectedEmployeeId ? { userId: selectedEmployeeId } : {}),
+    scoreBy,
+    ...(scoreBy === 'MONTH'
+      ? { monthIds: selectedMonthIds.filter(Boolean) }
+      : { sessionIds: appliedSessionId ? [appliedSessionId] : [] }),
   };
   const sessionOptions =
     activeCalender?.sessions?.map((session: any) => ({
@@ -593,9 +613,11 @@ const VariablePayTable = () => {
       value: month?.id,
     })) || [];
 
-  const { data: allUsersVariablePay, isLoading } = useGetVariablePay(
-    variablePayFilterPayload,
-  );
+  const {
+    data: allUsersVariablePay,
+    isLoading,
+    isPreviousData,
+  } = useGetVariablePay(variablePayFilterPayload);
 
   const tableData: any[] =
     allUsersVariablePay?.items?.map((variablePay: any) => ({
@@ -685,7 +707,9 @@ const VariablePayTable = () => {
       render: (vpScore: string, record: any) => (
         <VpScoreCell
           userId={record.userId}
-          monthId={appliedMonthId}
+          monthId={scoreBy === 'MONTH' ? appliedMonthId : undefined}
+          sessionId={scoreBy === 'SESSION' ? appliedSessionId : undefined}
+          scoreBy={scoreBy}
           fallbackScore={vpScore}
         />
       ),
@@ -1006,7 +1030,7 @@ const VariablePayTable = () => {
             data-cy="compensation-benefit-variable-pay-scroll-container"
             data-testid="variable-pay-table-loading"
           >
-            {isLoading || isFetching || refreshLoading ? (
+            {isLoading || isPreviousData || isFetching || refreshLoading ? (
               <TableSkeleton columns={columns} />
             ) : (
               <Table
@@ -1028,6 +1052,7 @@ const VariablePayTable = () => {
                       userId={record.userId}
                       monthId={appliedMonthId}
                       sessionId={appliedSessionId}
+                      scoreBy={scoreBy}
                     />
                   ),
                   expandIcon: () => null,

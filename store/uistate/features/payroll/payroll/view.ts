@@ -5,13 +5,52 @@ export type PayrollView =
   | 'vp_incentive'
   | 'all';
 
+/** The pay period list shows every payment type until one is picked. */
+export const DEFAULT_PAYROLL_VIEW: PayrollView = 'all';
+
+/** Payment type of a row: a payroll run, or a standalone PP / incentive payment. */
 export const PAYROLL_VIEW_OPTIONS: { value: PayrollView; label: string }[] = [
-  { value: 'payroll', label: 'Payroll' },
-  { value: 'vp', label: 'PP' },
-  { value: 'incentive', label: 'Incentive' },
-  { value: 'vp_incentive', label: 'PP + Incentive' },
   { value: 'all', label: 'All' },
+  { value: 'payroll', label: 'Payroll run' },
+  { value: 'vp', label: 'PP only (no payroll)' },
+  { value: 'incentive', label: 'Incentive only (no payroll)' },
+  { value: 'vp_incentive', label: 'PP + Incentive only (no payroll)' },
 ];
+
+/** Narrows the list to rows that include a PP track or incentive. */
+export type PayrollIncludes =
+  | 'any'
+  | 'pp_monthly'
+  | 'pp_quarterly'
+  | 'incentive';
+
+export const DEFAULT_PAYROLL_INCLUDES: PayrollIncludes = 'any';
+
+export const PAYROLL_INCLUDES_OPTIONS: {
+  value: PayrollIncludes;
+  label: string;
+}[] = [
+  { value: 'any', label: 'Any' },
+  { value: 'pp_monthly', label: 'PP Monthly' },
+  { value: 'pp_quarterly', label: 'PP Quarterly' },
+  { value: 'incentive', label: 'Incentive' },
+];
+
+/** List / status API flags for an "includes" choice. */
+export function payrollIncludesToQueryParams(
+  includes?: string | null,
+): Record<string, string> {
+  switch (includes) {
+    case 'pp_monthly':
+      return { ppMonthly: 'true' };
+    case 'pp_quarterly':
+      return { ppQuarterly: 'true' };
+    case 'incentive':
+      return { withIncentive: 'true' };
+    default:
+      return {};
+  }
+}
 
 /** Query flags for list / status APIs. `all` omits both flags. */
 export function payrollViewToQueryParams(
