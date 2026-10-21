@@ -1,8 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import GeneratePayrollModal, {
-  PayrollGenerationOptions,
-} from './index';
+import GeneratePayrollModal, { PayrollGenerationOptions } from './index';
 
 const switchFields: (keyof PayrollGenerationOptions)[] = [
   'includePayroll',
@@ -12,9 +10,7 @@ const switchFields: (keyof PayrollGenerationOptions)[] = [
 ];
 
 const renderModal = (onGenerate = jest.fn()) => {
-  render(
-    <GeneratePayrollModal onClose={jest.fn()} onGenerate={onGenerate} />,
-  );
+  render(<GeneratePayrollModal onClose={jest.fn()} onGenerate={onGenerate} />);
   return onGenerate;
 };
 
@@ -39,12 +35,9 @@ describe('GeneratePayrollModal', () => {
     const onGenerate = renderModal();
     const switches = screen.getAllByRole('switch');
 
-    expect(switches.map((toggle) => toggle.getAttribute('aria-checked'))).toEqual([
-      'true',
-      'false',
-      'false',
-      'false',
-    ]);
+    expect(
+      switches.map((toggle) => toggle.getAttribute('aria-checked')),
+    ).toEqual(['true', 'false', 'false', 'false']);
 
     fireEvent.click(screen.getByRole('button', { name: 'Generate' }));
 
@@ -82,7 +75,7 @@ describe('GeneratePayrollModal', () => {
     ['payroll plus incentive', [true, true, false, false]],
     ['PP and incentive without payroll', [false, true, true, true]],
     ['all components', [true, true, true, true]],
-  ])('submits the selected flags for %s', async (_label, expected) => {
+  ])('submits the selected flags for %s', async (label, expected) => {
     const onGenerate = renderModal();
     const switches = screen.getAllByRole('switch');
 

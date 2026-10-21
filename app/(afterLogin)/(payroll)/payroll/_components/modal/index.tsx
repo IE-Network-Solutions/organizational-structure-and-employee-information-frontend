@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Modal,
-  Form,
-  Switch,
-  Button,
-  ConfigProvider,
-} from 'antd';
+import { Modal, Form, Switch, Button, ConfigProvider } from 'antd';
 import { IoCloseOutline } from 'react-icons/io5';
 
 interface Props {
@@ -150,7 +144,7 @@ const GeneratePayrollModal: React.FC<Props> = ({
             form={form}
             layout="vertical"
             requiredMark={customizeRequiredMark}
-            onValuesChange={(_, values) => {
+            onValuesChange={(changedValues, values) => {
               if (Object.values(values).some(Boolean)) setSelectionError('');
             }}
             initialValues={{
@@ -243,7 +237,6 @@ const GeneratePayrollModal: React.FC<Props> = ({
                 {selectionError}
               </div>
             )}
-
           </Form>
         </div>
       </Modal>
