@@ -115,10 +115,7 @@ const VariablePayPage = () => {
       </div>
 
       <VPScoreCard activeTrack={activeTrack} onTrackChange={setActiveTrack} />
-      <VariablePayTable
-        data-cy="variable-pay-table"
-        scoreBy={activeTrack}
-      />
+      <VariablePayTable data-cy="variable-pay-table" scoreBy={activeTrack} />
     </div>
   );
 };
