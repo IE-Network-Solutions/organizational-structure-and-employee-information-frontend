@@ -364,6 +364,29 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
       );
     });
 
+    it('recovers a stale zero score for a 70/90 reading above threshold', () => {
+      expect(
+        getKeyResultProgressPercent({
+          ...banded,
+          thresholdValue: 50,
+          targetValue: 90,
+          currentValue: 70,
+          progress: 0,
+        }),
+      ).toBe(78);
+    });
+
+    it('does not recover progress at baseline or infer stretch permission from a stale zero', () => {
+      expect(
+        getKeyResultProgressPercent({
+          ...banded,
+          currentValue: 0,
+          progress: 0,
+        }),
+      ).toBe(0);
+      expect(getKeyResultProgressPercent({ ...banded, progress: 0 })).toBe(100);
+    });
+
     it('still derives progress locally for key results without a threshold', () => {
       expect(
         getKeyResultProgressPercent({

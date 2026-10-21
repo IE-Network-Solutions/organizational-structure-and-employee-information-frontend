@@ -932,6 +932,9 @@ export function resolveNotificationPath(
   const source = (item.source_service ?? '').toLowerCase().replace(/_/g, '-');
   const employeeId = resolveRelatedEmployeeId(item, options);
 
+  if (pathname.includes('deadline-plan') || source === 'deadline-plan') {
+    return withParams('/deadline-plan', params);
+  }
   if (isPlanningNotification(pathname, source, text)) {
     return resolvePlanningPath(pathname, params, text, employeeId);
   }

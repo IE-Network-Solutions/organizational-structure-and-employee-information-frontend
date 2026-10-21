@@ -11,6 +11,54 @@ describe('okrScoringBands', () => {
     expect(shouldIncludeScoringBands(undefined)).toBe(false);
   });
 
+  it.each([
+    ['initialValue', 'Baseline'],
+    ['thresholdValue', 'Threshold'],
+    ['targetValue', 'Target'],
+    ['stretchValue', 'Stretch'],
+  ])('rejects a missing %s before submission', (field, label) => {
+    const bands = {
+      initialValue: 0,
+      thresholdValue: 50,
+      targetValue: 100,
+      stretchValue: 120,
+    };
+    for (const missing of [undefined, null, '', '   ']) {
+      expect(
+        getKeyResultBandValidationError(
+          { ...bands, [field]: missing },
+          'TYPE_WEIGHTED',
+        ),
+      ).toBe(`Please enter the ${label}.`);
+    }
+  });
+
+  it('requires only baseline and target in classic scoring', () => {
+    expect(
+      getKeyResultBandValidationError({ targetValue: 100 }, 'CLASSIC_AVERAGE'),
+    ).toMatch(/baseline/i);
+    expect(
+      getKeyResultBandValidationError({ initialValue: 0 }, 'CLASSIC_AVERAGE'),
+    ).toMatch(/target/i);
+    expect(
+      getKeyResultBandValidationError(
+        { initialValue: 0, targetValue: 100 },
+        'CLASSIC_AVERAGE',
+      ),
+    ).toBeNull();
+  });
+
+  it('rejects non-numeric and non-finite band values', () => {
+    for (const invalid of [NaN, Infinity, 'not a number', false]) {
+      expect(
+        getKeyResultBandValidationError(
+          { initialValue: invalid, targetValue: 100 },
+          'CLASSIC_AVERAGE',
+        ),
+      ).toMatch(/baseline/i);
+    }
+  });
+
   it('accepts valid type-weighted score bands', () => {
     expect(
       getKeyResultBandValidationError(

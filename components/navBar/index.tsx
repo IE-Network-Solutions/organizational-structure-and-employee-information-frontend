@@ -861,6 +861,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             permissions: ['manage_planning_reporting'],
           },
           {
+            title: <span data-cy="nav-tree-deadline-plan">Deadline Plan</span>,
+            key: '/deadline-plan',
+            className: 'font-bold',
+            permissions: ['manage_planning_reporting'],
+          },
+          {
             title: (
               <span data-cy="nav-tree-weekly-priority">Weekly Priority</span>
             ),
@@ -939,6 +945,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             key: '/tna/management',
             className: 'font-bold',
             permissions: ['manage_training'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-personal-growth-plan">
+                Personal Growth Plan
+              </span>
+            ),
+            key: '/tna/planning',
+            className: 'font-bold',
+            permissions: ['manage_growth_plan'],
           },
           {
             title: (
