@@ -24,18 +24,14 @@ import {
   Table,
   Button,
   notification,
-  Popconfirm,
   Modal,
-  Switch,
   Select,
   Tooltip,
   Avatar,
   Breadcrumb,
   Dropdown,
-  Typography,
 } from 'antd';
 
-const { Text } = Typography;
 import {
   SearchOutlined,
   FileSyncOutlined,
@@ -49,6 +45,7 @@ import {
   DEFAULT_PAYROLL_VIEW,
   payrollIncludesToQueryParams,
   payrollViewToQueryParams,
+  PayrollIncludes,
   PayrollView,
 } from '@/store/uistate/features/payroll/payroll/view';
 import {
@@ -60,7 +57,6 @@ import {
 } from '@/store/server/features/payroll/payroll/queries';
 import {
   useCreatePayroll,
-  useDeletePayroll,
   useSendingPayrollPayslip,
 } from '@/store/server/features/payroll/payroll/mutation';
 import { useGenerateBankLetter } from '../../_components/Latter';
@@ -75,6 +71,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { TbFileExport } from 'react-icons/tb';
+import ExportPayrollModal from '../../_components/exportModal';
 import GeneratePayrollModal, {
   PayrollGenerationOptions,
 } from '../../_components/modal';
@@ -86,13 +83,17 @@ import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
-import { useGetAllPayrollApprovals } from '@/store/server/features/payroll/payrollApproval/queries';
-import {
-  useApprovePayrollApproval,
-  useLastApprovingPayroll,
-} from '@/store/server/features/payroll/payrollApproval/mutation';
 import { usePayrollApproveVisibility } from '@/store/server/features/payroll/payrollApproval/usePayrollApproveVisibility';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { usePayrollApproveAction } from '@/store/server/features/payroll/payrollApproval/usePayrollApproveAction';
+import {
+  approvalType,
+  areTypesApproved,
+  GENERATION_TYPE_LABEL,
+  getLockedTypes,
+  hasOpenGeneration,
+  PAYROLL_GENERATION_TYPES,
+  requiredTypesForView,
+} from '@/store/server/features/payroll/payrollApproval/generationTypes';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
@@ -106,22 +107,12 @@ const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportBank, setExportBank] = useState(true);
   const [bankLetter, setBankLetter] = useState(true);
-  const [paySlip, setPaySlip] = useState(false);
   const { data: allowanceTypesData } = useFetchAllowanceTypes();
   const [exportPayrollData, setExportPayrollData] = useState(true);
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
-
-  const authStore = useAuthenticationStore.getState();
-  const { userId } = useAuthenticationStore();
-  const tenantId = authStore.tenantId;
-  const userRollId = authStore.userData?.roleId;
-
-  const { mutate: approvePayroll, isLoading: isApproving } =
-    useApprovePayrollApproval();
-  const { mutate: lastApproving, isLoading: isLastApproving } =
-    useLastApprovingPayroll();
+  // The pending approval (one per generation type) the user is confirming.
+  const [approvingItem, setApprovingItem] = useState<any>(null);
 
   const {
     searchQuery,
@@ -161,38 +152,52 @@ const Payroll = () => {
   const payrollExists =
     (payroll?.meta?.totalItems ?? payroll?.items?.length ?? 0) > 0;
   const {
-    showApproveButton,
-    pendingApproval,
+    approvableItems,
+    periodApprovals,
     refetchPendingApprovals,
     refetchPayrollApprovalForPeriod,
   } = usePayrollApproveVisibility(currentPayPeriodId, payrollExists);
 
-  const { data: allPayrollApprovals } = useGetAllPayrollApprovals();
+  const { approve, isApproving } = usePayrollApproveAction(currentPayPeriodId);
 
-  const payrollApprovalForPeriod = useMemo(() => {
-    return (Array.isArray(allPayrollApprovals) ? allPayrollApprovals : []).find(
-      (item: { payPeriodId?: string }) =>
-        item.payPeriodId === currentPayPeriodId,
-    );
-  }, [allPayrollApprovals, currentPayPeriodId]);
+  // Approved generation types are locked; the other types can still be generated.
+  const lockedTypes = useMemo(
+    () => Array.from(getLockedTypes(periodApprovals)),
+    [periodApprovals],
+  );
+  const canGenerateOrRegenerate = !PAYROLL_GENERATION_TYPES.every((type) =>
+    lockedTypes.includes(type),
+  );
+  // "Regenerate" only while a generation is still open; otherwise this adds a new one.
+  const isRegenerate = payrollExists && hasOpenGeneration(periodApprovals);
 
-  const isPayrollApproved = payrollApprovalForPeriod?.approved === true;
-
-  const canGenerateOrRegenerate =
-    !payrollApprovalForPeriod || payrollApprovalForPeriod?.approved === false;
+  // Bank letters need every generation behind the current list view approved.
+  const isPayrollApproved = useMemo(
+    () =>
+      areTypesApproved(
+        periodApprovals,
+        requiredTypesForView(
+          (searchValue.payrollView as PayrollView) || DEFAULT_PAYROLL_VIEW,
+          searchValue.payrollIncludes as PayrollIncludes | undefined,
+          periodApprovals.map((approval) => approvalType(approval)),
+        ),
+      ),
+    [periodApprovals, searchValue.payrollView, searchValue.payrollIncludes],
+  );
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
 
+  // Bank files need an approved payroll, so they can't stay switched on without one.
   useEffect(() => {
     if (!isPayrollApproved) {
       setBankLetter(false);
+      setExportBank(false);
     }
   }, [isPayrollApproved, currentPayPeriodId]);
 
   const openExportModal = () => {
-    if (!isPayrollApproved) {
-      setBankLetter(false);
-    }
+    setBankLetter(isPayrollApproved);
+    setExportBank(isPayrollApproved);
     setIsModalOpen(true);
   };
 
@@ -204,8 +209,6 @@ const Payroll = () => {
   const [mergedPayroll, setMergedPayroll] = useState<any>([]);
   const [mergedPayrollForExport, setMergedPayrollForExport] = useState<any>([]);
   const [open, setOpen] = useState(false);
-  const { mutate: deletePayroll, isLoading: deleteLoading } =
-    useDeletePayroll();
   const activeAllowanceTypes = Array.isArray(allowanceTypesData)
     ? allowanceTypesData.filter(
         (item: any) => item.type === 'ALLOWANCE' && item.isActive,
@@ -335,26 +338,35 @@ const Payroll = () => {
       return;
     }
 
-    if (paySlip)
-      exportTasks.push(Promise.resolve(sendingPaySlipHandler(selectedData)));
+    // Bank files are only allowed once the payroll is approved.
+    let blockedByApproval = false;
 
     if (exportPayrollData)
       exportTasks.push(
         Promise.resolve(handleDeductionExportPayroll(selectedData)),
       );
 
-    if (exportBank) exportTasks.push(handleExportBank(selectedData));
+    if (exportBank) {
+      if (!isPayrollApproved) {
+        blockedByApproval = true;
+        notification.error({
+          message: 'Payroll Not Approved',
+          description:
+            'The bank transfer list can only be exported after payroll has been approved.',
+        });
+      } else {
+        exportTasks.push(handleExportBank(selectedData));
+      }
+    }
 
     if (bankLetter) {
       if (!isPayrollApproved) {
+        blockedByApproval = true;
         notification.error({
           message: 'Payroll Not Approved',
           description:
             'Bank letter can only be exported after payroll has been approved.',
         });
-        if (!exportPayrollData && !paySlip && !exportBank) {
-          return;
-        }
       } else {
         const totalNetPay = selectedData.reduce(
           (sum: number, item: any) => sum + Number(item.netPay || 0),
@@ -365,10 +377,12 @@ const Payroll = () => {
     }
 
     if (exportTasks?.length === 0) {
-      notification.error({
-        message: 'No Export Option Selected',
-        description: 'Please select at least one option to export.',
-      });
+      if (!blockedByApproval) {
+        notification.error({
+          message: 'No Export Option Selected',
+          description: 'Please select at least one option to export.',
+        });
+      }
       return;
     }
 
@@ -506,20 +520,6 @@ const Payroll = () => {
       notification.error({
         message: 'Error Generating Payroll',
         description: 'An error occurred while generating payroll.',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeletePayroll = () => {
-    setLoading(true);
-    try {
-      deletePayroll(payPeriodId);
-    } catch (error) {
-      notification.error({
-        message: 'Error Deleting Payroll',
-        description: 'An error occurred while deleting payroll.',
       });
     } finally {
       setLoading(false);
@@ -1245,46 +1245,17 @@ const Payroll = () => {
   };
 
   const handleApprovePayroll = () => {
-    if (!pendingApproval) return;
-
-    const approvalWorkflowId = String(pendingApproval.approvalWorkflowId || '');
-    const stepOrder = Number(pendingApproval.nextApprover?.[0]?.stepOrder || 0);
-
-    if (!approvalWorkflowId || stepOrder === 0) {
-      notification.error({
-        message: 'Invalid Approval Data',
-        description: 'Missing required approval information. Please try again.',
-      });
-      return;
-    }
-
-    const approvalData = {
-      approvalWorkflowId,
-      stepOrder,
-      requestId: pendingApproval.id,
-      approvedUserId: userId,
-      approverRoleId: userRollId,
-      action: 'Approved',
-      tenantId,
-    };
-
-    const handleSuccess = () => {
-      setIsApproveModalOpen(false);
+    approve(approvingItem, () => {
+      setApprovingItem(null);
       refetchPendingApprovals();
       refetchPayrollApprovalForPeriod();
       refetch();
-    };
-
-    approvePayroll(approvalData, {
-      onSuccess: (data) => {
-        if (data?.last === true) {
-          lastApproving(currentPayPeriodId, { onSuccess: handleSuccess });
-        } else {
-          handleSuccess();
-        }
-      },
     });
   };
+
+  const approvingLabel = approvingItem
+    ? GENERATION_TYPE_LABEL[approvalType(approvingItem)]
+    : 'Payroll';
 
   const routerToReconcilation = () => {
     router.push(`/payroll/reconcilation`);
@@ -1406,15 +1377,13 @@ const Payroll = () => {
                             label: 'Reconciliation',
                             onClick: () => routerToReconcilation(),
                           },
-                          ...(showApproveButton
-                            ? [
-                                {
-                                  key: 'approve',
-                                  label: 'Approve Payroll',
-                                  onClick: () => setIsApproveModalOpen(true),
-                                },
-                              ]
-                            : []),
+                          ...approvableItems.map((item) => ({
+                            key: `approve-${approvalType(item)}`,
+                            label: `Approve ${
+                              GENERATION_TYPE_LABEL[approvalType(item)]
+                            }`,
+                            onClick: () => setApprovingItem(item),
+                          })),
                           {
                             key: 'export',
                             label: 'Export',
@@ -1439,19 +1408,7 @@ const Payroll = () => {
 
                     {/* Generate / Regenerate button */}
                     {canGenerateOrRegenerate && (
-                      <Popconfirm
-                        id="payroll-generate-popconfirm-view-component"
-                        data-cy="payroll-generate-popconfirm-view-component"
-                        title={
-                          payroll?.items?.length
-                            ? 'Are you sure you want to regenerate the payroll ?'
-                            : 'Are you sure you want to generate the payroll ?'
-                        }
-                        onConfirm={handleDeletePayroll}
-                        okText="Yes"
-                        cancelText="No"
-                        disabled={!(payroll?.items?.length > 0)}
-                      >
+                      <>
                         <AccessGuard
                           id="payroll-generate-guard-view-component"
                           data-cy="payroll-generate-guard-view-component"
@@ -1466,7 +1423,7 @@ const Payroll = () => {
                             type="primary"
                             aria-label={
                               isMobile || isTablet
-                                ? payroll?.items?.length > 0
+                                ? isRegenerate
                                   ? 'Regenerate payroll'
                                   : 'Generate payroll'
                                 : undefined
@@ -1476,7 +1433,7 @@ const Payroll = () => {
                                 className="inline-flex items-center justify-center leading-none"
                                 data-cy="payroll-generate-button-icon-wrapper"
                               >
-                                {payroll?.items?.length > 0 ? (
+                                {isRegenerate ? (
                                   <FileSyncOutlined
                                     data-cy="payroll-generate-icon"
                                     className="text-base leading-none"
@@ -1496,12 +1453,10 @@ const Payroll = () => {
                                 : 'flex items-center gap-2 px-6 h-10 leading-none [&_.ant-btn-icon]:inline-flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center [&_.ant-btn-icon_svg]:block'
                             }
                             onClick={() => setIsPayrollModalOpen(true)}
-                            loading={
-                              isCreatingPayroll || loading || deleteLoading
-                            }
+                            loading={isCreatingPayroll || loading}
                           >
                             {!(isMobile || isTablet) &&
-                              (payroll?.items?.length > 0 ? (
+                              (isRegenerate ? (
                                 <span
                                   className="inline-flex items-center leading-none"
                                   data-cy="payroll-regenerate-button-label"
@@ -1524,11 +1479,12 @@ const Payroll = () => {
                               onGenerate={handleGeneratePayroll}
                               onClose={() => setIsPayrollModalOpen(false)}
                               loading={isCreatingPayroll || loading}
-                              isRegenerate={payroll?.items?.length > 0}
+                              isRegenerate={isRegenerate}
+                              lockedTypes={lockedTypes}
                             />
                           )}
                         </AccessGuard>
-                      </Popconfirm>
+                      </>
                     )}
                   </div>
                 }
@@ -1597,8 +1553,8 @@ const Payroll = () => {
         {/* Approve Payroll Modal */}
         <Modal
           data-cy="payroll-approve-modal"
-          open={isApproveModalOpen}
-          onCancel={() => setIsApproveModalOpen(false)}
+          open={Boolean(approvingItem)}
+          onCancel={() => setApprovingItem(null)}
           footer={null}
           centered
           width={600}
@@ -1614,14 +1570,14 @@ const Payroll = () => {
               data-cy="payroll-approve-modal-title"
               className="text-2xl font-bold"
             >
-              Approve Payroll
+              Approve {approvingLabel}
             </h2>
             <p
               id="payroll-approve-modal-description"
               data-cy="payroll-approve-modal-description"
               className="text-lg text-gray-600"
             >
-              Do you wish to Approve this payroll
+              Do you wish to approve this {approvingLabel.toLowerCase()}
             </p>
             <div
               id="payroll-approve-modal-footer"
@@ -1632,7 +1588,7 @@ const Payroll = () => {
                 id="payroll-approve-modal-cancel"
                 data-cy="payroll-approve-modal-cancel"
                 className="w-full h-12 text-lg font-semibold"
-                onClick={() => setIsApproveModalOpen(false)}
+                onClick={() => setApprovingItem(null)}
               >
                 Cancel
               </Button>
@@ -1642,7 +1598,7 @@ const Payroll = () => {
                 type="primary"
                 className="w-full h-12 text-lg font-semibold bg-primary"
                 onClick={handleApprovePayroll}
-                loading={isApproving || isLastApproving}
+                loading={isApproving}
               >
                 Approve
               </Button>
@@ -1901,178 +1857,30 @@ const Payroll = () => {
             )}
           </div>
         </div>
-        <Modal
-          title={
-            <h2
-              className="text-[16px] font-normal text-gray-900 m-0 leading-tight"
-              data-cy="payroll-export-modal-title-view-text"
-            >
-              Export for Bank
-            </h2>
-          }
-          data-cy="payroll-export-modal-view-modal"
+        <ExportPayrollModal
           open={isModalOpen}
-          onCancel={() => setIsModalOpen(false)}
-          centered
-          width={450}
-          styles={{
-            body: { padding: '8px 0 16px' },
+          loading={loading}
+          isApproved={isPayrollApproved}
+          options={{
+            bankLetter,
+            exportPayroll: exportPayrollData,
+            exportBank,
           }}
-          footer={[
-            <Button
-              id="payroll-export-modal-cancel-click-button"
-              data-cy="payroll-export-modal-cancel-click-button"
-              key="cancel"
-              type="default"
-              htmlType="button"
-              size="large"
-              className="px-6 !font-normal !text-[#4D4D4D] border border-solid !border-[#D9D9D9]"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Cancel
-            </Button>,
-            <Button
-              id="payroll-export-modal-submit-click-button"
-              data-cy="payroll-export-modal-submit-click-button"
-              key="export"
-              type="primary"
-              size="large"
-              className="px-6 !font-normal shadow-none"
-              onClick={handleExportAll}
-              disabled={
-                loading ||
-                (!bankLetter && !exportPayrollData && !paySlip && !exportBank)
-              }
-              loading={loading}
-            >
-              Export
-            </Button>,
-          ]}
-        >
-          <div
-            id="payroll-export-modal-options-view-container"
-            data-cy="payroll-export-modal-options-view-container"
-            style={{
-              border: '1px solid #f0f0f0',
-              borderRadius: '8px',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px',
-              marginTop: '12px',
-            }}
-          >
-            <div
-              id="payroll-export-bank-letter-toggle-view-container"
-              data-cy="payroll-export-bank-letter-toggle-view-container"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                alignItems: 'flex-start',
-              }}
-            >
-              <Text
-                id="payroll-export-bank-letter-toggle-view-text"
-                data-cy="payroll-export-bank-letter-toggle-view-text"
-                style={{ fontSize: '13px' }}
-              >
-                Export Bank Letter
-              </Text>
-              {!isPayrollApproved && (
-                <Text
-                  type="secondary"
-                  style={{ fontSize: '12px', lineHeight: 1.4 }}
-                  data-cy="payroll-export-bank-letter-approval-hint"
-                >
-                  Available after payroll is approved.
-                </Text>
-              )}
-              <Switch
-                id="payroll-export-bank-letter-toggle-switch"
-                data-cy="payroll-export-bank-letter-toggle-switch"
-                checked={bankLetter}
-                disabled={!isPayrollApproved}
-                onChange={() => setBankLetter(!bankLetter)}
-              />
-            </div>
-
-            <div
-              id="payroll-export-payroll-toggle-view-container"
-              data-cy="payroll-export-payroll-toggle-view-container"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                alignItems: 'flex-start',
-              }}
-            >
-              <Text
-                id="payroll-export-payroll-toggle-view-text"
-                data-cy="payroll-export-payroll-toggle-view-text"
-                style={{ fontSize: '13px' }}
-              >
-                Export Payroll
-              </Text>
-              <Switch
-                id="payroll-export-payroll-toggle-switch"
-                data-cy="payroll-export-payroll-toggle-switch"
-                checked={exportPayrollData}
-                onChange={() => setExportPayrollData(!exportPayrollData)}
-              />
-            </div>
-
-            <div
-              id="payroll-export-payslip-toggle-view-container"
-              data-cy="payroll-export-payslip-toggle-view-container"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                alignItems: 'flex-start',
-              }}
-            >
-              <Text
-                id="payroll-export-payslip-toggle-view-text"
-                data-cy="payroll-export-payslip-toggle-view-text"
-                style={{ fontSize: '13px' }}
-              >
-                Send Email for employees
-              </Text>
-              <Switch
-                id="payroll-export-payslip-toggle-switch"
-                data-cy="payroll-export-payslip-toggle-switch"
-                checked={paySlip}
-                onChange={() => setPaySlip(!paySlip)}
-              />
-            </div>
-
-            <div
-              id="payroll-export-bank-toggle-view-container"
-              data-cy="payroll-export-bank-toggle-view-container"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                alignItems: 'flex-start',
-              }}
-            >
-              <Text
-                id="payroll-export-bank-toggle-view-text"
-                data-cy="payroll-export-bank-toggle-view-text"
-                style={{ fontSize: '13px' }}
-              >
-                Export Bank
-              </Text>
-              <Switch
-                id="payroll-export-bank-toggle-switch"
-                data-cy="payroll-export-bank-toggle-switch"
-                checked={exportBank}
-                onChange={() => setExportBank(!exportBank)}
-              />
-            </div>
-          </div>
-        </Modal>
+          onOptionChange={(key, checked) => {
+            if (key === 'bankLetter') setBankLetter(checked);
+            if (key === 'exportPayroll') setExportPayrollData(checked);
+            if (key === 'exportBank') setExportBank(checked);
+          }}
+          scopeLabel={
+            selectedRowKeys.length > 0
+              ? `${selectedRowKeys.length} selected employee${
+                  selectedRowKeys.length === 1 ? '' : 's'
+                }`
+              : `all ${mergedPayrollForExport?.length ?? 0} employees in this view`
+          }
+          onClose={() => setIsModalOpen(false)}
+          onExport={handleExportAll}
+        />
       </div>
     </div>
   );

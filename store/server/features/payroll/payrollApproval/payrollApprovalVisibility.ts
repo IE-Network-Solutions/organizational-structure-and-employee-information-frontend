@@ -1,3 +1,5 @@
+import { approvalType, type PayrollGenerationType } from './generationTypes';
+
 export function getNextApproverUserId(approver: any): string | undefined {
   return approver?.userId || approver?.approverId || approver?.approverUserId;
 }
@@ -17,26 +19,38 @@ export function isCurrentApproverForItem(
   );
 }
 
+/** Pending approval items of a period, one per generation type. */
+export function getPendingApprovalsForPeriod(
+  pendingApprovals: { items?: any[] } | undefined,
+  payPeriodId: string,
+): any[] {
+  const items = pendingApprovals?.items ?? [];
+  const matches = items.filter((item) => item?.payPeriodId === payPeriodId);
+  if (matches.length) return matches;
+  // Scoped pending responses may return items without repeating payPeriodId.
+  return items.filter((item) => !item?.payPeriodId);
+}
+
 export function getPendingApprovalForPeriod(
   pendingApprovals: { items?: any[] } | undefined,
   payPeriodId: string,
+  generationType: PayrollGenerationType = 'PAYROLL',
 ) {
-  const items = pendingApprovals?.items ?? [];
-  const match = items.find((item) => item?.payPeriodId === payPeriodId);
-  if (match) return match;
-  // Scoped pending responses may return a single item without repeating payPeriodId.
-  if (items.length === 1) return items[0];
-  return undefined;
+  return getPendingApprovalsForPeriod(pendingApprovals, payPeriodId).find(
+    (item) => approvalType(item) === generationType,
+  );
 }
 
 export function resolvePendingApprovalForUser(
   pendingApprovals: { items?: any[] } | undefined,
   payPeriodId: string,
   currentUserId: string,
+  generationType: PayrollGenerationType = 'PAYROLL',
 ) {
   const pendingForPeriod = getPendingApprovalForPeriod(
     pendingApprovals,
     payPeriodId,
+    generationType,
   );
   if (
     !pendingForPeriod ||
@@ -47,34 +61,38 @@ export function resolvePendingApprovalForUser(
   return pendingForPeriod;
 }
 
-export function canShowPayrollApproveButton({
+/**
+ * Approvals the current user can act on right now: one per generation type
+ * that is not yet approved and is waiting for this user.
+ */
+export function getApprovableItems({
   payPeriodId,
   currentUserId,
   payrollExists,
-  payrollApprovalForPeriod,
   pendingApprovals,
   isPendingLoading = false,
 }: {
   payPeriodId?: string;
   currentUserId?: string;
   payrollExists: boolean;
-  payrollApprovalForPeriod?: { approved?: boolean } | null;
   pendingApprovals?: { items?: any[] };
   isPendingLoading?: boolean;
-}): boolean {
-  if (isPendingLoading || !payPeriodId || !currentUserId) return false;
-  if (!payrollExists) return false;
-  if (payrollApprovalForPeriod?.approved === true) return false;
+}): any[] {
+  if (isPendingLoading || !payPeriodId || !currentUserId) return [];
+  if (!payrollExists) return [];
 
-  const pendingForPeriod = resolvePendingApprovalForUser(
-    pendingApprovals,
-    payPeriodId,
-    currentUserId,
+  return getPendingApprovalsForPeriod(pendingApprovals, payPeriodId).filter(
+    (item) => {
+      if (item?.approved === true) return false;
+      if (!isCurrentApproverForItem(item, currentUserId)) return false;
+      const stepOrder = Number(item.nextApprover?.[0]?.stepOrder || 0);
+      return Boolean(item.approvalWorkflowId && stepOrder > 0);
+    },
   );
-  if (!pendingForPeriod) return false;
+}
 
-  const stepOrder = Number(pendingForPeriod.nextApprover?.[0]?.stepOrder || 0);
-  const approvalWorkflowId = pendingForPeriod.approvalWorkflowId;
-
-  return Boolean(approvalWorkflowId && stepOrder > 0);
+export function canShowPayrollApproveButton(
+  args: Parameters<typeof getApprovableItems>[0],
+): boolean {
+  return getApprovableItems(args).length > 0;
 }

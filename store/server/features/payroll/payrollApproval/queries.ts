@@ -3,6 +3,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { crudRequest } from '@/utils/crudRequest';
 import { APPROVER_URL, PAYROLL_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
+import type { PayrollGenerationType } from './generationTypes';
 
 const getPendingPayrollApprovals = async (
   payPeriodId?: string,
@@ -86,23 +87,53 @@ export const useGetAllPayrollApprovals = () => {
   });
 };
 
-const getPayrollApprovalByPayPeriodId = async (payPeriodId?: string) => {
+const getPayrollApprovalByPayPeriodId = async (
+  payPeriodId?: string,
+  generationType: PayrollGenerationType = 'PAYROLL',
+) => {
   const requestHeaders = await requestHeader();
-  const query = payPeriodId
-    ? `?payPeriodId=${encodeURIComponent(payPeriodId)}`
-    : '';
+  const params = new URLSearchParams({ generationType });
+  if (payPeriodId) params.append('payPeriodId', payPeriodId);
   return crudRequest({
-    url: `${PAYROLL_URL}/payroll-approval/pay-period${query}`,
+    url: `${PAYROLL_URL}/payroll-approval/pay-period?${params.toString()}`,
     method: 'GET',
     headers: requestHeaders,
   });
 };
 
-export const useGetPayrollApprovalByPayPeriodId = (payPeriodId?: string) => {
+export const useGetPayrollApprovalByPayPeriodId = (
+  payPeriodId?: string,
+  generationType: PayrollGenerationType = 'PAYROLL',
+) => {
   const token = useAuthenticationStore.getState().token;
   return useQuery(
-    ['payrollApprovalByPayPeriodId', payPeriodId],
-    () => getPayrollApprovalByPayPeriodId(payPeriodId),
+    ['payrollApprovalByPayPeriodId', payPeriodId, generationType],
+    () => getPayrollApprovalByPayPeriodId(payPeriodId, generationType),
+    {
+      keepPreviousData: true,
+      enabled: !!token && !!payPeriodId,
+    },
+  );
+};
+
+const getPayrollApprovalsOfPayPeriod = async (payPeriodId?: string) => {
+  const requestHeaders = await requestHeader();
+  const query = payPeriodId
+    ? `?payPeriodId=${encodeURIComponent(payPeriodId)}`
+    : '';
+  return crudRequest({
+    url: `${PAYROLL_URL}/payroll-approval/pay-period/all${query}`,
+    method: 'GET',
+    headers: requestHeaders,
+  });
+};
+
+/** Every generation-type approval of one pay period. */
+export const useGetPayrollApprovalsOfPayPeriod = (payPeriodId?: string) => {
+  const token = useAuthenticationStore.getState().token;
+  return useQuery(
+    ['payrollApprovalsOfPayPeriod', payPeriodId],
+    () => getPayrollApprovalsOfPayPeriod(payPeriodId),
     {
       keepPreviousData: true,
       enabled: !!token && !!payPeriodId,

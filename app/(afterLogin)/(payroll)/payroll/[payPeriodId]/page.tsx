@@ -22,6 +22,12 @@ import {
   useGetPayPeriod,
 } from '@/store/server/features/payroll/payroll/queries';
 import PayrollApprovalStatusBar from '../_components/PayrollApprovalStatusBar';
+import { useGetPayrollApprovalsOfPayPeriod } from '@/store/server/features/payroll/payrollApproval/queries';
+import {
+  approvalType,
+  PAYROLL_GENERATION_TYPES,
+  PeriodApproval,
+} from '@/store/server/features/payroll/payrollApproval/generationTypes';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import PayrollSummaryCardsSkeleton from '../_components/PayrollSummaryCardsSkeleton';
@@ -77,6 +83,21 @@ const PayrollPeriodOverviewPage = () => {
   const router = useRouter();
   const { isMobile, isTablet } = useIsMobile();
   const payPeriodId = String(params?.payPeriodId || '');
+  const { data: periodApprovalsData } =
+    useGetPayrollApprovalsOfPayPeriod(payPeriodId);
+  // One approval bar per generation (payroll, PP monthly, PP quarterly, incentive).
+  const approvalTypes = useMemo(() => {
+    const existing = new Set(
+      (Array.isArray(periodApprovalsData)
+        ? (periodApprovalsData as PeriodApproval[])
+        : []
+      ).map((approval) => approvalType(approval)),
+    );
+    const ordered = PAYROLL_GENERATION_TYPES.filter((type) =>
+      existing.has(type),
+    );
+    return ordered.length ? ordered : PAYROLL_GENERATION_TYPES.slice(0, 1);
+  }, [periodApprovalsData]);
   const { pageSize, currentPage } = usePayrollStore();
   const searchQuery = payPeriodId ? `&payPeriodId=${payPeriodId}` : '';
 
@@ -435,15 +456,15 @@ const PayrollPeriodOverviewPage = () => {
   return (
     <div data-cy="payroll-period-overview-page">
       <div
-        className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+        className="mb-6 flex flex-col gap-4"
         data-cy="payroll-period-overview-status-bar"
       >
         <div
-          className="flex flex-wrap items-center gap-3 lg:flex-1 lg:min-w-0"
+          className="flex flex-wrap items-center gap-x-3 gap-y-1"
           data-cy="payroll-period-overview-status-left"
         >
           <h3
-            className="m-0 text-lg font-semibold text-gray-900"
+            className="m-0 whitespace-nowrap text-base font-semibold text-[#161A2C]"
             data-cy="payroll-period-overview-title"
           >
             {selectedPayPeriodLabel}
@@ -451,22 +472,33 @@ const PayrollPeriodOverviewPage = () => {
           <span
             className={
               isOpen
-                ? 'rounded-full bg-green-50 px-2.5 py-0.5 text-sm font-medium text-[#16A34A]'
-                : 'rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-700'
+                ? 'whitespace-nowrap rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700'
+                : 'whitespace-nowrap rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600'
             }
             data-cy="payroll-period-overview-status-badge"
           >
             {isOpen ? 'Open' : 'Closed'}
           </span>
           <span
-            className="text-sm text-gray-500"
+            className="whitespace-nowrap text-[13px] text-slate-500"
             data-cy="payroll-period-overview-employee-count"
           >
             {employeeCount} employees
           </span>
         </div>
 
-        <PayrollApprovalStatusBar payPeriodId={payPeriodId} />
+        <div
+          className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+          data-cy="payroll-period-approval-status-bars"
+        >
+          {approvalTypes.map((generationType) => (
+            <PayrollApprovalStatusBar
+              key={generationType}
+              payPeriodId={payPeriodId}
+              generationType={generationType}
+            />
+          ))}
+        </div>
       </div>
 
       {payrollForExportLoading || payrollLoading ? (
