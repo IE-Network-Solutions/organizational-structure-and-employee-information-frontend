@@ -21,7 +21,7 @@ export const PAYROLL_GENERATION_TYPES: PayrollGenerationType[] = [
 ];
 
 export const GENERATION_TYPE_LABEL: Record<PayrollGenerationType, string> = {
-  PAYROLL: 'Payroll',
+  PAYROLL: 'Salary',
   PP_MONTHLY: 'PP Monthly',
   PP_QUARTERLY: 'PP Quarterly',
   INCENTIVE: 'Incentive',

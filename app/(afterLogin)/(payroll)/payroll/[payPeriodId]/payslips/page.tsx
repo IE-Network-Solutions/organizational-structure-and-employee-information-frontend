@@ -14,17 +14,14 @@ import {
   Col,
   Divider,
   Modal,
-  Popconfirm,
   Row,
   Select,
   Space,
   Tag,
   Typography,
-  notification,
 } from 'antd';
 import {
   DownloadOutlined,
-  FileSyncOutlined,
   MailOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
@@ -39,17 +36,14 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import FilterPopover from '../../_components/filters/FilterPopover';
+import PayslipAccessPanel from '../../_components/payslipAccess';
 import PayrollDetails from '../../../employee-information/[id]/_components/PayrollDetails';
 import {
   useGetActivePayroll,
   useGetActivePayrollsForExport,
   useGetPayPeriod,
 } from '@/store/server/features/payroll/payroll/queries';
-import {
-  usePublishPayslips,
-  useUnpublishPayslips,
-  useSendingPayrollPayslip,
-} from '@/store/server/features/payroll/payroll/mutation';
+import { useSendingPayrollPayslip } from '@/store/server/features/payroll/payroll/mutation';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
@@ -148,19 +142,15 @@ const PayrollPeriodPayslipsPage = () => {
   }, [searchQuery, setSearchQuery]);
 
   const { data: payPeriodData } = useGetPayPeriod();
-  const {
-    data: payroll,
-    isLoading,
-    refetch,
-  } = useGetActivePayroll(searchQuery, pageSize, currentPage);
+  const { data: payroll, isLoading } = useGetActivePayroll(
+    searchQuery,
+    pageSize,
+    currentPage,
+  );
   const { data: payrollForExport } = useGetActivePayrollsForExport(searchQuery);
   const { data: allEmployees } = useGetAllUsersData();
   const { mutate: sendPaySlip, isLoading: isSending } =
     useSendingPayrollPayslip();
-  const { mutate: publishPayslips, isLoading: isPublishingPayslips } =
-    usePublishPayslips();
-  const { mutate: unpublishPayslips, isLoading: isUnpublishingPayslips } =
-    useUnpublishPayslips();
 
   const selectedPayPeriod = (payPeriodData || []).find(
     (period: { id: string }) => period.id === payPeriodId,
@@ -200,8 +190,6 @@ const PayrollPeriodPayslipsPage = () => {
   }, [payrollForExport?.items, allEmployees?.items]);
 
   const hasPayslips = rows.length > 0;
-  const payslipsPublished = selectedPayPeriod?.payslipsPublished === true;
-  const isTogglingAccess = isPublishingPayslips || isUnpublishingPayslips;
   const totalEmployees =
     (searchValue.divisionId
       ? payrollForExport?.divisionUsers?.length
@@ -250,30 +238,6 @@ const PayrollPeriodPayslipsPage = () => {
       employeeId: item.employeeInfo?.id || item.employeeId,
     }));
     if (values.length) sendPaySlip({ values });
-  };
-
-  const handlePublishPayslips = () => {
-    if (!hasPayslips) {
-      notification.info({
-        message: 'Payroll not generated',
-        description:
-          'Generate payroll on the Payroll tab first, then return here to release payslips to employees.',
-      });
-      return;
-    }
-    publishPayslips(payPeriodId, {
-      onSuccess: () => {
-        refetch();
-      },
-    });
-  };
-
-  const handleUnpublishPayslips = () => {
-    unpublishPayslips(payPeriodId, {
-      onSuccess: () => {
-        refetch();
-      },
-    });
   };
 
   const downloadPayslip = (payrollItem?: any, period?: any) => {
@@ -383,51 +347,14 @@ const PayrollPeriodPayslipsPage = () => {
             defaultValues={{ ...searchValue, payPeriodId }}
           />
 
-          <AccessGuard
-            permissions={[
-              Permissions.GeneratePayroll,
-              Permissions.DeletePayroll,
-            ]}
-          >
-            {payslipsPublished ? (
-              <Popconfirm
-                title="Revoke employee access to payslips for this pay period?"
-                okText="Revoke access"
-                cancelText="Cancel"
-                onConfirm={handleUnpublishPayslips}
-              >
-                <Button
-                  className="flex h-10 items-center gap-2 rounded-[6px] border-gray-200 px-3 font-medium text-gray-600 md:px-4"
-                  icon={<FileSyncOutlined />}
-                  loading={isTogglingAccess}
-                  disabled={!hasPayslips}
-                  data-cy="payroll-payslips-revoke-access-button"
-                >
-                  <span
-                    className="hidden sm:inline"
-                    data-cy="payroll-payslips-revoke-access-label"
-                  >
-                    Revoke Payslip Access
-                  </span>
-                </Button>
-              </Popconfirm>
-            ) : (
-              <Button
-                className="flex h-10 items-center gap-2 rounded-[6px] border-gray-200 px-3 font-medium text-gray-600 md:px-4"
-                icon={<FileSyncOutlined />}
-                loading={isTogglingAccess}
-                onClick={handlePublishPayslips}
-                data-cy="payroll-payslips-release-access-button"
-              >
-                <span
-                  className="hidden sm:inline"
-                  data-cy="payroll-payslips-release-access-label"
-                >
-                  Release Payslip Access
-                </span>
-              </Button>
-            )}
-          </AccessGuard>
+          <PayslipAccessPanel
+            payPeriodId={payPeriodId}
+            periodLabel={
+              selectedPayPeriod?.startDate
+                ? dayjs(selectedPayPeriod.startDate).format('MMMM YYYY')
+                : 'this pay period'
+            }
+          />
 
           <AccessGuard permissions={[Permissions.SendPayslipEmail]}>
             <Button
@@ -459,7 +386,7 @@ const PayrollPeriodPayslipsPage = () => {
       ) : !hasPayslips ? (
         <EmptyState
           title="No payslips generated"
-          description="Generate payroll on the Payroll tab, then use Release Payslip Access to let employees view their payslips."
+          description="Generate payroll on the Payroll tab, then release the payslips here to let employees view them."
           compact
         />
       ) : (
