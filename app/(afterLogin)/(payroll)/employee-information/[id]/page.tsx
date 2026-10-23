@@ -148,7 +148,7 @@ const EmployeeProfile = () => {
 
   const { pageSize } = usePayrollStore();
   const { data: payroll, isLoading: isPayrollLoading } = useGetActivePayroll(
-    `&employeeId=${empId}`,
+    `&employeeId=${empId}&publishedOnly=true`,
     pageSize,
     1,
   );

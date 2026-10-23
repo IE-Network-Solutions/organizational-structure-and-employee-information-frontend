@@ -2,12 +2,10 @@ import { useMemo } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
   useGetPendingPayrollApprovals,
-  useGetPayrollApprovalByPayPeriodId,
+  useGetPayrollApprovalsOfPayPeriod,
 } from './queries';
-import {
-  canShowPayrollApproveButton,
-  resolvePendingApprovalForUser,
-} from './payrollApprovalVisibility';
+import { getApprovableItems } from './payrollApprovalVisibility';
+import { PeriodApproval } from './generationTypes';
 
 export function usePayrollApproveVisibility(
   payPeriodId: string | undefined,
@@ -20,28 +18,32 @@ export function usePayrollApproveVisibility(
     refetch: refetchPendingApprovals,
   } = useGetPendingPayrollApprovals(payPeriodId, 1, 10);
   const {
-    data: payrollApprovalForPeriod,
+    data: periodApprovalsData,
     refetch: refetchPayrollApprovalForPeriod,
-  } = useGetPayrollApprovalByPayPeriodId(payPeriodId);
+  } = useGetPayrollApprovalsOfPayPeriod(payPeriodId);
 
-  const pendingApproval = useMemo(() => {
-    if (!payPeriodId || !userId) return null;
-    return resolvePendingApprovalForUser(pendingApprovals, payPeriodId, userId);
-  }, [pendingApprovals, payPeriodId, userId]);
+  const periodApprovals: PeriodApproval[] = Array.isArray(periodApprovalsData)
+    ? periodApprovalsData
+    : [];
 
-  const showApproveButton = canShowPayrollApproveButton({
-    payPeriodId,
-    currentUserId: userId,
-    payrollExists,
-    payrollApprovalForPeriod,
-    pendingApprovals,
-    isPendingLoading,
-  });
+  const approvableItems = useMemo(
+    () =>
+      getApprovableItems({
+        payPeriodId,
+        currentUserId: userId,
+        payrollExists,
+        pendingApprovals,
+        isPendingLoading,
+      }),
+    [payPeriodId, userId, payrollExists, pendingApprovals, isPendingLoading],
+  );
 
   return {
-    showApproveButton,
-    pendingApproval,
-    payrollApprovalForPeriod,
+    showApproveButton: approvableItems.length > 0,
+    /** One entry per generation type waiting for the current user. */
+    approvableItems,
+    /** One entry per generation type of the pay period. */
+    periodApprovals,
     isPendingLoading,
     refetchPendingApprovals,
     refetchPayrollApprovalForPeriod,

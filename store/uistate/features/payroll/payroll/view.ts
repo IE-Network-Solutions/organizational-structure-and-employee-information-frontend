@@ -5,17 +5,8 @@ export type PayrollView =
   | 'vp_incentive'
   | 'all';
 
-/** The pay period list shows every payment type until one is picked. */
+/** Every payment type is shown until some are picked. */
 export const DEFAULT_PAYROLL_VIEW: PayrollView = 'all';
-
-/** Payment type of a row: a payroll run, or a standalone PP / incentive payment. */
-export const PAYROLL_VIEW_OPTIONS: { value: PayrollView; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'payroll', label: 'Payroll run' },
-  { value: 'vp', label: 'PP only (no payroll)' },
-  { value: 'incentive', label: 'Incentive only (no payroll)' },
-  { value: 'vp_incentive', label: 'PP + Incentive only (no payroll)' },
-];
 
 /** Narrows the list to rows that include a PP track or incentive. */
 export type PayrollIncludes =
@@ -25,16 +16,6 @@ export type PayrollIncludes =
   | 'incentive';
 
 export const DEFAULT_PAYROLL_INCLUDES: PayrollIncludes = 'any';
-
-export const PAYROLL_INCLUDES_OPTIONS: {
-  value: PayrollIncludes;
-  label: string;
-}[] = [
-  { value: 'any', label: 'Any' },
-  { value: 'pp_monthly', label: 'PP Monthly' },
-  { value: 'pp_quarterly', label: 'PP Quarterly' },
-  { value: 'incentive', label: 'Incentive' },
-];
 
 /** List / status API flags for an "includes" choice. */
 export function payrollIncludesToQueryParams(
@@ -172,4 +153,66 @@ export function appendPayrollViewParams(
   Object.entries(flags).forEach(([key, value]) => {
     queryParams.set(key, value);
   });
+}
+
+/**
+ * Payment type filter: any of salary, monthly / quarterly performance and
+ * incentive, stored on the page as a comma separated string (empty = all).
+ * The names are the generation types the approvals use.
+ */
+export const PAYMENT_TYPE_ORDER = [
+  'PAYROLL',
+  'PP_MONTHLY',
+  'PP_QUARTERLY',
+  'INCENTIVE',
+] as const;
+export type PaymentType = (typeof PAYMENT_TYPE_ORDER)[number];
+
+export function parsePaymentTypes(value?: string | null): PaymentType[] {
+  const wanted = String(value ?? '')
+    .split(',')
+    .map((part) => part.trim());
+  return PAYMENT_TYPE_ORDER.filter((type) => wanted.includes(type));
+}
+
+/** Empty selection and "all four" both mean every type, so neither is sent. */
+export function serializePaymentTypes(
+  types: readonly PaymentType[],
+): string | undefined {
+  const ordered = PAYMENT_TYPE_ORDER.filter((type) => types.includes(type));
+  if (ordered.length === 0 || ordered.length === PAYMENT_TYPE_ORDER.length) {
+    return undefined;
+  }
+  return ordered.join(',');
+}
+
+/** List API params for a payment type selection. */
+export function paymentTypesToQueryParams(
+  value?: string | null,
+): Record<string, string> {
+  const types = parsePaymentTypes(value);
+  const serialized = serializePaymentTypes(types);
+  return serialized ? { paymentTypes: serialized } : {};
+}
+
+/**
+ * Query string for the payroll list and the cards built from it: the pay
+ * period plus any payment type, division and department filters. Empty values
+ * are left out so cleared filters don't reach the API.
+ */
+export function buildPayrollListQuery(filters: {
+  payPeriodId?: string | null;
+  paymentTypes?: string | null;
+  divisionId?: string | null;
+  departmentId?: string | null;
+}): string {
+  const params = new URLSearchParams();
+  if (filters.payPeriodId) params.append('payPeriodId', filters.payPeriodId);
+  Object.entries(paymentTypesToQueryParams(filters.paymentTypes)).forEach(
+    ([key, value]) => params.append(key, value),
+  );
+  if (filters.divisionId) params.append('divisionId', filters.divisionId);
+  if (filters.departmentId) params.append('departmentId', filters.departmentId);
+  const qs = params.toString();
+  return qs ? `&${qs}` : '';
 }
