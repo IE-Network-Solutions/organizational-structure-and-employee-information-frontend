@@ -131,7 +131,9 @@ describe('PayslipAccessPanel', () => {
     );
     expect(mockUnpublish).not.toHaveBeenCalled();
     expect(
-      await screen.findByText(/Other payslips stay as they are/),
+      await screen.findByText(
+        /Employees will no longer see their incentive payslips for January 2027/,
+      ),
     ).not.toBeNull();
 
     fireEvent.click(

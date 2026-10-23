@@ -5,7 +5,7 @@ import {
   hasOpenGeneration,
   isPeriodFullyApproved,
   PeriodApproval,
-  requiredTypesForView,
+  requiredTypesForSelection,
 } from './generationTypes';
 import {
   getApprovableItems,
@@ -59,11 +59,11 @@ describe('generation type approvals', () => {
     expect(approvalsForPeriod(undefined, 'pp-1')).toEqual([]);
   });
 
-  describe('bank letter requirement per view', () => {
+  describe('bank letter requirement per selection', () => {
     const existing = ['PAYROLL' as const, 'PP_MONTHLY' as const];
 
-    it('needs payroll approved for the payroll view', () => {
-      const required = requiredTypesForView('payroll', 'any', existing);
+    it('needs only the selected generation approved', () => {
+      const required = requiredTypesForSelection(['PAYROLL'], existing);
       expect(
         areTypesApproved(
           [approval('PAYROLL', true), approval('PP_MONTHLY', false)],
@@ -72,9 +72,11 @@ describe('generation type approvals', () => {
       ).toBe(true);
     });
 
-    it('needs the PP types that exist for the PP view', () => {
-      const required = requiredTypesForView('vp', 'any', existing);
-      expect(required).toEqual(['PP_MONTHLY']);
+    it('needs every selected generation approved', () => {
+      const required = requiredTypesForSelection(
+        ['PAYROLL', 'PP_MONTHLY'],
+        existing,
+      );
       expect(
         areTypesApproved(
           [approval('PAYROLL', true), approval('PP_MONTHLY', false)],
@@ -83,8 +85,9 @@ describe('generation type approvals', () => {
       ).toBe(false);
     });
 
-    it('needs every generation for the all view', () => {
-      const required = requiredTypesForView('all', 'any', existing);
+    it('needs every generation that exists when nothing is selected', () => {
+      const required = requiredTypesForSelection([], existing);
+      expect(required).toEqual(existing);
       expect(
         areTypesApproved(
           [approval('PAYROLL', true), approval('PP_MONTHLY', false)],
@@ -93,8 +96,12 @@ describe('generation type approvals', () => {
       ).toBe(false);
     });
 
-    it('is never approved when nothing is required', () => {
-      expect(areTypesApproved([], [])).toBe(false);
+    it('ignores a selected type that was never generated, and is then not approved', () => {
+      const required = requiredTypesForSelection(['INCENTIVE'], existing);
+      expect(required).toEqual([]);
+      expect(areTypesApproved([approval('PAYROLL', true)], required)).toBe(
+        false,
+      );
     });
   });
 });

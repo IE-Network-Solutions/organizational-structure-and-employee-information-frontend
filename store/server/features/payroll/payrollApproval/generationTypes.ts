@@ -1,8 +1,3 @@
-import type {
-  PayrollIncludes,
-  PayrollView,
-} from '@/store/uistate/features/payroll/payroll/view';
-
 /**
  * A pay period holds several independent generations. Each one is approved,
  * locked and published on its own.
@@ -69,35 +64,16 @@ export function hasOpenGeneration(approvals: PeriodApproval[]): boolean {
 }
 
 /**
- * Generation types a payroll list view depends on. A payment export (bank
- * letter) is only allowed once all of them are approved.
+ * Generation types the list is showing. A payment export (bank letter) is only
+ * allowed once all of them are approved. No selection means every generation
+ * that exists; a selected type that was never generated has nothing to approve.
  */
-export function requiredTypesForView(
-  view: PayrollView,
-  includes: PayrollIncludes | undefined,
+export function requiredTypesForSelection(
+  selected: readonly PayrollGenerationType[],
   existing: PayrollGenerationType[],
 ): PayrollGenerationType[] {
-  const ppTypes: PayrollGenerationType[] =
-    includes === 'pp_monthly'
-      ? ['PP_MONTHLY']
-      : includes === 'pp_quarterly'
-        ? ['PP_QUARTERLY']
-        : ['PP_MONTHLY', 'PP_QUARTERLY'];
-  const present = (types: PayrollGenerationType[]) =>
-    types.filter((type) => existing.includes(type));
-
-  switch (view) {
-    case 'payroll':
-      return ['PAYROLL'];
-    case 'vp':
-      return present(ppTypes);
-    case 'incentive':
-      return ['INCENTIVE'];
-    case 'vp_incentive':
-      return present([...ppTypes, 'INCENTIVE']);
-    default:
-      return existing;
-  }
+  if (selected.length === 0) return existing;
+  return selected.filter((type) => existing.includes(type));
 }
 
 export function areTypesApproved(

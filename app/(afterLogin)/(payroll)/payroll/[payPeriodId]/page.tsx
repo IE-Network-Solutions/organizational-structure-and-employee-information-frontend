@@ -28,6 +28,8 @@ import {
   PAYROLL_GENERATION_TYPES,
   PeriodApproval,
 } from '@/store/server/features/payroll/payrollApproval/generationTypes';
+import FilterPopover from '../_components/filters/FilterPopover';
+import { buildPayrollListQuery } from '@/store/uistate/features/payroll/payroll/view';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import PayrollSummaryCardsSkeleton from '../_components/PayrollSummaryCardsSkeleton';
@@ -99,7 +101,20 @@ const PayrollPeriodOverviewPage = () => {
     return ordered.length ? ordered : PAYROLL_GENERATION_TYPES.slice(0, 1);
   }, [periodApprovalsData]);
   const { pageSize, currentPage } = usePayrollStore();
-  const searchQuery = payPeriodId ? `&payPeriodId=${payPeriodId}` : '';
+  // Filters from the Filter button. They change the cards and the employee count.
+  const [overviewFilters, setOverviewFilters] = useState<{
+    [key: string]: string | undefined | null;
+  }>({});
+  const searchQuery = useMemo(
+    () =>
+      buildPayrollListQuery({
+        payPeriodId,
+        paymentTypes: overviewFilters.paymentTypes,
+        divisionId: overviewFilters.divisionId,
+        departmentId: overviewFilters.departmentId,
+      }),
+    [payPeriodId, overviewFilters],
+  );
 
   const [activityPage, setActivityPage] = useState(1);
   const [activityPageSize, setActivityPageSize] = useState(10);
@@ -111,7 +126,7 @@ const PayrollPeriodOverviewPage = () => {
   const [dateTo, setDateTo] = useState<Dayjs | null>(null);
 
   const { data: payPeriodData } = useGetPayPeriod();
-  const { data: payroll, isLoading: payrollLoading } = useGetActivePayroll(
+  const { isLoading: payrollLoading } = useGetActivePayroll(
     searchQuery,
     pageSize,
     currentPage,
@@ -126,8 +141,8 @@ const PayrollPeriodOverviewPage = () => {
   const selectedPayPeriodLabel = selectedPayPeriod
     ? dayjs(selectedPayPeriod.startDate).format('MMMM YYYY')
     : 'Pay Period';
-  const employeeCount =
-    payroll?.meta?.totalItems || payroll?.items?.length || 0;
+  // Employees, not rows: the backend counts each employee once across all their rows.
+  const employeeCount = payrollForExport?.employeeCount ?? 0;
   const isOpen = selectedPayPeriod?.status === 'OPEN';
 
   const auditLogParams = useMemo<AggregateAuditLogParams>(() => {
@@ -499,6 +514,16 @@ const PayrollPeriodOverviewPage = () => {
             />
           ))}
         </div>
+      </div>
+
+      <div
+        className="mb-4 flex justify-end"
+        data-cy="payroll-overview-filter-row"
+      >
+        <FilterPopover
+          onSearch={(filters) => setOverviewFilters(filters)}
+          defaultValues={overviewFilters as any}
+        />
       </div>
 
       {payrollForExportLoading || payrollLoading ? (

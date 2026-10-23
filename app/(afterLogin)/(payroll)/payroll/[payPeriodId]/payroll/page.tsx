@@ -42,11 +42,8 @@ import { Workbook } from 'exceljs';
 
 import FilterPopover from '../../_components/filters/FilterPopover';
 import {
-  DEFAULT_PAYROLL_VIEW,
-  payrollIncludesToQueryParams,
-  payrollViewToQueryParams,
-  PayrollIncludes,
-  PayrollView,
+  parsePaymentTypes,
+  paymentTypesToQueryParams,
 } from '@/store/uistate/features/payroll/payroll/view';
 import {
   useGetActivePayroll,
@@ -92,7 +89,7 @@ import {
   getLockedTypes,
   hasOpenGeneration,
   PAYROLL_GENERATION_TYPES,
-  requiredTypesForView,
+  requiredTypesForSelection,
 } from '@/store/server/features/payroll/payrollApproval/generationTypes';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -176,13 +173,12 @@ const Payroll = () => {
     () =>
       areTypesApproved(
         periodApprovals,
-        requiredTypesForView(
-          (searchValue.payrollView as PayrollView) || DEFAULT_PAYROLL_VIEW,
-          searchValue.payrollIncludes as PayrollIncludes | undefined,
+        requiredTypesForSelection(
+          parsePaymentTypes(searchValue.paymentTypes),
           periodApprovals.map((approval) => approvalType(approval)),
         ),
       ),
-    [periodApprovals, searchValue.payrollView, searchValue.payrollIncludes],
+    [periodApprovals, searchValue.paymentTypes],
   );
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
@@ -458,14 +454,8 @@ const Payroll = () => {
       queryParams.append('departmentId', merged.departmentId);
     }
 
-    // Payment type (payroll run / standalone PP / incentive) and what it includes
-    // (PP Monthly, PP Quarterly, incentive).
-    const typeParams = {
-      ...payrollViewToQueryParams(
-        (merged.payrollView as PayrollView) || DEFAULT_PAYROLL_VIEW,
-      ),
-      ...payrollIncludesToQueryParams(merged.payrollIncludes),
-    };
+    // Payment types: salary, monthly / quarterly performance, incentive.
+    const typeParams = paymentTypesToQueryParams(merged.paymentTypes);
     Object.entries(typeParams).forEach(([key, value]) => {
       queryParams.append(key, value);
     });

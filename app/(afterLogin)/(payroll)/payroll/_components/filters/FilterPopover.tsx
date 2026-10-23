@@ -1,634 +1,351 @@
-import React, { useEffect, useState, useRef } from 'react';
-import {
-  Form,
-  Select,
-  Button,
-  Row,
-  Col,
-  ConfigProvider,
-  Popover,
-  Modal,
-} from 'antd';
+import React, { useState } from 'react';
+import { Form, Select, Button, ConfigProvider, Popover, Modal } from 'antd';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { X } from 'lucide-react';
-import dayjs from 'dayjs';
 
-import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import {
-  useGetActivePayroll,
-  useGetPayPeriod,
-} from '@/store/server/features/payroll/payroll/queries';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useGetLevel1Departments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
-import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
-import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
+  useGetDepartments,
+  useGetLevel1Departments,
+} from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
-  DEFAULT_PAYROLL_INCLUDES,
-  DEFAULT_PAYROLL_VIEW,
-  PAYROLL_INCLUDES_OPTIONS,
-  PAYROLL_VIEW_OPTIONS,
-  PayrollIncludes,
-  PayrollView,
+  PAYMENT_TYPE_ORDER,
+  PaymentType,
+  parsePaymentTypes,
+  serializePaymentTypes,
 } from '@/store/uistate/features/payroll/payroll/view';
+import { GENERATION_TYPE_LABEL } from '@/store/server/features/payroll/payrollApproval/generationTypes';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
-const { Option } = Select;
-
+/** What the pages hold: the payment types are a comma separated string, empty = all. */
 interface FilterValues {
   [key: string]: string | undefined;
-  yearId?: string;
-  sessionId?: string;
+  paymentTypes?: string;
   divisionId?: string;
   departmentId?: string;
-  payPeriodId?: string;
-  monthId?: string;
-  payrollView?: PayrollView;
-  payrollIncludes?: PayrollIncludes;
+}
+
+/** What the form edits. */
+interface FormValues {
+  paymentTypes?: PaymentType[];
+  divisionId?: string;
+  departmentId?: string;
 }
 
 interface FilterPopoverProps {
+  /**
+   * Called with every filter key on Apply and Reset. A cleared filter is sent
+   * as `undefined` so the page drops it instead of keeping the old value.
+   */
   onSearch: (filters: { [key: string]: string | undefined | null }) => void;
   defaultValues?: FilterValues;
 }
 
-const CustomLabel = ({ title }: { title: string }) => (
+/** Filters that narrow the list. The pay period is chosen on the pay period list, not here. */
+export const countActiveFilters = (values?: FilterValues): number =>
+  [
+    serializePaymentTypes(parsePaymentTypes(values?.paymentTypes)),
+    values?.divisionId,
+    values?.departmentId,
+  ].filter(Boolean).length;
+
+/** Keys of filters that no longer exist, cleared so old state can't linger. */
+const LEGACY_CLEARED_KEYS = {
+  yearId: undefined,
+  sessionId: undefined,
+  monthId: undefined,
+  payrollView: undefined,
+  payrollIncludes: undefined,
+};
+
+const FieldLabel = ({ title }: { title: string }) => (
   <span
-    className="text-[13px] font-normal text-gray-800"
+    className="text-[13px] font-medium text-slate-600"
     data-cy="payroll-filter-popover-custom-label"
   >
     {title}
   </span>
 );
 
-const FilterPopover: React.FC<FilterPopoverProps> = ({
-  onSearch,
-  defaultValues,
-}) => {
-  const [open, setOpen] = useState(false);
-  const [form] = Form.useForm<FilterValues>();
-  const { isMobile, isTablet } = useIsMobile();
+const searchProps = {
+  showSearch: true,
+  optionFilterProp: 'label',
+  size: 'large' as const,
+};
 
-  const { data: getAllFiscalYears } = useGetAllFiscalYears();
-  const { data: payPeriodData } = useGetPayPeriod();
+/**
+ * Multi-select payment types. No chip selected means "All"; picking every type
+ * is the same as All, so it collapses back to it.
+ */
+const PaymentTypeChips: React.FC<{
+  value?: PaymentType[];
+  onChange?: (value: PaymentType[]) => void;
+}> = ({ value = [], onChange }) => {
+  const toggle = (type: PaymentType) => {
+    const next = value.includes(type)
+      ? value.filter((item) => item !== type)
+      : [...value, type];
+    onChange?.(next.length === PAYMENT_TYPE_ORDER.length ? [] : next);
+  };
+  const chipClass = (pressed: boolean) =>
+    `h-8 cursor-pointer rounded-full border px-3 text-[13px] font-medium transition-colors ${
+      pressed
+        ? 'border-okr-primary bg-blue-50 text-okr-primary'
+        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+    }`;
+
+  return (
+    <div
+      className="flex flex-wrap gap-2"
+      role="group"
+      aria-label="Payment type"
+      data-cy="payroll-filter-popover-payment-types"
+    >
+      <button
+        type="button"
+        aria-pressed={value.length === 0}
+        className={chipClass(value.length === 0)}
+        onClick={() => onChange?.([])}
+        data-cy="payroll-filter-popover-payment-type-ALL"
+      >
+        All
+      </button>
+      {PAYMENT_TYPE_ORDER.map((type) => (
+        <button
+          key={type}
+          type="button"
+          aria-pressed={value.includes(type)}
+          className={chipClass(value.includes(type))}
+          onClick={() => toggle(type)}
+          data-cy={`payroll-filter-popover-payment-type-${type}`}
+        >
+          {GENERATION_TYPE_LABEL[type]}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+/** The form. Mounted only while the filter is open, so nothing is fetched before then. */
+const FilterPanel: React.FC<{
+  defaultValues?: FilterValues;
+  onSearch: FilterPopoverProps['onSearch'];
+  onClose: () => void;
+}> = ({ defaultValues, onSearch, onClose }) => {
+  const [form] = Form.useForm<FormValues>();
+
   const { data: departmentData } = useGetDepartments();
   const { data: level1Departments } = useGetLevel1Departments();
 
-  const { searchQuery } = useEmployeeStore();
-  const { pageSize, currentPage } = usePayrollStore();
-  const { data: payroll } = useGetActivePayroll(
-    searchQuery,
-    pageSize,
-    currentPage,
-  );
+  const toOptions = (items?: any[]) =>
+    (Array.isArray(items) ? items : []).map((item) => ({
+      value: item.id,
+      label: item?.name,
+    }));
 
-  const [fiscalYears, setFiscalYears] = useState<any[]>([]);
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [months, setMonths] = useState<any[]>([]);
-
-  const { setMonthId, setYearId, setSessionId } = useTnaReviewStore();
-  const initialSearchTriggered = useRef(false);
-
-  useEffect(() => {
-    if (getAllFiscalYears) {
-      setFiscalYears(getAllFiscalYears.items || []);
-
-      if (
-        !form.getFieldValue('yearId') ||
-        !form.getFieldValue('sessionId') ||
-        !form.getFieldValue('monthId')
-      ) {
-        const selectedYear =
-          getAllFiscalYears.items.find(
-            (year: any) => year.id === (defaultValues?.yearId || ''),
-          ) || getAllFiscalYears.items.find((year: any) => year.active);
-
-        if (selectedYear) {
-          const selectedSession =
-            selectedYear.sessions?.find(
-              (s: any) => s.id === (defaultValues?.sessionId || ''),
-            ) || selectedYear.sessions?.find((s: any) => s.active);
-
-          const selectedMonth =
-            selectedSession?.months?.find(
-              (m: any) => m.id === (defaultValues?.monthId || ''),
-            ) || selectedSession?.months?.find((m: any) => m.active);
-
-          setSessions(selectedYear.sessions || []);
-          setMonths(selectedSession?.months || []);
-
-          form.setFieldsValue({
-            yearId: selectedYear.id || '',
-            sessionId: selectedSession?.id || '',
-            monthId: selectedMonth?.id || '',
-            payrollView: defaultValues?.payrollView || DEFAULT_PAYROLL_VIEW,
-            payrollIncludes:
-              defaultValues?.payrollIncludes || DEFAULT_PAYROLL_INCLUDES,
-          });
-
-          if (!initialSearchTriggered.current) {
-            const formValues = form.getFieldsValue();
-            const sanitizedValues = Object.fromEntries(
-              Object.entries(formValues).filter(
-                ([, value]) => typeof value === 'string' && value.trim() !== '',
-              ),
-            ) as { [key: string]: string };
-            onSearch(sanitizedValues);
-            initialSearchTriggered.current = true;
-          }
-        }
-      }
-    }
-  }, [getAllFiscalYears]);
-
-  useEffect(() => {
-    if (defaultValues?.payPeriodId && !form.getFieldValue('payPeriodId')) {
-      form.setFieldsValue({ payPeriodId: defaultValues.payPeriodId });
-    }
-  }, [defaultValues?.payPeriodId]);
-
-  useEffect(() => {
-    if (defaultValues?.payPeriodId) {
-      return;
-    }
-    if (
-      payroll?.items &&
-      payroll.items.length > 0 &&
-      !form.getFieldValue('payPeriodId')
-    ) {
-      const defaultPayPeriodId = payroll.items[0]?.payPeriodId;
-      if (defaultPayPeriodId) {
-        form.setFieldsValue({ payPeriodId: defaultPayPeriodId });
-        const formValues = form.getFieldsValue();
-        const sanitizedValues = Object.fromEntries(
-          Object.entries(formValues).filter(
-            ([, value]) => typeof value === 'string' && value.trim() !== '',
-          ),
-        ) as { [key: string]: string };
-        onSearch(sanitizedValues);
-      }
-    } else if (
-      payPeriodData &&
-      payPeriodData.length > 0 &&
-      !form.getFieldValue('payPeriodId')
-    ) {
-      const activePeriod =
-        payPeriodData.find((p: any) => p.status === 'OPEN') || payPeriodData[0];
-      if (activePeriod) {
-        form.setFieldsValue({ payPeriodId: activePeriod.id });
-        const formValues = form.getFieldsValue();
-        const sanitizedValues = Object.fromEntries(
-          Object.entries(formValues).filter(
-            ([, value]) => typeof value === 'string' && value.trim() !== '',
-          ),
-        ) as { [key: string]: string };
-        onSearch(sanitizedValues);
-      }
-    }
-  }, [payroll?.items, payPeriodData]);
-
-  const handleYearChange = (value: string) => {
-    const selectedYear = fiscalYears.find((year) => year.id === value);
-    setSessions(selectedYear?.sessions || []);
-    setMonths([]);
-    form.setFieldsValue({ sessionId: undefined, monthId: undefined });
-  };
-
-  const handleSessionChange = (value: string) => {
-    const selectedSession = sessions.find((s: any) => s.id === value);
-    setMonths(selectedSession?.months || []);
-    form.setFieldsValue({ monthId: undefined });
-  };
-
-  const onFinish = (values: FilterValues) => {
-    setMonthId(values.monthId || '');
-    setYearId(values.yearId || '');
-    setSessionId(values.sessionId || '');
-
-    const sanitizedValues = Object.fromEntries(
-      Object.entries(values).filter(
-        ([, value]) => typeof value === 'string' && value.trim() !== '',
-      ),
-    ) as { [key: string]: string };
-
-    onSearch(sanitizedValues);
-    setOpen(false);
-  };
-
-  const getDefaultActivePayPeriodId = (): string | undefined => {
-    if (!payPeriodData?.length) return undefined;
-    const openPeriod = payPeriodData.find((p: any) => p.status === 'OPEN');
-    return (openPeriod || payPeriodData[0])?.id;
-  };
-
-  const onReset = () => {
-    const fiscalItems = getAllFiscalYears?.items || [];
-    const selectedYear =
-      fiscalItems.find(
-        (year: any) => year.id === (defaultValues?.yearId || ''),
-      ) ||
-      fiscalItems.find((year: any) => year.active) ||
-      fiscalItems[0];
-
-    if (!selectedYear) {
-      form.resetFields();
-      onSearch({
-        divisionId: undefined,
-        departmentId: undefined,
-        payPeriodId: undefined,
-        monthId: undefined,
-        payrollView: DEFAULT_PAYROLL_VIEW,
-        payrollIncludes: DEFAULT_PAYROLL_INCLUDES,
-      });
-      return;
-    }
-
-    const selectedSession =
-      selectedYear.sessions?.find(
-        (s: any) => s.id === (defaultValues?.sessionId || ''),
-      ) ||
-      selectedYear.sessions?.find((s: any) => s.active) ||
-      selectedYear.sessions?.[0];
-
-    const selectedMonth =
-      selectedSession?.months?.find(
-        (m: any) => m.id === (defaultValues?.monthId || ''),
-      ) ||
-      selectedSession?.months?.find((m: any) => m.active) ||
-      selectedSession?.months?.[0];
-
-    setSessions(selectedYear.sessions || []);
-    setMonths(selectedSession?.months || []);
-
-    const defaultPayPeriodId = getDefaultActivePayPeriodId();
-
-    const nextValues: FilterValues = {
-      yearId: selectedYear.id || '',
-      sessionId: selectedSession?.id || '',
-      monthId: selectedMonth?.id || '',
-      payPeriodId: defaultPayPeriodId,
-      divisionId: undefined,
-      departmentId: undefined,
-      payrollView: DEFAULT_PAYROLL_VIEW,
-      payrollIncludes: DEFAULT_PAYROLL_INCLUDES,
-    };
-
-    form.setFieldsValue(nextValues);
-
-    setMonthId(nextValues.monthId || '');
-    setYearId(nextValues.yearId || '');
-    setSessionId(nextValues.sessionId || '');
-
+  const onFinish = (values: FormValues) => {
     onSearch({
-      yearId: nextValues.yearId || undefined,
-      sessionId: nextValues.sessionId || undefined,
-      monthId: nextValues.monthId || undefined,
-      payPeriodId: defaultPayPeriodId,
+      paymentTypes: serializePaymentTypes(values.paymentTypes ?? []),
+      divisionId: values.divisionId || undefined,
+      departmentId: values.departmentId || undefined,
+      ...LEGACY_CLEARED_KEYS,
+    });
+    onClose();
+  };
+
+  // Reset clears everything that narrows the list.
+  const onReset = () => {
+    form.setFieldsValue({
+      paymentTypes: [],
       divisionId: undefined,
       departmentId: undefined,
-      payrollView: DEFAULT_PAYROLL_VIEW,
-      payrollIncludes: DEFAULT_PAYROLL_INCLUDES,
+    });
+    onSearch({
+      paymentTypes: undefined,
+      divisionId: undefined,
+      departmentId: undefined,
+      ...LEGACY_CLEARED_KEYS,
     });
   };
 
-  const syncFormWithDefaults = () => {
-    form.setFieldsValue({
-      payrollView: defaultValues?.payrollView || DEFAULT_PAYROLL_VIEW,
-      payrollIncludes:
-        defaultValues?.payrollIncludes || DEFAULT_PAYROLL_INCLUDES,
-    });
-  };
-
-  const handleOpenChange = (newOpen: boolean) => {
-    if (newOpen) {
-      syncFormWithDefaults();
-    }
-    setOpen(newOpen);
-  };
-
-  const content = (
+  return (
     <ConfigProvider
       theme={{
         token: {
           fontFamily: 'inherit',
           borderRadius: 6,
-          controlHeightLG: 40,
+          colorPrimary: '#1E40AF',
         },
-        components: {
-          Form: {
-            itemMarginBottom: 20,
-          },
-        },
+        components: { Form: { itemMarginBottom: 16 } },
       }}
-      data-cy="payroll-filter-popover-content"
     >
       <div
-        className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-[500px] min-w-0 sm:min-w-[320px] md:min-w-[450px] relative max-h-[calc(100vh-160px)] overflow-auto"
+        className="relative max-h-[calc(100vh-160px)] w-[min(420px,calc(100vw-32px))] overflow-auto rounded-xl bg-white p-4 sm:p-5"
         data-cy="payroll-filter-popover-content"
       >
-        {/* Close Icon */}
         <button
-          className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors bg-transparent border-none cursor-pointer"
-          onClick={() => setOpen(false)}
+          type="button"
+          aria-label="Close filters"
+          className="absolute right-3 top-3 cursor-pointer border-none bg-transparent text-slate-400 transition-colors hover:text-slate-600"
+          onClick={onClose}
           data-cy="payroll-filter-popover-close-btn"
         >
-          <X size={20} strokeWidth={1.5} />
+          <X size={18} strokeWidth={1.5} />
         </button>
 
-        {/* Header Section */}
-        <div className="mb-6" data-cy="payroll-filter-popover-header">
+        <div className="mb-4 pr-6" data-cy="payroll-filter-popover-header">
           <h2
-            className="text-[16px] font-normal text-gray-900 m-0 leading-tight"
+            className="m-0 text-base font-semibold leading-tight text-[#161A2C]"
             data-cy="payroll-filter-popover-header-title"
           >
-            Filter
+            Filters
           </h2>
           <p
-            className="text-[13px] text-gray-400 m-0 mt-1"
+            className="m-0 mt-1 text-[12px] text-slate-500"
             data-cy="payroll-filter-popover-header-subtitle"
           >
-            Select All filters that apply
+            Narrow down the payroll list
           </p>
         </div>
 
-        {/* Filter Form */}
         <Form
           form={form}
           layout="vertical"
-          onFinish={onFinish}
           requiredMark={false}
+          onFinish={onFinish}
+          initialValues={{
+            paymentTypes: parsePaymentTypes(defaultValues?.paymentTypes),
+            divisionId: defaultValues?.divisionId,
+            departmentId: defaultValues?.departmentId,
+          }}
           data-cy="payroll-filter-popover-form"
         >
-          <Row gutter={[16, 16]}>
-            <Col xs={24} sm={24} data-cy="payroll-filter-popover-view-col">
-              <Form.Item
-                name="payrollView"
-                label={<CustomLabel title="Payroll Type" />}
-                initialValue={
-                  defaultValues?.payrollView || DEFAULT_PAYROLL_VIEW
-                }
-                data-cy="payroll-filter-popover-view"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select type"
-                  data-cy="payroll-filter-popover-view-select"
-                  options={PAYROLL_VIEW_OPTIONS.map((opt) => ({
-                    value: opt.value,
-                    label: opt.label,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={24} data-cy="payroll-filter-popover-includes-col">
-              <Form.Item
-                name="payrollIncludes"
-                label={<CustomLabel title="Includes" />}
-                initialValue={
-                  defaultValues?.payrollIncludes || DEFAULT_PAYROLL_INCLUDES
-                }
-                data-cy="payroll-filter-popover-includes"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select what the row includes"
-                  data-cy="payroll-filter-popover-includes-select"
-                  options={PAYROLL_INCLUDES_OPTIONS.map((opt) => ({
-                    value: opt.value,
-                    label: opt.label,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item
+            name="paymentTypes"
+            label={<FieldLabel title="Payment type" />}
+            data-cy="payroll-filter-popover-payment-type"
+          >
+            <PaymentTypeChips />
+          </Form.Item>
 
-          <Row gutter={[16, 16]} data-cy="payroll-filter-popover-form-row">
-            <Col xs={12} sm={12} data-cy="payroll-filter-popover-form-col">
-              <Form.Item
-                name="yearId"
-                label={<CustomLabel title="Year" />}
-                rules={[{ required: true, message: 'Required' }]}
-                data-cy="payroll-filter-popover-year"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select Year"
-                  onChange={handleYearChange}
-                  allowClear
-                  data-cy="payroll-filter-popover-year-select"
-                >
-                  {fiscalYears.map((year) => (
-                    <Option
-                      key={year.id}
-                      value={year.id}
-                      data-cy="payroll-filter-popover-year-option"
-                    >
-                      {year.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-
-            <Col xs={12} sm={12} data-cy="payroll-filter-popover-session-col">
-              <Form.Item
-                name="sessionId"
-                label={<CustomLabel title="Session" />}
-                rules={[{ required: true, message: 'Required' }]}
-                data-cy="payroll-filter-popover-session"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select Session"
-                  onChange={handleSessionChange}
-                  allowClear
-                  disabled={!form.getFieldValue('yearId')}
-                  data-cy="payroll-filter-popover-session-select"
-                >
-                  {sessions.map((session) => (
-                    <Option
-                      key={session.id}
-                      value={session.id}
-                      data-cy="payroll-filter-popover-session-option"
-                    >
-                      {session.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={[16, 16]}>
-            <Col xs={12} sm={12} data-cy="payroll-filter-popover-division-col">
-              <Form.Item
-                name="divisionId"
-                label={<CustomLabel title="Division" />}
-                data-cy="payroll-filter-popover-division"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select Division"
-                  allowClear
-                  data-cy="payroll-filter-popover-division-select"
-                >
-                  {level1Departments?.map((division: any) => (
-                    <Option
-                      key={division.id}
-                      value={division.id}
-                      data-cy="payroll-filter-popover-division-option"
-                    >
-                      {division?.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-
-            <Col
-              xs={12}
-              sm={12}
-              data-cy="payroll-filter-popover-department-col"
-            >
-              <Form.Item
-                name="departmentId"
-                label={<CustomLabel title="Department" />}
-                data-cy="payroll-filter-popover-department"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select Department"
-                  allowClear
-                  data-cy="payroll-filter-popover-department-select"
-                >
-                  {departmentData?.map((department: any) => (
-                    <Option
-                      key={department.id}
-                      value={department.id}
-                      data-cy="payroll-filter-popover-department-option"
-                    >
-                      {department?.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={[16, 16]}>
-            <Col
-              xs={12}
-              sm={12}
-              data-cy="payroll-filter-popover-pay-period-col"
-            >
-              <Form.Item
-                name="payPeriodId"
-                label={<CustomLabel title="Pay Period" />}
-                data-cy="payroll-filter-popover-pay-period"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select Pay Period"
-                  allowClear
-                  data-cy="payroll-filter-popover-pay-period-select"
-                >
-                  {payPeriodData?.map((period: any) => (
-                    <Option
-                      key={period.id}
-                      value={period.id}
-                      data-cy="payroll-filter-popover-pay-period-option"
-                    >
-                      {dayjs(period.startDate).format('MMM DD, YYYY')} --{' '}
-                      {dayjs(period.endDate).format('MMM DD, YYYY')}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-
-            <Col xs={12} sm={12} data-cy="payroll-filter-popover-month-col">
-              <Form.Item
-                name="monthId"
-                label={<CustomLabel title="Month" />}
-                rules={[{ required: true, message: 'Required' }]}
-                data-cy="payroll-filter-popover-month"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select Month"
-                  allowClear
-                  disabled={!form.getFieldValue('sessionId')}
-                  data-cy="payroll-filter-popover-month-select"
-                >
-                  {months.map((month) => (
-                    <Option
-                      key={month.id}
-                      value={month.id}
-                      data-cy="payroll-filter-popover-month-option"
-                    >
-                      {month.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          {/* Footer Buttons */}
           <div
-            className="flex justify-end items-center gap-3 mt-4 pt-2 border-t border-gray-100"
+            className="grid grid-cols-1 gap-x-4 sm:grid-cols-2"
+            data-cy="payroll-filter-popover-org-row"
+          >
+            <Form.Item
+              name="divisionId"
+              label={<FieldLabel title="Division" />}
+              data-cy="payroll-filter-popover-division"
+            >
+              <Select
+                {...searchProps}
+                allowClear
+                placeholder="All divisions"
+                options={toOptions(level1Departments)}
+                // A department belongs to one division; start over when it changes.
+                onChange={() => form.setFieldValue('departmentId', undefined)}
+                data-cy="payroll-filter-popover-division-select"
+              />
+            </Form.Item>
+            <Form.Item
+              name="departmentId"
+              label={<FieldLabel title="Department" />}
+              data-cy="payroll-filter-popover-department"
+            >
+              <Select
+                {...searchProps}
+                allowClear
+                placeholder="All departments"
+                options={toOptions(departmentData)}
+                data-cy="payroll-filter-popover-department-select"
+              />
+            </Form.Item>
+          </div>
+
+          <div
+            className="mt-1 flex items-center justify-between gap-3 border-t border-slate-100 pt-4"
             data-cy="payroll-filter-popover-footer"
           >
             <Button
-              type="default"
+              type="text"
               htmlType="button"
-              size="large"
               onClick={onReset}
-              className="!h-9 px-4 w-[120px] sm:w-auto sm:!h-10 sm:px-6 !font-normal !text-[#4D4D4D] border border-solid !border-[#D9D9D9]"
+              className="!px-2 !text-slate-500"
               data-cy="payroll-filter-popover-reset-btn"
             >
               Reset
             </Button>
             <Button
-              size="large"
               type="primary"
               htmlType="submit"
-              className="bg-[#254ec2] hover:bg-[#1e3e9a] border-none !h-9 px-4 w-[120px] sm:w-auto sm:!h-10 sm:px-6 !font-normal shadow-none"
+              size="large"
+              className="px-6 shadow-none"
               data-cy="payroll-filter-popover-save-btn"
             >
-              Save Filter
+              Apply
             </Button>
           </div>
         </Form>
       </div>
     </ConfigProvider>
   );
+};
 
-  // Mobile/tablet: use a centered modal so the filter can't be clipped.
+const FilterPopover: React.FC<FilterPopoverProps> = ({
+  onSearch,
+  defaultValues,
+}) => {
+  const [open, setOpen] = useState(false);
+  // A new key per opening remounts the form so it starts from the current filters.
+  const [panelKey, setPanelKey] = useState(0);
+  const { isMobile, isTablet } = useIsMobile();
+  const changeOpen = (next: boolean) => {
+    if (next) setPanelKey((key) => key + 1);
+    setOpen(next);
+  };
+  const activeCount = countActiveFilters(defaultValues);
+
+  const trigger = (onClick?: () => void) => (
+    <Button
+      id="payroll-open-filter-modal-click-button"
+      data-cy="payroll-open-filter-modal-click-button"
+      className="flex h-10 items-center gap-2 rounded-[6px] border-gray-200 px-3 font-medium text-gray-600 md:px-4"
+      size="large"
+      icon={
+        <FilterAltOutlinedIcon className="text-gray-600" fontSize="small" />
+      }
+      onClick={onClick}
+    >
+      <span
+        className="hidden sm:inline"
+        data-cy="payroll-filter-popover-button-text"
+      >
+        Filter
+      </span>
+      {activeCount > 0 && (
+        <span
+          className="rounded-full bg-blue-50 px-1.5 text-[11px] font-medium leading-5 text-okr-primary"
+          data-cy="payroll-filter-popover-active-count"
+        >
+          {activeCount}
+        </span>
+      )}
+    </Button>
+  );
+
+  const panel = (
+    <FilterPanel
+      key={panelKey}
+      defaultValues={defaultValues}
+      onSearch={onSearch}
+      onClose={() => setOpen(false)}
+    />
+  );
+
+  // Mobile/tablet: a centered modal so the filter can't be clipped.
   if (isMobile || isTablet) {
     return (
       <>
-        <Button
-          id="payroll-open-filter-modal-click-button"
-          data-cy="payroll-open-filter-modal-click-button"
-          className="flex items-center gap-2 h-10 border-gray-200 text-gray-600 rounded-[6px] px-3 md:px-4 font-medium"
-          size="large"
-          icon={
-            <FilterAltOutlinedIcon className="text-gray-600" fontSize="small" />
-          }
-          onClick={() => {
-            syncFormWithDefaults();
-            setOpen(true);
-          }}
-        >
-          <span
-            className="hidden sm:inline"
-            data-cy="payroll-filter-popover-button-text"
-          >
-            Filter
-          </span>
-        </Button>
-
+        {trigger(() => changeOpen(true))}
         <Modal
           open={open}
           onCancel={() => setOpen(false)}
@@ -636,14 +353,13 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
           centered
           closable={false}
           width="calc(100vw - 32px)"
-          rootClassName="[&_.ant-modal-content]:!rounded-xl [&_.ant-modal-content]:!overflow-hidden"
           styles={{
             body: { padding: 0 },
             content: { padding: 0, borderRadius: 12 },
           }}
           data-cy="payroll-filter-mobile-modal"
         >
-          {content}
+          {panel}
         </Modal>
       </>
     );
@@ -651,31 +367,16 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
 
   return (
     <Popover
-      content={content}
+      content={panel}
       trigger="click"
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={changeOpen}
       placement="bottomRight"
       overlayClassName="pixel-perfect-popover"
       getPopupContainer={() => document.body}
       data-cy="payroll-filter-popover"
     >
-      <Button
-        id="payroll-open-filter-modal-click-button"
-        data-cy="payroll-open-filter-modal-click-button"
-        className="flex items-center gap-2 h-10 border-gray-200 text-gray-600 rounded-[6px] px-3 md:px-4 font-medium"
-        size="large"
-        icon={
-          <FilterAltOutlinedIcon className="text-gray-600" fontSize="small" />
-        }
-      >
-        <span
-          className="hidden sm:inline"
-          data-cy="payroll-filter-popover-button-text"
-        >
-          Filter
-        </span>
-      </Button>
+      {trigger()}
     </Popover>
   );
 };

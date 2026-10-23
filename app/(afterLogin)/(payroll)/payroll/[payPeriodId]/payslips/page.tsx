@@ -47,6 +47,7 @@ import { useSendingPayrollPayslip } from '@/store/server/features/payroll/payrol
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
+import { paymentTypesToQueryParams } from '@/store/uistate/features/payroll/payroll/view';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { toPerformancePayLabel } from '@/utils/performancePayLabel';
 
@@ -128,6 +129,10 @@ const PayrollPeriodPayslipsPage = () => {
       queryParams.append('divisionId', searchValue.divisionId);
     if (searchValue.departmentId)
       queryParams.append('departmentId', searchValue.departmentId);
+    // Payment types: salary, monthly / quarterly performance, incentive.
+    Object.entries(paymentTypesToQueryParams(searchValue.paymentTypes)).forEach(
+      ([key, value]) => queryParams.append(key, value),
+    );
     const qs = queryParams.toString();
     return qs ? `&${qs}` : '';
   }, [
@@ -135,6 +140,7 @@ const PayrollPeriodPayslipsPage = () => {
     employeeId,
     searchValue.divisionId,
     searchValue.departmentId,
+    searchValue.paymentTypes,
   ]);
 
   useEffect(() => {
