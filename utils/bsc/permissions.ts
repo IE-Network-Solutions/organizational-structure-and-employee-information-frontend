@@ -10,7 +10,6 @@ import { Permissions } from '@/types/commons/permissionEnum';
  * Deliberately not permission-gated:
  * - Check-in submit: anyone with a scorecard reports their own KPIs.
  * - Check-in evaluation: whoever the KPI's evaluation flow names.
- * - Team results: managers always see their direct reports.
  */
 
 /** Any of these opens the KPI tab (KPI library). */
@@ -71,10 +70,11 @@ export const bscAccess = {
   deleteScorecard: () => has(Permissions.DeleteBscScorecard),
   assignIndividualKpis: () => has(Permissions.CreateBscScorecard),
 
-  // Results
-  /** Direct reports — every BSC user (managers see their team). */
-  viewTeam: () => has(Permissions.ViewBsc),
-  /** All employees ("View Results"). */
+  // Results ("View Results" opens the Results tab and both of its scopes)
+  viewResults: () => has(Permissions.ViewBscResults),
+  /** Direct reports. */
+  viewTeam: () => has(Permissions.ViewBscResults),
+  /** All employees. */
   viewCompany: () => has(Permissions.ViewBscResults),
 
   // PEP audit
