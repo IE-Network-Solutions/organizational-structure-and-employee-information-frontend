@@ -22,6 +22,10 @@ import {
   useGetPendingPayrollApprovals,
 } from '@/store/server/features/payroll/payrollApproval/queries';
 import {
+  isPeriodFullyApproved,
+  PeriodApproval,
+} from '@/store/server/features/payroll/payrollApproval/generationTypes';
+import {
   useGetAllFiscalYears,
   useGetActiveFiscalYears,
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
@@ -145,18 +149,30 @@ const PayPeriodListPage = () => {
     form.setFieldsValue({ fiscalYearId: activeFiscalYear.id });
   }, [activeFiscalYear?.id, form]);
 
+  // A period holds one approval per generation (payroll, PP, incentive);
+  // it is approved once all of them are.
   const approvalByPeriodId = useMemo(() => {
-    const map = new Map<string, any>();
+    const byPeriod = new Map<string, PeriodApproval[]>();
     (Array.isArray(approvals) ? approvals : []).forEach((item: any) => {
-      if (item?.payPeriodId) map.set(item.payPeriodId, item);
+      if (!item?.payPeriodId) return;
+      byPeriod.set(item.payPeriodId, [
+        ...(byPeriod.get(item.payPeriodId) ?? []),
+        item,
+      ]);
     });
+    const map = new Map<string, { approved: boolean }>();
+    byPeriod.forEach((items, periodId) =>
+      map.set(periodId, { approved: isPeriodFullyApproved(items) }),
+    );
     return map;
   }, [approvals]);
 
+  // The first generation of a period that is still waiting for approval.
   const pendingByPeriodId = useMemo(() => {
     const map = new Map<string, any>();
     (pendingApprovals?.items || []).forEach((item: any) => {
-      if (item?.payPeriodId) map.set(item.payPeriodId, item);
+      if (!item?.payPeriodId || item.approved === true) return;
+      if (!map.has(item.payPeriodId)) map.set(item.payPeriodId, item);
     });
     return map;
   }, [pendingApprovals]);

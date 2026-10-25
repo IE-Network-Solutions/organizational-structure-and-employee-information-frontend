@@ -1,8 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Button, Modal, notification } from 'antd';
-import { CheckOutlined, FileSyncOutlined } from '@ant-design/icons';
+import React, { useMemo, useState } from 'react';
+import { Button, Dropdown, Modal, notification } from 'antd';
+import {
+  CheckOutlined,
+  DownOutlined,
+  FileSyncOutlined,
+} from '@ant-design/icons';
 import { useParams } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -14,12 +18,15 @@ import {
   useCreatePayroll,
   useDeletePayroll,
 } from '@/store/server/features/payroll/payroll/mutation';
-import {
-  useApprovePayrollApproval,
-  useLastApprovingPayroll,
-} from '@/store/server/features/payroll/payrollApproval/mutation';
 import { usePayrollApproveVisibility } from '@/store/server/features/payroll/payrollApproval/usePayrollApproveVisibility';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { usePayrollApproveAction } from '@/store/server/features/payroll/payrollApproval/usePayrollApproveAction';
+import {
+  approvalType,
+  GENERATION_TYPE_LABEL,
+  getLockedTypes,
+  hasOpenGeneration,
+  PAYROLL_GENERATION_TYPES,
+} from '@/store/server/features/payroll/payrollApproval/generationTypes';
 import GeneratePayrollModal, {
   PayrollGenerationOptions,
 } from '../../_components/modal';
@@ -29,12 +36,9 @@ const PayPeriodDetailHeader = () => {
   const params = useParams();
   const payPeriodId = String(params?.payPeriodId || '');
   const { isMobile, isTablet } = useIsMobile();
-  const { userId } = useAuthenticationStore();
-  const authStore = useAuthenticationStore.getState();
-  const tenantId = authStore.tenantId;
-  const userRollId = authStore.userData?.roleId;
 
-  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  // The pending approval (one per generation type) the user is confirming.
+  const [approvingItem, setApprovingItem] = useState<any>(null);
   const [isPayrollModalOpen, setIsPayrollModalOpen] = useState(false);
 
   const searchQuery = payPeriodId ? `&payPeriodId=${payPeriodId}` : '';
@@ -42,9 +46,8 @@ const PayPeriodDetailHeader = () => {
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const hasPayroll = (payroll?.items?.length || 0) > 0;
   const {
-    showApproveButton,
-    pendingApproval,
-    payrollApprovalForPeriod,
+    approvableItems,
+    periodApprovals,
     refetchPendingApprovals,
     refetchPayrollApprovalForPeriod,
   } = usePayrollApproveVisibility(payPeriodId, hasPayroll);
@@ -52,13 +55,18 @@ const PayPeriodDetailHeader = () => {
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
   const { isLoading: deleteLoading } = useDeletePayroll();
-  const { mutate: approvePayroll, isLoading: isApproving } =
-    useApprovePayrollApproval();
-  const { mutate: lastApproving, isLoading: isLastApproving } =
-    useLastApprovingPayroll();
+  const { approve, isApproving } = usePayrollApproveAction(payPeriodId);
 
-  const canGenerateOrRegenerate =
-    !payrollApprovalForPeriod || payrollApprovalForPeriod?.approved === false;
+  // Approved generation types are locked; the other types can still be generated.
+  const lockedTypes = useMemo(
+    () => Array.from(getLockedTypes(periodApprovals)),
+    [periodApprovals],
+  );
+  const canGenerateOrRegenerate = !PAYROLL_GENERATION_TYPES.every((type) =>
+    lockedTypes.includes(type),
+  );
+  // "Regenerate" only while a generation is still open; otherwise this adds a new one.
+  const isRegenerate = hasPayroll && hasOpenGeneration(periodApprovals);
 
   const handleGeneratePayroll = async (data: PayrollGenerationOptions) => {
     if (!allActiveSalary || allActiveSalary?.length === 0) {
@@ -95,63 +103,61 @@ const PayPeriodDetailHeader = () => {
   };
 
   const handleApprovePayroll = () => {
-    if (!pendingApproval) return;
-
-    const approvalWorkflowId = String(pendingApproval.approvalWorkflowId || '');
-    const stepOrder = Number(pendingApproval.nextApprover?.[0]?.stepOrder || 0);
-
-    if (!approvalWorkflowId || stepOrder === 0) {
-      notification.error({
-        message: 'Invalid Approval Data',
-        description: 'Missing required approval information. Please try again.',
-      });
-      return;
-    }
-
-    const handleSuccess = () => {
-      setIsApproveModalOpen(false);
+    approve(approvingItem, () => {
+      setApprovingItem(null);
       refetchPendingApprovals();
       refetchPayrollApprovalForPeriod();
       refetch();
-    };
-
-    approvePayroll(
-      {
-        approvalWorkflowId,
-        stepOrder,
-        requestId: pendingApproval.id,
-        approvedUserId: userId,
-        approverRoleId: userRollId,
-        action: 'Approved',
-        tenantId,
-      },
-      {
-        onSuccess: (data) => {
-          if (data?.last === true) {
-            lastApproving(payPeriodId, { onSuccess: handleSuccess });
-          } else {
-            handleSuccess();
-          }
-        },
-      },
-    );
+    });
   };
+
+  const approvingLabel = approvingItem
+    ? GENERATION_TYPE_LABEL[approvalType(approvingItem)]
+    : 'Payroll';
 
   return (
     <div
       className="flex flex-wrap items-center gap-3"
       data-cy="payroll-period-detail-header-actions"
     >
-      {showApproveButton && (
+      {approvableItems.length === 1 && (
         <Button
-          type="primary"
           icon={<CheckOutlined />}
           className="h-10"
-          onClick={() => setIsApproveModalOpen(true)}
-          data-cy="payroll-period-approve-button"
+          onClick={() => setApprovingItem(approvableItems[0])}
+          data-cy={`payroll-period-approve-button-${approvalType(
+            approvableItems[0],
+          )}`}
         >
-          {isMobile || isTablet ? 'Approve' : 'Approve Payroll'}
+          {isMobile || isTablet
+            ? 'Approve'
+            : `Approve ${GENERATION_TYPE_LABEL[approvalType(approvableItems[0])]}`}
         </Button>
+      )}
+
+      {approvableItems.length > 1 && (
+        <Dropdown
+          trigger={['click']}
+          menu={{
+            items: approvableItems.map((item) => ({
+              key: item.id,
+              label: GENERATION_TYPE_LABEL[approvalType(item)],
+              icon: <CheckOutlined />,
+            })),
+            onClick: ({ key }) =>
+              setApprovingItem(
+                approvableItems.find((item) => item.id === key) ?? null,
+              ),
+          }}
+        >
+          <Button
+            icon={<CheckOutlined />}
+            className="h-10"
+            data-cy="payroll-period-approve-menu-button"
+          >
+            Approve ({approvableItems.length}) <DownOutlined />
+          </Button>
+        </Dropdown>
       )}
 
       {canGenerateOrRegenerate && (
@@ -179,7 +185,7 @@ const PayPeriodDetailHeader = () => {
             loading={isCreatingPayroll || deleteLoading}
             data-cy="payroll-period-regenerate-button"
           >
-            {hasPayroll ? 'Regenerate' : 'Generate'}
+            {isRegenerate ? 'Regenerate' : 'Generate'}
           </Button>
           {/* </Popconfirm> */}
         </AccessGuard>
@@ -190,13 +196,14 @@ const PayPeriodDetailHeader = () => {
           onGenerate={handleGeneratePayroll}
           onClose={() => setIsPayrollModalOpen(false)}
           loading={isCreatingPayroll}
-          isRegenerate={hasPayroll}
+          isRegenerate={isRegenerate}
+          lockedTypes={lockedTypes}
         />
       )}
 
       <Modal
-        open={isApproveModalOpen}
-        onCancel={() => setIsApproveModalOpen(false)}
+        open={Boolean(approvingItem)}
+        onCancel={() => setApprovingItem(null)}
         footer={null}
         centered
         width={600}
@@ -209,13 +216,13 @@ const PayPeriodDetailHeader = () => {
             className="text-2xl font-bold"
             data-cy="payroll-approve-modal-title"
           >
-            Approve Payroll
+            Approve {approvingLabel}
           </h2>
           <p
             className="text-lg text-gray-600"
             data-cy="payroll-approve-modal-description"
           >
-            Do you wish to Approve this payroll
+            Do you wish to approve this {approvingLabel.toLowerCase()}
           </p>
           <div
             className="mt-4 flex w-full justify-center gap-4"
@@ -223,7 +230,7 @@ const PayPeriodDetailHeader = () => {
           >
             <Button
               className="h-12 w-full text-lg font-semibold"
-              onClick={() => setIsApproveModalOpen(false)}
+              onClick={() => setApprovingItem(null)}
             >
               Cancel
             </Button>
@@ -231,7 +238,7 @@ const PayPeriodDetailHeader = () => {
               type="primary"
               className="h-12 w-full bg-primary text-lg font-semibold"
               onClick={handleApprovePayroll}
-              loading={isApproving || isLastApproving}
+              loading={isApproving}
             >
               Approve
             </Button>
