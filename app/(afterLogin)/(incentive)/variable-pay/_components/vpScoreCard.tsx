@@ -8,6 +8,9 @@ import { useGetActiveMonth } from '@/store/server/features/payroll/payroll/queri
 import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/target/queries';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useGetBscPpApprovalStatuses } from '@/store/server/features/bsc/queries';
+import { resolvePpPeriodRange } from '@/utils/bsc/ppApproval';
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -25,10 +28,12 @@ function VpScoreTrackContent({
   vpScore,
   isLoading,
   changeLabel,
+  isPendingApproval = false,
 }: {
   vpScore: any;
   isLoading: boolean;
   changeLabel: string;
+  isPendingApproval?: boolean;
 }) {
   const [showAll, setShowAll] = useState(false);
 
@@ -98,6 +103,18 @@ function VpScoreTrackContent({
           paragraph={{ rows: 3 }}
           data-cy="variable-pay-score-card-loading-skeleton"
         />
+      </div>
+    );
+  }
+
+  if (isPendingApproval) {
+    return (
+      <div
+        className="py-2 text-[14px] text-gray-500"
+        data-cy="variable-pay-score-card-pending-approval"
+      >
+        Your KPI scorecard for this period is still in the review flow. The PP
+        Score is shown once PEP approval is complete.
       </div>
     );
   }
@@ -339,6 +356,30 @@ const VPScoreCard: React.FC<{
     },
   );
 
+  // Hold back the PP Score while the scorecard behind it is pending PEP.
+  const { data: activeCalender } = useGetActiveFiscalYears();
+  const { data: monthlyApproval } = useGetBscPpApprovalStatuses({
+    userIds: userId ? [userId] : [],
+    scoreBy: 'MONTH',
+    ...resolvePpPeriodRange(activeCalender?.sessions, 'MONTH', selectedMonthId),
+  });
+  const { data: quarterlyApproval } = useGetBscPpApprovalStatuses({
+    userIds: userId ? [userId] : [],
+    scoreBy: 'SESSION',
+    ...resolvePpPeriodRange(
+      activeCalender?.sessions,
+      'SESSION',
+      undefined,
+      selectedSessionId,
+    ),
+  });
+  const isMonthlyPending = Boolean(
+    userId && monthlyApproval?.[userId] === 'PENDING',
+  );
+  const isQuarterlyPending = Boolean(
+    userId && quarterlyApproval?.[userId] === 'PENDING',
+  );
+
   const showMonthly = hasVpScoreData(monthlyScore) || monthlyLoading;
   const showQuarterly = hasVpScoreData(quarterlyScore) || quarterlyLoading;
 
@@ -358,6 +399,7 @@ const VPScoreCard: React.FC<{
             vpScore={monthlyScore}
             isLoading={monthlyLoading}
             changeLabel="vs last month"
+            isPendingApproval={isMonthlyPending}
           />
         ),
       });
@@ -372,6 +414,7 @@ const VPScoreCard: React.FC<{
             vpScore={quarterlyScore}
             isLoading={quarterlyLoading}
             changeLabel="vs last quarter"
+            isPendingApproval={isQuarterlyPending}
           />
         ),
       });
@@ -385,6 +428,8 @@ const VPScoreCard: React.FC<{
     monthlyLoading,
     quarterlyScore,
     quarterlyLoading,
+    isMonthlyPending,
+    isQuarterlyPending,
   ]);
 
   const resolvedActiveKey = tabItems.some((t) => t.key === activeTrack)

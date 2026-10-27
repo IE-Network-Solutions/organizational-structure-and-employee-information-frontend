@@ -2,6 +2,7 @@ import { useQuery } from 'react-query';
 import { ScorecardStatus } from '@/types/bsc';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
+  getBscPpApprovalStatuses,
   getMyBscScorecardDetail,
   getMyBscScorecardResults,
   listBscKpis,
@@ -32,6 +33,7 @@ export const BSC_QUERY_KEYS = {
   hris: 'bsc-hris-outbox',
   audit: 'bsc-audit',
   pepAudit: 'bsc-pep-audit',
+  ppApprovalStatus: 'bsc-pp-approval-status',
   catalog: 'bsc-perspective-catalog',
   perspectives: 'bsc-role-perspectives',
 };
@@ -201,6 +203,43 @@ export const useGetBscResultsScorecards = (scope: ResultsScope = 'mine') => {
     {
       keepPreviousData: false,
       enabled: Boolean(actorUserId),
+    },
+  );
+};
+
+/**
+ * Performance Pay: whether each user's scorecard for the PP month / session
+ * finished PEP review. PENDING users must not show a PP Score yet.
+ */
+export const useGetBscPpApprovalStatuses = (params: {
+  userIds: string[];
+  scoreBy: 'MONTH' | 'SESSION';
+  periodStart?: string;
+  periodEnd?: string;
+}) => {
+  const { userIds, scoreBy, periodStart, periodEnd } = params;
+  const sortedIds = [...new Set(userIds.filter(Boolean))].sort();
+  return useQuery(
+    [
+      BSC_QUERY_KEYS.ppApprovalStatus,
+      scoreBy,
+      periodStart,
+      periodEnd,
+      sortedIds.join(','),
+    ],
+    () =>
+      getBscPpApprovalStatuses({
+        userIds: sortedIds,
+        scoreBy,
+        periodStart: periodStart as string,
+        periodEnd: periodEnd as string,
+      }),
+    {
+      enabled:
+        USE_BSC_API &&
+        sortedIds.length > 0 &&
+        Boolean(periodStart && periodEnd),
+      keepPreviousData: true,
     },
   );
 };

@@ -687,6 +687,28 @@ export async function getMyBscScorecardDetail(
   }
 }
 
+/** Approval state of the scorecard behind each user's PP Score. */
+export type BscPpApprovalStatus = 'APPROVED' | 'PENDING' | 'NONE';
+
+export async function getBscPpApprovalStatuses(input: {
+  userIds: string[];
+  scoreBy: 'MONTH' | 'SESSION';
+  periodStart: string;
+  periodEnd: string;
+}): Promise<Record<string, BscPpApprovalStatus>> {
+  try {
+    const headers = await bscAuthHeaders();
+    return (await crudRequest({
+      url: `${BSC_BASE}/my-scorecard/pp-approval-status`,
+      method: 'POST',
+      headers,
+      data: input,
+    })) as Record<string, BscPpApprovalStatus>;
+  } catch (error) {
+    throw toBscError(error, 'Failed to load scorecard approval status');
+  }
+}
+
 export async function getMyBscScorecardResults(id: string) {
   try {
     const headers = await bscAuthHeaders();

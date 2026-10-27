@@ -1,5 +1,14 @@
 import React, { useRef, useState } from 'react';
-import { Table, Progress, Button, Modal, Select, Skeleton } from 'antd';
+import {
+  Table,
+  Progress,
+  Button,
+  Modal,
+  Select,
+  Skeleton,
+  Tag,
+  Tooltip,
+} from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
@@ -29,8 +38,26 @@ import {
   resolvePreviousMonthId,
 } from '@/store/server/features/okrplanning/okr/vp-deduction/utils';
 import VpDeductionDetailModal from './vpDeductionDetailModal';
+import { useGetBscPpApprovalStatuses } from '@/store/server/features/bsc/queries';
+import { resolvePpPeriodRange } from '@/utils/bsc/ppApproval';
 
 const EXPANDED_VP_SKELETON_METRIC_COUNT = 3;
+
+const PP_PENDING_APPROVAL_HINT =
+  'The KPI scorecard for this period is still in the review flow. The PP Score is shown once PEP approval is complete.';
+
+/** Held-back PP Score while the scorecard is still pending PEP approval. */
+const PpPendingApprovalTag = ({ userId }: { userId: string }) => (
+  <Tooltip title={PP_PENDING_APPROVAL_HINT}>
+    <Tag
+      color="orange"
+      className="m-0"
+      data-cy={`compensation-benefit-variable-pay-score-pending-${userId}`}
+    >
+      Pending approval
+    </Tag>
+  </Tooltip>
+);
 
 const formatVpScoreValue = (value: number): string => {
   if (!Number.isFinite(value)) return '0';
@@ -181,12 +208,14 @@ const VpScoreCell = ({
   sessionId,
   scoreBy,
   fallbackScore,
+  isPendingApproval = false,
 }: {
   userId: string;
   monthId?: string;
   sessionId?: string;
   scoreBy: 'MONTH' | 'SESSION';
   fallbackScore?: string | number;
+  isPendingApproval?: boolean;
 }) => {
   const { data: vpScore, isLoading } = useGetVPScore(userId, {
     monthId: scoreBy === 'MONTH' ? monthId : undefined,
@@ -194,6 +223,10 @@ const VpScoreCell = ({
     scoreBy,
   });
   const score = Number(vpScore?.score ?? fallbackScore ?? 0);
+
+  if (isPendingApproval) {
+    return <PpPendingApprovalTag userId={userId} />;
+  }
 
   if (isLoading && !fallbackScore) {
     return (
@@ -223,11 +256,13 @@ const ExpandedVPDetails = ({
   monthId,
   sessionId,
   scoreBy,
+  isPendingApproval = false,
 }: {
   userId: string;
   monthId?: string;
   sessionId?: string;
   scoreBy: 'MONTH' | 'SESSION';
+  isPendingApproval?: boolean;
 }) => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const { data: activeCalender } = useGetActiveFiscalYears();
@@ -272,6 +307,17 @@ const ExpandedVPDetails = ({
   );
   const isVpDeductionChangeNegative =
     totalVpDeductions - previousVpDeductions < 0;
+
+  if (isPendingApproval) {
+    return (
+      <div
+        className="w-full p-3 text-[14px] text-gray-500"
+        data-cy="expanded-vp-details-pending-approval"
+      >
+        {PP_PENDING_APPROVAL_HINT}
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <ExpandedVPDetailsSkeleton />;
@@ -630,6 +676,22 @@ const VariablePayTable = ({
       Benefit: 'Benefits',
     })) || [];
 
+  // Hold back the PP Score of anyone whose scorecard for this month / session
+  // has not finished PEP review yet (both monthly and quarterly tracks).
+  const ppPeriodRange = resolvePpPeriodRange(
+    activeCalender?.sessions,
+    scoreBy,
+    appliedMonthId,
+    appliedSessionId,
+  );
+  const { data: ppApprovalByUser } = useGetBscPpApprovalStatuses({
+    userIds: tableData.map((row) => row.userId),
+    scoreBy,
+    ...ppPeriodRange,
+  });
+  const isPpPendingApproval = (userId: string) =>
+    ppApprovalByUser?.[userId] === 'PENDING';
+
   const getEmployeeFullName = (employeeId: string) => {
     const employee = allUsers?.items?.find(
       (user: any) => user?.id === employeeId,
@@ -711,6 +773,7 @@ const VariablePayTable = ({
           sessionId={scoreBy === 'SESSION' ? appliedSessionId : undefined}
           scoreBy={scoreBy}
           fallbackScore={vpScore}
+          isPendingApproval={isPpPendingApproval(record.userId)}
         />
       ),
     },
@@ -1053,6 +1116,7 @@ const VariablePayTable = ({
                       monthId={appliedMonthId}
                       sessionId={appliedSessionId}
                       scoreBy={scoreBy}
+                      isPendingApproval={isPpPendingApproval(record.userId)}
                     />
                   ),
                   expandIcon: () => null,
