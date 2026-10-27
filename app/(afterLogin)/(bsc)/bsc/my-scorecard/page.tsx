@@ -356,12 +356,12 @@ export default function MyBscScorecardPage() {
   }, [cardsToShow, cycleById, mine, allKpis, mockRoleFallback]);
 
   const loading = scorecardsLoading || kpisLoading;
-  // URL is the source of truth: the store is re-synced from it above, so
-  // reading the store here would flash back to the previous tab mid-push.
   const activeTab =
-    tabFromUrl === 'results'
+    scorecardTab === 'results' ||
+    scorecardTab === 'team' ||
+    scorecardTab === 'all'
       ? 'results'
-      : tabFromUrl === 'checkin'
+      : scorecardTab === 'checkin'
         ? 'checkin'
         : 'mine';
 
