@@ -90,4 +90,90 @@ describe('GeneratePayrollModal', () => {
     );
     await waitFor(() => expect(onGenerate).toHaveBeenCalledWith(expectedFlags));
   });
+
+  it('names the options Salary, Incentive, Monthly and Quarterly performance', () => {
+    renderModal();
+
+    [
+      'Salary',
+      'Incentive',
+      'Monthly performance',
+      'Quarterly performance',
+    ].forEach((label) => expect(screen.queryByText(label)).not.toBeNull());
+    expect(screen.queryByText('Include Payroll')).toBeNull();
+  });
+
+  it('toggles an option when its row is clicked', () => {
+    renderModal();
+    const monthly = screen.getByRole('switch', { name: 'Monthly performance' });
+    expect(monthly.getAttribute('aria-checked')).toBe('false');
+
+    fireEvent.click(screen.getByText('Monthly performance'));
+    expect(monthly.getAttribute('aria-checked')).toBe('true');
+
+    fireEvent.click(
+      screen.getByText('Performance pay from the monthly scores'),
+    );
+    expect(monthly.getAttribute('aria-checked')).toBe('false');
+  });
+
+  it('ignores clicks on an approved row', () => {
+    render(
+      <GeneratePayrollModal
+        onClose={jest.fn()}
+        onGenerate={jest.fn()}
+        lockedTypes={['PAYROLL']}
+      />,
+    );
+    const salary = screen.getByRole('switch', { name: 'Salary' });
+
+    fireEvent.click(screen.getByText('Salary'));
+
+    expect(salary.getAttribute('aria-checked')).toBe('false');
+    expect(screen.queryByText('Approved')).not.toBeNull();
+  });
+
+  describe('with approved generation types', () => {
+    it('disables the approved type, starts without payroll and lets PP be generated', async () => {
+      const onGenerate = jest.fn();
+      render(
+        <GeneratePayrollModal
+          onClose={jest.fn()}
+          onGenerate={onGenerate}
+          lockedTypes={['PAYROLL']}
+        />,
+      );
+      const switches = screen.getAllByRole('switch');
+
+      expect((switches[0] as HTMLButtonElement).disabled).toBe(true);
+      expect(switches[0].getAttribute('aria-checked')).toBe('false');
+      expect((switches[2] as HTMLButtonElement).disabled).toBe(false);
+
+      fireEvent.click(switches[2]);
+      fireEvent.click(screen.getByRole('button', { name: 'Generate' }));
+
+      await waitFor(() =>
+        expect(onGenerate).toHaveBeenCalledWith({
+          includePayroll: false,
+          includeIncentive: false,
+          includeMonthlyVariablePay: true,
+          includeSessionVariablePay: false,
+        }),
+      );
+    });
+
+    it('disables the PP track that is approved but not the other one', () => {
+      render(
+        <GeneratePayrollModal
+          onClose={jest.fn()}
+          onGenerate={jest.fn()}
+          lockedTypes={['PP_MONTHLY']}
+        />,
+      );
+      const switches = screen.getAllByRole('switch');
+
+      expect((switches[2] as HTMLButtonElement).disabled).toBe(true);
+      expect((switches[3] as HTMLButtonElement).disabled).toBe(false);
+    });
+  });
 });

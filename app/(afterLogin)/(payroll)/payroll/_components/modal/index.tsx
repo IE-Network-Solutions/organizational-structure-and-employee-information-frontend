@@ -1,6 +1,8 @@
 import React from 'react';
-import { Modal, Form, Switch, Button, ConfigProvider } from 'antd';
+import { Modal, Form, Button, ConfigProvider } from 'antd';
 import { IoCloseOutline } from 'react-icons/io5';
+import OptionRow from '../optionRow';
+import type { PayrollGenerationType } from '@/store/server/features/payroll/payrollApproval/generationTypes';
 
 interface Props {
   onClose: () => void;
@@ -8,6 +10,8 @@ interface Props {
   loading?: boolean;
   /** When true, modal copy reflects regenerating existing payroll (vs first-time generate). */
   isRegenerate?: boolean;
+  /** Generation types already approved for this pay period; they can't be generated again. */
+  lockedTypes?: PayrollGenerationType[];
 }
 
 export interface PayrollGenerationOptions {
@@ -19,13 +23,54 @@ export interface PayrollGenerationOptions {
   includeSessionVariablePay: boolean;
 }
 
+type OptionField = keyof PayrollGenerationOptions;
+
+const OPTIONS: {
+  field: OptionField;
+  type: PayrollGenerationType;
+  title: string;
+  description: string;
+  cy: string;
+}[] = [
+  {
+    field: 'includePayroll',
+    type: 'PAYROLL',
+    title: 'Salary',
+    description: 'Basic pay with allowances, deductions, pension and tax',
+    cy: 'payroll',
+  },
+  {
+    field: 'includeIncentive',
+    type: 'INCENTIVE',
+    title: 'Incentive',
+    description: 'Incentive amounts for this pay period',
+    cy: 'incentive',
+  },
+  {
+    field: 'includeMonthlyVariablePay',
+    type: 'PP_MONTHLY',
+    title: 'Monthly performance',
+    description: 'Performance pay from the monthly scores',
+    cy: 'vp-monthly',
+  },
+  {
+    field: 'includeSessionVariablePay',
+    type: 'PP_QUARTERLY',
+    title: 'Quarterly performance',
+    description: 'Performance pay from the quarterly scores',
+    cy: 'vp-quarterly',
+  },
+];
+
 const GeneratePayrollModal: React.FC<Props> = ({
   onClose,
   onGenerate,
   loading = false,
   isRegenerate = false,
+  lockedTypes = [],
 }) => {
   const [form] = Form.useForm();
+  const isLocked = (type: PayrollGenerationType) => lockedTypes.includes(type);
   const [selectionError, setSelectionError] = React.useState('');
 
   const handleGenerate = () => {
@@ -46,42 +91,19 @@ const GeneratePayrollModal: React.FC<Props> = ({
     onGenerate(generationOptions);
   };
 
-  const customizeRequiredMark = (
-    label: React.ReactNode,
-    { required }: { required: boolean },
-  ) => (
-    <span
-      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-      data-cy="payroll-generate-modal-required-mark"
-    >
-      {label}
-      {required && (
-        <span
-          style={{ color: '#ff4d4f' }}
-          data-cy="payroll-generate-modal-required-asterisk"
-        >
-          *
-        </span>
-      )}
-    </span>
-  );
-
   return (
     // eslint-disable-next-line local-rules/data-cy-required
     <ConfigProvider
       data-cy="payroll-generate-modal-config-provider"
       theme={{
         token: {
-          colorPrimary: '#2543b5',
+          colorPrimary: '#1E40AF',
           borderRadius: 6,
           fontFamily: 'inherit',
         },
         components: {
           Button: {
-            fontWeight: 400,
-          },
-          Form: {
-            labelColor: '#333333',
+            fontWeight: 500,
           },
         },
       }}
@@ -90,10 +112,10 @@ const GeneratePayrollModal: React.FC<Props> = ({
         data-cy="payroll-generate-modal"
         title={
           <h2
-            className="text-[16px] font-normal text-gray-900 m-0 leading-tight"
+            className="m-0 text-base font-semibold leading-tight text-[#161A2C]"
             data-cy="payroll-generate-modal-title-view-text"
           >
-            {isRegenerate ? 'Regenerate Payroll' : 'Generate Payroll'}
+            {isRegenerate ? 'Regenerate payroll' : 'Generate payroll'}
           </h2>
         }
         open={true}
@@ -103,11 +125,11 @@ const GeneratePayrollModal: React.FC<Props> = ({
         }}
         closeIcon={
           <IoCloseOutline
-            size={24}
-            className="text-gray-600 hover:text-gray-900"
+            size={22}
+            className="text-slate-500 hover:text-[#161A2C]"
           />
         }
-        width={520}
+        width={480}
         centered
         footer={[
           <Button
@@ -118,7 +140,7 @@ const GeneratePayrollModal: React.FC<Props> = ({
             size="large"
             disabled={loading}
             onClick={onClose}
-            className="px-6 !font-normal !text-[#4D4D4D] border border-solid !border-[#D9D9D9]"
+            className="px-6"
           >
             Cancel
           </Button>,
@@ -130,7 +152,7 @@ const GeneratePayrollModal: React.FC<Props> = ({
             size="large"
             loading={loading}
             onClick={handleGenerate}
-            className="px-6 !font-normal shadow-none"
+            className="px-6 shadow-none"
           >
             {isRegenerate ? 'Continue' : 'Generate'}
           </Button>,
@@ -138,100 +160,67 @@ const GeneratePayrollModal: React.FC<Props> = ({
       >
         <div
           data-cy="payroll-generate-modal-body-view-container"
-          className="border border-gray-200 rounded-lg p-6 mt-6 mb-2"
+          className="mt-4"
         >
+          <p
+            className="m-0 mb-4 text-[13px] text-slate-500"
+            data-cy="payroll-generate-modal-description"
+          >
+            Choose what to generate for this pay period.
+          </p>
+
           <Form
             form={form}
             layout="vertical"
-            requiredMark={customizeRequiredMark}
             onValuesChange={(changedValues, values) => {
               if (Object.values(values).some(Boolean)) setSelectionError('');
             }}
             initialValues={{
-              includePayroll: true,
+              includePayroll: !isLocked('PAYROLL'),
               includeIncentive: false,
               includeMonthlyVariablePay: false,
               includeSessionVariablePay: false,
             }}
             data-cy="payroll-generate-modal-form"
           >
-            <div data-cy="payroll-generate-modal-payroll-toggle-view-container">
-              <Form.Item
-                label={
-                  <span
-                    data-cy="payroll-generate-modal-payroll-label-view-text"
-                    className="text-sm font-medium text-gray-700"
+            <div
+              className="flex flex-col gap-3"
+              data-cy="payroll-generate-modal-options"
+            >
+              {OPTIONS.map(({ field, type, title, description, cy }) => {
+                const locked = isLocked(type);
+                return (
+                  <Form.Item
+                    key={field}
+                    name={field}
+                    valuePropName="checked"
+                    noStyle
+                    data-cy={`payroll-generate-modal-${cy}-form-item`}
                   >
-                    Include Payroll
-                  </span>
-                }
-                name="includePayroll"
-                valuePropName="checked"
-                className="mb-5"
-              >
-                <Switch data-cy="payroll-generate-modal-payroll-toggle-switch" />
-              </Form.Item>
-            </div>
-
-            <div data-cy="payroll-generate-modal-incentive-toggle-view-container">
-              <Form.Item
-                label={
-                  <span
-                    data-cy="payroll-generate-modal-incentive-label-view-text"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Include Incentive
-                  </span>
-                }
-                name="includeIncentive"
-                valuePropName="checked"
-                className="mb-5"
-                required
-              >
-                <Switch data-cy="payroll-generate-modal-incentive-toggle-switch" />
-              </Form.Item>
-            </div>
-
-            <div data-cy="payroll-generate-modal-vp-monthly-toggle-view-container">
-              <Form.Item
-                label={
-                  <span
-                    data-cy="payroll-generate-modal-vp-monthly-label-view-text"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Include PP Monthly
-                  </span>
-                }
-                name="includeMonthlyVariablePay"
-                valuePropName="checked"
-                className="mb-5"
-              >
-                <Switch data-cy="payroll-generate-modal-vp-monthly-toggle-switch" />
-              </Form.Item>
-            </div>
-
-            <div data-cy="payroll-generate-modal-vp-quarterly-toggle-view-container">
-              <Form.Item
-                label={
-                  <span
-                    data-cy="payroll-generate-modal-vp-quarterly-label-view-text"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Include PP Quarterly
-                  </span>
-                }
-                name="includeSessionVariablePay"
-                valuePropName="checked"
-                className="mb-5"
-              >
-                <Switch data-cy="payroll-generate-modal-vp-quarterly-toggle-switch" />
-              </Form.Item>
+                    <OptionRow
+                      title={title}
+                      description={
+                        locked
+                          ? 'Already approved for this pay period'
+                          : description
+                      }
+                      disabled={locked}
+                      status={
+                        locked
+                          ? { label: 'Approved', tone: 'success' }
+                          : undefined
+                      }
+                      dataCy={`payroll-generate-modal-${cy}`}
+                    />
+                  </Form.Item>
+                );
+              })}
             </div>
 
             {selectionError && (
               <div
                 role="alert"
-                className="mb-4 text-sm text-red-500"
+                className="mt-3 text-[13px] text-red-600"
                 data-cy="payroll-generate-modal-selection-error"
               >
                 {selectionError}

@@ -126,7 +126,7 @@ export default function MyPayroll() {
   );
   const { pageSize } = usePayrollStore();
   const { data: payroll, isLoading: isPayrollLoading } = useGetActivePayroll(
-    `&employeeId=${userId}`,
+    `&employeeId=${userId}&publishedOnly=true`,
     pageSize,
     1,
   );

@@ -3,7 +3,11 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { EMAIL_URL, ORG_AND_EMP_URL, PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import { useMutation, useQueryClient } from 'react-query';
+import { QueryClient, useMutation, useQueryClient } from 'react-query';
+import {
+  GENERATION_TYPE_LABEL,
+  PayrollGenerationType,
+} from '../payrollApproval/generationTypes';
 import { PaySlipData } from './interface';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -448,27 +452,43 @@ export const useDeletePayroll = () => {
   });
 };
 
-const publishPayslips = async (payPeriodId: string) => {
-  const requestHeaders = await requestHeader();
-  return crudRequest({
-    url: `${PAYROLL_URL}/pay-period/publish-payslips/${payPeriodId}`,
-    method: 'PUT',
-    headers: requestHeaders,
-  });
+export type PayslipReleaseVariables = {
+  payPeriodId: string;
+  generationType: PayrollGenerationType;
 };
 
+const payslipReleaseRequest =
+  (action: 'publish-payslips' | 'unpublish-payslips') =>
+  async ({ payPeriodId, generationType }: PayslipReleaseVariables) => {
+    const requestHeaders = await requestHeader();
+    const params = new URLSearchParams({ payPeriodId, generationType });
+    return crudRequest({
+      url: `${PAYROLL_URL}/payroll-approval/${action}?${params.toString()}`,
+      method: 'PUT',
+      headers: requestHeaders,
+    });
+  };
+
+const refreshPayslipQueries = (queryClient: QueryClient) => {
+  queryClient.invalidateQueries('pay-peroid');
+  queryClient.invalidateQueries('payroll');
+  queryClient.invalidateQueries('payrollForExport');
+  queryClient.invalidateQueries('payroll-history');
+  queryClient.invalidateQueries('payrollApprovalsOfPayPeriod');
+};
+
+/** Releases the payslips of one generation (salary, performance, incentive) to employees. */
 export const usePublishPayslips = () => {
   const queryClient = useQueryClient();
 
-  return useMutation(publishPayslips, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('pay-peroid');
-      queryClient.invalidateQueries('payroll');
-      queryClient.invalidateQueries('payrollForExport');
-      queryClient.invalidateQueries('payroll-history');
+  return useMutation(payslipReleaseRequest('publish-payslips'), {
+    onSuccess: (unusedData, { generationType }) => {
+      refreshPayslipQueries(queryClient);
       NotificationMessage.success({
         message: 'Payslips released',
-        description: 'Employees can now view payslips for this pay period.',
+        description: `Employees can now view ${GENERATION_TYPE_LABEL[
+          generationType
+        ].toLowerCase()} payslips for this pay period.`,
       });
     },
     onError: (error: any) => {
@@ -482,28 +502,18 @@ export const usePublishPayslips = () => {
   });
 };
 
-const unpublishPayslips = async (payPeriodId: string) => {
-  const requestHeaders = await requestHeader();
-  return crudRequest({
-    url: `${PAYROLL_URL}/pay-period/unpublish-payslips/${payPeriodId}`,
-    method: 'PUT',
-    headers: requestHeaders,
-  });
-};
-
+/** Hides the payslips of one generation from employees again. */
 export const useUnpublishPayslips = () => {
   const queryClient = useQueryClient();
 
-  return useMutation(unpublishPayslips, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('pay-peroid');
-      queryClient.invalidateQueries('payroll');
-      queryClient.invalidateQueries('payrollForExport');
-      queryClient.invalidateQueries('payroll-history');
+  return useMutation(payslipReleaseRequest('unpublish-payslips'), {
+    onSuccess: (unusedData, { generationType }) => {
+      refreshPayslipQueries(queryClient);
       NotificationMessage.success({
         message: 'Payslip access revoked',
-        description:
-          'Employees can no longer view payslips for this pay period.',
+        description: `Employees can no longer view ${GENERATION_TYPE_LABEL[
+          generationType
+        ].toLowerCase()} payslips for this pay period.`,
       });
     },
     onError: (error: any) => {

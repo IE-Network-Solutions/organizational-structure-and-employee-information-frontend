@@ -64,6 +64,7 @@ import {
   bscRollupHubHref,
   isCurrentReportingScorecard,
   parseResultsScope,
+  parseScorecardTab,
   resolveScorecardTemplateName,
   scorecardPepAuditHref,
   scorecardResultsHref,
@@ -268,15 +269,18 @@ export default function ResultsEmployeeTable({
   );
 
   const scopeFromUrl = parseResultsScope(searchParams);
+  const isResultsTabInUrl = parseScorecardTab(searchParams) === 'results';
   const scope: ResultsScope = allowedScopes.includes(scopeFromUrl)
     ? scopeFromUrl
     : allowedScopes[0] || 'all';
   useEffect(() => {
-    if (!allowedScopes.length) return;
+    // Only normalize the scope while the URL is on Results; otherwise this
+    // table (still mounted mid tab switch) would yank the user back here.
+    if (!isResultsTabInUrl || !allowedScopes.length) return;
     if (scope !== scopeFromUrl) {
       router.replace(scorecardResultsHref(scope), { scroll: false });
     }
-  }, [allowedScopes.length, router, scope, scopeFromUrl]);
+  }, [allowedScopes.length, isResultsTabInUrl, router, scope, scopeFromUrl]);
 
   const [search, setSearch] = useState('');
   const [department, setDepartment] = useState<string | undefined>();

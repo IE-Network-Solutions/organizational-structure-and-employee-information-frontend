@@ -9,6 +9,7 @@ import {
   useGetPendingPayrollApprovals,
 } from './queries';
 import { getPendingApprovalForPeriod } from './payrollApprovalVisibility';
+import type { PayrollGenerationType } from './generationTypes';
 
 export type PayrollApprovalLevelStatus = {
   stepOrder: number;
@@ -164,9 +165,12 @@ function resolvePayrollWorkflowId(
   return configuredWorkflows[0]?.id;
 }
 
-export function usePayrollApprovalStatus(payPeriodId?: string) {
+export function usePayrollApprovalStatus(
+  payPeriodId?: string,
+  generationType: PayrollGenerationType = 'PAYROLL',
+) {
   const { data: payrollApproval, isLoading: isPayrollApprovalLoading } =
-    useGetPayrollApprovalByPayPeriodId(payPeriodId);
+    useGetPayrollApprovalByPayPeriodId(payPeriodId, generationType);
   const { data: pendingApprovals } = useGetPendingPayrollApprovals(
     payPeriodId,
     1,
@@ -189,6 +193,7 @@ export function usePayrollApprovalStatus(payPeriodId?: string) {
   const pendingItem = getPendingApprovalForPeriod(
     pendingApprovals,
     payPeriodId || '',
+    generationType,
   );
   const requestId = payrollApproval?.id as string | undefined;
 
