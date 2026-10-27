@@ -166,7 +166,7 @@ function buildKpiRowsForScorecard(
 export default function MyBscScorecardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { userId } = useAuthenticationStore();
+  const { userId, hasHydrated } = useAuthenticationStore();
   const {
     myScorecardSessionId,
     myScorecardMonthId,
@@ -178,8 +178,8 @@ export default function MyBscScorecardPage() {
     setMyScorecardSessionMonths,
   } = useBscUiStore();
   const { isMobile, isTablet } = useIsMobile();
-  // "BSC and KPI" permission group: "View Results" = all employees (like
-  // view-company-okr); managers always see their direct reports.
+  // "BSC and KPI" permission group: "View Results" opens the Results tab.
+  const canViewResults = bscAccess.viewResults();
   const canViewAllEmployeeKpi = bscAccess.viewCompany();
   const canViewTeamKpi = bscAccess.viewTeam();
   const canManageBscAdmin = bscAccess.manageAdmin();
@@ -199,6 +199,18 @@ export default function MyBscScorecardPage() {
           ? bscKpiAdminHref(tabFromUrl)
           : scorecardTabHref('mine'),
       );
+      return;
+    }
+
+    // Wait for persisted permissions, or a reload would bounce allowed users.
+    if (
+      hasHydrated &&
+      !canViewResults &&
+      (tabFromUrl === 'results' ||
+        tabFromUrl === 'team' ||
+        tabFromUrl === 'all')
+    ) {
+      router.replace(scorecardTabHref('mine'));
       return;
     }
 
@@ -228,7 +240,9 @@ export default function MyBscScorecardPage() {
   }, [
     canManageBscAdmin,
     canViewAllEmployeeKpi,
+    canViewResults,
     canViewTeamKpi,
+    hasHydrated,
     router,
     tabFromUrl,
   ]);
@@ -359,7 +373,7 @@ export default function MyBscScorecardPage() {
   // URL is the source of truth: the store is re-synced from it above, so
   // reading the store here would flash back to the previous tab mid-push.
   const activeTab =
-    tabFromUrl === 'results'
+    canViewResults && tabFromUrl === 'results'
       ? 'results'
       : tabFromUrl === 'checkin'
         ? 'checkin'
@@ -434,16 +448,20 @@ export default function MyBscScorecardPage() {
         </div>
       ),
     },
-    {
-      key: 'results',
-      label: tabLabel('results', 'Results'),
-      children: (
-        <ResultsEmployeeTable
-          canViewTeamKpi={canViewTeamKpi}
-          canViewAllEmployeeKpi={canViewAllEmployeeKpi}
-        />
-      ),
-    },
+    ...(canViewResults
+      ? [
+          {
+            key: 'results',
+            label: tabLabel('results', 'Results'),
+            children: (
+              <ResultsEmployeeTable
+                canViewTeamKpi={canViewTeamKpi}
+                canViewAllEmployeeKpi={canViewAllEmployeeKpi}
+              />
+            ),
+          },
+        ]
+      : []),
   ];
 
   // "Assigned to me": KPIs where this user is the current evaluator in the

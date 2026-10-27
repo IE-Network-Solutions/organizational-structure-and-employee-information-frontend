@@ -1,12 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
+import { bscAccess } from '@/utils/bsc/permissions';
 import { scorecardTabHref } from '@/utils/bsc/scorecardTab';
 
 const TABS = [
@@ -25,10 +27,25 @@ export default function BscSettingsLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { openCreatePerspective } = useBscUiStore();
+  // Whole-store subscription: re-renders after a permission refresh.
+  const { hasHydrated } = useAuthenticationStore();
+  // "Create Perspective" gates the whole settings area, not just the sidebar
+  // link, so a typed URL is blocked too.
+  const canManagePerspectives = bscAccess.managePerspectives();
+
+  useEffect(() => {
+    if (hasHydrated && !canManagePerspectives) {
+      router.replace('/unauthorized');
+    }
+  }, [canManagePerspectives, hasHydrated, router]);
 
   const activeTabKey =
     TABS.find((tab) => pathname.includes(tab.key))?.key ?? TABS[0].key;
   const isPerspectivesTab = activeTabKey === 'perspectives';
+
+  if (!canManagePerspectives) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen w-full bg-white" data-cy="bsc-settings-layout">
